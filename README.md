@@ -88,3 +88,8 @@ cd cliente && python3 -m http.server 8080
 | Servidor Express complejo          | json-server + middleware.js        |
 
 > **Nota**: Este MVP es solo para desarrollo y pruebas. Para producción, usa el servidor Express original con JWT real y bcrypt.
+
+## Cómo ejecutar el servidor y acceder a él
+
+- Hay que meterse en la carpeta de `mockup-server` y ejecutar lo de npm...
+- Hay que meterse en la carpeta de `src` y ejecutar `python3 -m http.server 8080`
