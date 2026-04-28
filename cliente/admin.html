@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administrador — Panel</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-app">
+
+  <nav class="navbar">
+    <a href="admin.html" class="navbar-brand">
+      <span class="navbar-icon">⬡</span> Panel de control
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="admin.html" class="active">🏠 Inicio</a></li>
+      <li><a href="personal.html">👥 Personal</a></li>
+      <li><a href="viewer.html">🔍 Visor JSON</a></li>
+    </ul>
+    <div class="navbar-right">
+      <div class="user-chip">
+        <div class="user-avatar avatar-admin" id="avatar-initials">A</div>
+        <span id="user-nombre">Cargando...</span>
+        <span class="badge badge-admin">admin</span>
+      </div>
+      <button class="btn btn-outline btn-sm" id="btn-logout">Cerrar sesión</button>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Bienvenido 👋</div>
+        <div class="page-sub">Panel de administración</div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <a href="personal.html" class="dash-card">
+        <span class="dash-icon">👥</span>
+        <div>
+          <div class="dash-label">Personal</div>
+          <div class="dash-sub">Gestionar empleados</div>
+        </div>
+      </a>
+      <a href="viewer.html" class="dash-card">
+        <span class="dash-icon">🔍</span>
+        <div>
+          <div class="dash-label">Visor JSON</div>
+          <div class="dash-sub">Explorar datos de la API</div>
+        </div>
+      </a>
+      <a href="config.html" class="dash-card">
+        <span class="dash-icon">⚙️</span>
+        <div>
+          <div class="dash-label">Configuración</div>
+          <div class="dash-sub">Ajustes del sistema</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Estado del sistema</div>
+      </div>
+      <div id="health-info" class="loading">
+        <div class="spinner"></div> Comprobando servidor...
+      </div>
+    </div>
+  </main>
+
+  <script src="api.js"></script>
+  <script>
+    // Verificar sesión y perfil
+    const perfil = sessionStorage.getItem('perfil');
+    if (!perfil || perfil !== 'admin') { window.location.href = 'index.html'; }
+
+    const usuario = JSON.parse(sessionStorage.getItem('usuario') || '{}');
+    document.getElementById('user-nombre').textContent = usuario.nombre || '';
+    document.getElementById('avatar-initials').textContent =
+      (usuario.nombre || 'A').split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase();
+
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      sessionStorage.clear();
+      window.location.href = 'index.html';
+    });
+
+    // Comprobar health del servidor
+    fetch('http://localhost:3000/health')
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('health-info').innerHTML =
+          `<div class="alert alert-success" style="margin:0">
+            ✅ Servidor activo — ${data.time}
+          </div>`;
+      })
+      .catch(() => {
+        document.getElementById('health-info').innerHTML =
+          `<div class="alert alert-error" style="margin:0">
+            ❌ No se puede conectar con el servidor en <strong>localhost:3000</strong>.<br>
+            Ejecuta: <code>cd servidor && npm install && npm start</code>
+          </div>`;
+      });
+  </script>
+</body>
+</html>

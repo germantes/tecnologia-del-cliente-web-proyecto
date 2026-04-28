@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manager — Panel</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-app">
+
+  <nav class="navbar">
+    <a href="manager.html" class="navbar-brand">
+      <span class="navbar-icon">⬡</span> Panel Manager
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="manager.html" class="active">🏠 Inicio</a></li>
+      <li><a href="viewer.html">🔍 Visor JSON</a></li>
+    </ul>
+    <div class="navbar-right">
+      <div class="user-chip">
+        <div class="user-avatar avatar-manager" id="avatar-initials">M</div>
+        <span id="user-nombre">Cargando...</span>
+        <span class="badge badge-manager">manager</span>
+      </div>
+      <button class="btn btn-outline btn-sm" id="btn-logout">Cerrar sesión</button>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Panel de Manager 📋</div>
+        <div class="page-sub">Consulta y gestión de planificación</div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <a href="viewer.html" class="dash-card">
+        <span class="dash-icon">🔍</span>
+        <div>
+          <div class="dash-label">Visor JSON</div>
+          <div class="dash-sub">Explorar datos de la API</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📅 Planificación actual</div>
+        <button class="btn btn-outline btn-sm" id="btn-reload">↺ Recargar</button>
+      </div>
+      <div id="loading-area" class="loading">
+        <div class="spinner"></div> Cargando planificación...
+      </div>
+      <div class="table-wrap" id="tabla-wrap" hidden>
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Empleado</th>
+              <th>Turno</th>
+              <th>Horas</th>
+              <th>Tarea</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-schedule"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script src="api.js"></script>
+  <script>
+    const perfil = sessionStorage.getItem('perfil');
+    if (!perfil || perfil !== 'manager') { window.location.href = 'index.html'; }
+
+    const usuario = JSON.parse(sessionStorage.getItem('usuario') || '{}');
+    document.getElementById('user-nombre').textContent = usuario.nombre || '';
+    document.getElementById('avatar-initials').textContent =
+      (usuario.nombre || 'M').split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase();
+
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      sessionStorage.clear(); window.location.href = 'index.html';
+    });
+
+    async function cargarSchedule() {
+      document.getElementById('loading-area').hidden = false;
+      document.getElementById('tabla-wrap').hidden = true;
+      try {
+        const data = await getSchedule();
+        const tbody = document.getElementById('tbody-schedule');
+        tbody.innerHTML = data.map(s => `
+          <tr>
+            <td>${s.fecha}</td>
+            <td>${s.empleado}</td>
+            <td><span class="badge badge-worker">${s.turno}</span></td>
+            <td>${s.horas}h</td>
+            <td>${s.tarea}</td>
+          </tr>
+        `).join('');
+        document.getElementById('tabla-wrap').hidden = false;
+        document.getElementById('loading-area').hidden = true;
+      } catch (err) {
+        document.getElementById('loading-area').innerHTML =
+          `<div class="alert alert-error">${err.message}</div>`;
+      }
+    }
+
+    document.getElementById('btn-reload').addEventListener('click', cargarSchedule);
+    cargarSchedule();
+  </script>
+</body>
+</html>

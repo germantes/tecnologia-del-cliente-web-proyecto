@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal — Administración</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-app">
+
+  <nav class="navbar">
+    <a href="admin.html" class="navbar-brand">
+      <span class="navbar-icon">⬡</span> Panel de control
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="admin.html">🏠 Inicio</a></li>
+      <li><a href="personal.html" class="active">👥 Personal</a></li>
+      <li><a href="viewer.html">🔍 Visor JSON</a></li>
+    </ul>
+    <div class="navbar-right">
+      <div class="user-chip">
+        <div class="user-avatar avatar-admin" id="avatar-initials">A</div>
+        <span id="user-nombre">Cargando...</span>
+        <span class="badge badge-admin">admin</span>
+      </div>
+      <button class="btn btn-outline btn-sm" id="btn-logout">Cerrar sesión</button>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">👥 Personal</div>
+        <div class="page-sub">Zona de administración de usuarios</div>
+      </div>
+      <button class="btn btn-primary" id="btn-nuevo">+ Nuevo usuario</button>
+    </div>
+
+    <div id="msg-area"></div>
+
+    <div class="card">
+      <div id="loading-area" class="loading">
+        <div class="spinner"></div> Cargando usuarios...
+      </div>
+      <div class="table-wrap" id="tabla-wrap" hidden>
+        <table id="tabla-usuarios">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Perfil</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-usuarios"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal editar/crear usuario -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-title" id="modal-titulo">Editar usuario</div>
+      <form id="form-usuario" novalidate>
+        <input type="hidden" id="field-id">
+        <div class="field">
+          <label>Nombre</label>
+          <input type="text" id="field-nombre" required placeholder="Nombre completo">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="field-email" required placeholder="usuario@empresa.com">
+        </div>
+        <div class="field">
+          <label>Nombre de usuario</label>
+          <input type="text" id="field-nombreUsuario" required placeholder="username">
+        </div>
+        <div class="field">
+          <label>Perfil</label>
+          <select id="field-puesto">
+            <option value="admin">Admin</option>
+            <option value="manager">Manager</option>
+            <option value="worker">Worker</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>
+            <input type="checkbox" id="field-activo" style="margin-right:6px"> Activo
+          </label>
+        </div>
+        <div id="modal-error" class="alert alert-error" hidden></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="btn-cancelar">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btn-guardar">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    // Verificar sesión
+    const perfil = sessionStorage.getItem('perfil');
+    if (!perfil || perfil !== 'admin') { window.location.href = 'index.html'; }
+
+    const usuario = JSON.parse(sessionStorage.getItem('usuario') || '{}');
+    document.getElementById('user-nombre').textContent = usuario.nombre || '';
+    document.getElementById('avatar-initials').textContent =
+      (usuario.nombre || 'A').split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase();
+
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      sessionStorage.clear(); window.location.href = 'index.html';
+    });
+
+    let usuarios = [];
+
+    // Cargar usuarios
+    async function cargarUsuarios() {
+      document.getElementById('loading-area').hidden = false;
+      document.getElementById('tabla-wrap').hidden = true;
+      try {
+        usuarios = await getUsuarios();
+        renderTabla(usuarios);
+        document.getElementById('tabla-wrap').hidden = false;
+        document.getElementById('loading-area').hidden = true;
+      } catch (err) {
+        document.getElementById('loading-area').innerHTML =
+          `<div class="alert alert-error">${err.message}</div>`;
+      }
+    }
+
+    function renderTabla(lista) {
+      const tbody = document.getElementById('tbody-usuarios');
+      tbody.innerHTML = '';
+      lista.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${u.nombre}</strong><br><small style="color:var(--color-text-muted)">${u.nombreUsuario}</small></td>
+          <td>${u.email}</td>
+          <td><span class="badge badge-${u.puesto}">${u.puesto}</span></td>
+          <td><span class="badge badge-${u.activo ? 'active' : 'inactive'}">${u.activo ? 'Activo' : 'Inactivo'}</span></td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="abrirEditar(${u.id})">✏️ Editar</button>
+            <button class="btn btn-danger btn-sm" onclick="eliminar(${u.id})" style="margin-left:6px">🗑️</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Modal
+    const modal = document.getElementById('modal');
+
+    function cerrarModal() {
+      modal.classList.remove('open');
+      document.getElementById('modal-error').hidden = true;
+    }
+
+    document.getElementById('btn-cancelar').addEventListener('click', cerrarModal);
+    modal.addEventListener('click', e => { if (e.target === modal) cerrarModal(); });
+
+    function abrirEditar(id) {
+      const u = usuarios.find(x => x.id === id);
+      if (!u) return;
+      document.getElementById('modal-titulo').textContent = 'Editar usuario';
+      document.getElementById('field-id').value = u.id;
+      document.getElementById('field-nombre').value = u.nombre;
+      document.getElementById('field-email').value = u.email;
+      document.getElementById('field-nombreUsuario').value = u.nombreUsuario;
+      document.getElementById('field-puesto').value = u.puesto;
+      document.getElementById('field-activo').checked = u.activo;
+      modal.classList.add('open');
+    }
+
+    document.getElementById('btn-nuevo').addEventListener('click', () => {
+      document.getElementById('modal-titulo').textContent = 'Nuevo usuario';
+      document.getElementById('field-id').value = '';
+      document.getElementById('form-usuario').reset();
+      document.getElementById('field-activo').checked = true;
+      modal.classList.add('open');
+    });
+
+    // Guardar (crear o editar)
+    document.getElementById('form-usuario').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById('modal-error');
+      errEl.hidden = true;
+      const btn = document.getElementById('btn-guardar');
+      btn.disabled = true;
+
+      const datos = {
+        nombre: document.getElementById('field-nombre').value.trim(),
+        email: document.getElementById('field-email').value.trim(),
+        nombreUsuario: document.getElementById('field-nombreUsuario').value.trim(),
+        puesto: document.getElementById('field-puesto').value,
+        activo: document.getElementById('field-activo').checked
+      };
+      const id = document.getElementById('field-id').value;
+
+      try {
+        if (id) {
+          await putUsuario(parseInt(id), { ...datos, id: parseInt(id) });
+          mostrarMsg('✅ Usuario actualizado correctamente.', 'success');
+        } else {
+          await postUsuario(datos);
+          mostrarMsg('✅ Usuario creado correctamente.', 'success');
+        }
+        cerrarModal();
+        await cargarUsuarios();
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.hidden = false;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // Eliminar
+    async function eliminar(id) {
+      const u = usuarios.find(x => x.id === id);
+      if (!u) return;
+      if (!confirm(`¿Eliminar a ${u.nombre}?`)) return;
+      try {
+        await deleteUsuario(id);
+        mostrarMsg('✅ Usuario eliminado.', 'success');
+        await cargarUsuarios();
+      } catch (err) {
+        mostrarMsg(err.message, 'error');
+      }
+    }
+
+    function mostrarMsg(texto, tipo) {
+      const el = document.getElementById('msg-area');
+      el.innerHTML = `<div class="alert alert-${tipo}">${texto}</div>`;
+      setTimeout(() => { el.innerHTML = ''; }, 4000);
+    }
+
+    cargarUsuarios();
+  </script>
+</body>
+</html>

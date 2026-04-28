@@ -1,0 +1,7270 @@
+{
+  "usuarios": [
+    {
+      "id": 1,
+      "nombre": "admin",
+      "contrasenia": "admin123",
+      "rol": "ADMINISTRADOR"
+    },
+    {
+      "id": 2,
+      "nombre": "gestor_malaga",
+      "contrasenia": "malaga2025",
+      "rol": "GESTOR"
+    },
+    {
+      "id": 3,
+      "nombre": "voluntario01",
+      "contrasenia": "pass123",
+      "rol": "VOLUNTARIO"
+    }
+  ],
+  "campanias": [
+    {
+      "idCampania": 1,
+      "nombre": "Gran Recogida 2025",
+      "fechaInicio": "2025-02-21",
+      "fechaFin": "2025-02-22",
+      "descripcion": "Campaña anual de recogida de alimentos en supermercados."
+    }
+  ],
+  "entidades": [
+    {
+      "idEntidad": 7,
+      "ligadoABancosol": true,
+      "Observaciones": "Entidad colaboradora habitual",
+      "idTienda": 30
+    },
+    {
+      "idEntidad": 12,
+      "ligadoABancosol": false,
+      "Observaciones": "Participación puntual",
+      "idTienda": 59
+    },
+    {
+      "idEntidad": 15,
+      "ligadoABancosol": true,
+      "Observaciones": "Referente en la zona centro",
+      "idTienda": 1
+    },
+    {
+      "idEntidad": 26,
+      "ligadoABancosol": true,
+      "Observaciones": "Disponibilidad fines de semana",
+      "idTienda": 108
+    },
+    {
+      "idEntidad": 36,
+      "ligadoABancosol": true,
+      "Observaciones": "Requiere confirmación previa",
+      "idTienda": 2
+    },
+    {
+      "idEntidad": 105,
+      "ligadoABancosol": false,
+      "Observaciones": "Asociación de vecinos",
+      "idTienda": 8
+    },
+    {
+      "idEntidad": 251,
+      "ligadoABancosol": true,
+      "Observaciones": "Gran volumen de voluntarios",
+      "idTienda": 9
+    }
+  ],
+  "tiendas": [
+    {
+      "idTienda": 1,
+      "cp": 29001,
+      "domicilio": "Calle Larios 1",
+      "zona": "Centro"
+    },
+    {
+      "idTienda": 2,
+      "cp": 29015,
+      "domicilio": "C.C. Larios Centro",
+      "zona": "Centro"
+    },
+    {
+      "idTienda": 3,
+      "cp": 29640,
+      "domicilio": "Av. Condes de San Isidro",
+      "zona": "Fuengirola"
+    }
+  ],
+  "turnos": [
+    {
+      "idTurno": 1,
+      "idCampania": 1,
+      "idTienda": 1,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 310
+    },
+    {
+      "idTurno": 2,
+      "idCampania": 1,
+      "idTienda": 1,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 15
+    },
+    {
+      "idTurno": 3,
+      "idCampania": 1,
+      "idTienda": 1,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 15
+    },
+    {
+      "idTurno": 4,
+      "idCampania": 1,
+      "idTienda": 1,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 15
+    },
+    {
+      "idTurno": 5,
+      "idCampania": 1,
+      "idTienda": 2,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 36
+    },
+    {
+      "idTurno": 6,
+      "idCampania": 1,
+      "idTienda": 2,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 36
+    },
+    {
+      "idTurno": 7,
+      "idCampania": 1,
+      "idTienda": 2,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 36
+    },
+    {
+      "idTurno": 8,
+      "idCampania": 1,
+      "idTienda": 2,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 36
+    },
+    {
+      "idTurno": 9,
+      "idCampania": 1,
+      "idTienda": 3,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 311
+    },
+    {
+      "idTurno": 10,
+      "idCampania": 1,
+      "idTienda": 3,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 311
+    },
+    {
+      "idTurno": 11,
+      "idCampania": 1,
+      "idTienda": 3,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 311
+    },
+    {
+      "idTurno": 12,
+      "idCampania": 1,
+      "idTienda": 3,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 311
+    },
+    {
+      "idTurno": 13,
+      "idCampania": 1,
+      "idTienda": 4,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 239
+    },
+    {
+      "idTurno": 14,
+      "idCampania": 1,
+      "idTienda": 4,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 239
+    },
+    {
+      "idTurno": 15,
+      "idCampania": 1,
+      "idTienda": 4,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 239
+    },
+    {
+      "idTurno": 16,
+      "idCampania": 1,
+      "idTienda": 4,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 239
+    },
+    {
+      "idTurno": 17,
+      "idCampania": 1,
+      "idTienda": 5,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 239
+    },
+    {
+      "idTurno": 18,
+      "idCampania": 1,
+      "idTienda": 5,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 239
+    },
+    {
+      "idTurno": 19,
+      "idCampania": 1,
+      "idTienda": 5,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 239
+    },
+    {
+      "idTurno": 20,
+      "idCampania": 1,
+      "idTienda": 5,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 239
+    },
+    {
+      "idTurno": 21,
+      "idCampania": 1,
+      "idTienda": 8,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 22,
+      "idCampania": 1,
+      "idTienda": 8,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 23,
+      "idCampania": 1,
+      "idTienda": 8,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 24,
+      "idCampania": 1,
+      "idTienda": 8,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 25,
+      "idCampania": 1,
+      "idTienda": 9,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 26,
+      "idCampania": 1,
+      "idTienda": 9,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 27,
+      "idCampania": 1,
+      "idTienda": 9,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 28,
+      "idCampania": 1,
+      "idTienda": 9,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 29,
+      "idCampania": 1,
+      "idTienda": 10,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 30,
+      "idCampania": 1,
+      "idTienda": 10,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 31,
+      "idCampania": 1,
+      "idTienda": 10,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 32,
+      "idCampania": 1,
+      "idTienda": 10,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 33,
+      "idCampania": 1,
+      "idTienda": 11,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 15
+    },
+    {
+      "idTurno": 34,
+      "idCampania": 1,
+      "idTienda": 11,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 144
+    },
+    {
+      "idTurno": 35,
+      "idCampania": 1,
+      "idTienda": 11,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 144
+    },
+    {
+      "idTurno": 36,
+      "idCampania": 1,
+      "idTienda": 11,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 144
+    },
+    {
+      "idTurno": 37,
+      "idCampania": 1,
+      "idTienda": 12,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 184
+    },
+    {
+      "idTurno": 38,
+      "idCampania": 1,
+      "idTienda": 12,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 184
+    },
+    {
+      "idTurno": 39,
+      "idCampania": 1,
+      "idTienda": 12,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 184
+    },
+    {
+      "idTurno": 40,
+      "idCampania": 1,
+      "idTienda": 12,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 184
+    },
+    {
+      "idTurno": 41,
+      "idCampania": 1,
+      "idTienda": 13,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 120
+    },
+    {
+      "idTurno": 42,
+      "idCampania": 1,
+      "idTienda": 13,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 120
+    },
+    {
+      "idTurno": 43,
+      "idCampania": 1,
+      "idTienda": 13,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 120
+    },
+    {
+      "idTurno": 44,
+      "idCampania": 1,
+      "idTienda": 13,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 120
+    },
+    {
+      "idTurno": 45,
+      "idCampania": 1,
+      "idTienda": 20,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 46,
+      "idCampania": 1,
+      "idTienda": 20,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 47,
+      "idCampania": 1,
+      "idTienda": 20,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 48,
+      "idCampania": 1,
+      "idTienda": 20,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 49,
+      "idCampania": 1,
+      "idTienda": 23,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 198
+    },
+    {
+      "idTurno": 50,
+      "idCampania": 1,
+      "idTienda": 26,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 198
+    },
+    {
+      "idTurno": 51,
+      "idCampania": 1,
+      "idTienda": 26,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 312
+    },
+    {
+      "idTurno": 52,
+      "idCampania": 1,
+      "idTienda": 30,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 7
+    },
+    {
+      "idTurno": 53,
+      "idCampania": 1,
+      "idTienda": 30,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 7
+    },
+    {
+      "idTurno": 54,
+      "idCampania": 1,
+      "idTienda": 30,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 7
+    },
+    {
+      "idTurno": 55,
+      "idCampania": 1,
+      "idTienda": 30,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 7
+    },
+    {
+      "idTurno": 56,
+      "idCampania": 1,
+      "idTienda": 31,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 57,
+      "idCampania": 1,
+      "idTienda": 31,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 58,
+      "idCampania": 1,
+      "idTienda": 31,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 59,
+      "idCampania": 1,
+      "idTienda": 31,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 60,
+      "idCampania": 1,
+      "idTienda": 32,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 61,
+      "idCampania": 1,
+      "idTienda": 32,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 62,
+      "idCampania": 1,
+      "idTienda": 32,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 63,
+      "idCampania": 1,
+      "idTienda": 32,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 64,
+      "idCampania": 1,
+      "idTienda": 34,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 65,
+      "idCampania": 1,
+      "idTienda": 34,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 66,
+      "idCampania": 1,
+      "idTienda": 34,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 67,
+      "idCampania": 1,
+      "idTienda": 34,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 68,
+      "idCampania": 1,
+      "idTienda": 35,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 118
+    },
+    {
+      "idTurno": 69,
+      "idCampania": 1,
+      "idTienda": 35,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 313
+    },
+    {
+      "idTurno": 70,
+      "idCampania": 1,
+      "idTienda": 35,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 118
+    },
+    {
+      "idTurno": 71,
+      "idCampania": 1,
+      "idTienda": 35,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 313
+    },
+    {
+      "idTurno": 72,
+      "idCampania": 1,
+      "idTienda": 37,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 73,
+      "idCampania": 1,
+      "idTienda": 37,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 74,
+      "idCampania": 1,
+      "idTienda": 37,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 75,
+      "idCampania": 1,
+      "idTienda": 37,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 76,
+      "idCampania": 1,
+      "idTienda": 38,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 77,
+      "idCampania": 1,
+      "idTienda": 38,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 78,
+      "idCampania": 1,
+      "idTienda": 38,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 79,
+      "idCampania": 1,
+      "idTienda": 38,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 80,
+      "idCampania": 1,
+      "idTienda": 40,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 81,
+      "idCampania": 1,
+      "idTienda": 40,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 82,
+      "idCampania": 1,
+      "idTienda": 40,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 83,
+      "idCampania": 1,
+      "idTienda": 40,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 84,
+      "idCampania": 1,
+      "idTienda": 42,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 85,
+      "idCampania": 1,
+      "idTienda": 42,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 86,
+      "idCampania": 1,
+      "idTienda": 42,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 87,
+      "idCampania": 1,
+      "idTienda": 42,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 88,
+      "idCampania": 1,
+      "idTienda": 43,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 89,
+      "idCampania": 1,
+      "idTienda": 43,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 90,
+      "idCampania": 1,
+      "idTienda": 43,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 91,
+      "idCampania": 1,
+      "idTienda": 43,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 92,
+      "idCampania": 1,
+      "idTienda": 44,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 88
+    },
+    {
+      "idTurno": 93,
+      "idCampania": 1,
+      "idTienda": 44,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 88
+    },
+    {
+      "idTurno": 94,
+      "idCampania": 1,
+      "idTienda": 44,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 88
+    },
+    {
+      "idTurno": 95,
+      "idCampania": 1,
+      "idTienda": 44,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 314
+    },
+    {
+      "idTurno": 96,
+      "idCampania": 1,
+      "idTienda": 45,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 97,
+      "idCampania": 1,
+      "idTienda": 45,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 98,
+      "idCampania": 1,
+      "idTienda": 45,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 99,
+      "idCampania": 1,
+      "idTienda": 45,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 105
+    },
+    {
+      "idTurno": 100,
+      "idCampania": 1,
+      "idTienda": 46,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 101,
+      "idCampania": 1,
+      "idTienda": 46,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 102,
+      "idCampania": 1,
+      "idTienda": 46,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 103,
+      "idCampania": 1,
+      "idTienda": 46,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 251
+    },
+    {
+      "idTurno": 104,
+      "idCampania": 1,
+      "idTienda": 48,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 120
+    },
+    {
+      "idTurno": 105,
+      "idCampania": 1,
+      "idTienda": 48,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 120
+    },
+    {
+      "idTurno": 106,
+      "idCampania": 1,
+      "idTienda": 48,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 120
+    },
+    {
+      "idTurno": 107,
+      "idCampania": 1,
+      "idTienda": 48,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 120
+    },
+    {
+      "idTurno": 108,
+      "idCampania": 1,
+      "idTienda": 49,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 47
+    },
+    {
+      "idTurno": 109,
+      "idCampania": 1,
+      "idTienda": 49,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 47
+    },
+    {
+      "idTurno": 110,
+      "idCampania": 1,
+      "idTienda": 49,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 47
+    },
+    {
+      "idTurno": 111,
+      "idCampania": 1,
+      "idTienda": 49,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 47
+    },
+    {
+      "idTurno": 112,
+      "idCampania": 1,
+      "idTienda": 50,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 7
+    },
+    {
+      "idTurno": 113,
+      "idCampania": 1,
+      "idTienda": 50,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 7
+    },
+    {
+      "idTurno": 114,
+      "idCampania": 1,
+      "idTienda": 50,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 7
+    },
+    {
+      "idTurno": 115,
+      "idCampania": 1,
+      "idTienda": 50,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 7
+    },
+    {
+      "idTurno": 116,
+      "idCampania": 1,
+      "idTienda": 52,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 209
+    },
+    {
+      "idTurno": 117,
+      "idCampania": 1,
+      "idTienda": 52,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 209
+    },
+    {
+      "idTurno": 118,
+      "idCampania": 1,
+      "idTienda": 52,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 209
+    },
+    {
+      "idTurno": 119,
+      "idCampania": 1,
+      "idTienda": 52,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 209
+    },
+    {
+      "idTurno": 120,
+      "idCampania": 1,
+      "idTienda": 56,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 315
+    },
+    {
+      "idTurno": 121,
+      "idCampania": 1,
+      "idTienda": 56,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 315
+    },
+    {
+      "idTurno": 122,
+      "idCampania": 1,
+      "idTienda": 56,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 315
+    },
+    {
+      "idTurno": 123,
+      "idCampania": 1,
+      "idTienda": 56,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 315
+    },
+    {
+      "idTurno": 124,
+      "idCampania": 1,
+      "idTienda": 59,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 12
+    },
+    {
+      "idTurno": 125,
+      "idCampania": 1,
+      "idTienda": 59,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 12
+    },
+    {
+      "idTurno": 126,
+      "idCampania": 1,
+      "idTienda": 59,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 12
+    },
+    {
+      "idTurno": 127,
+      "idCampania": 1,
+      "idTienda": 59,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 12
+    },
+    {
+      "idTurno": 128,
+      "idCampania": 1,
+      "idTienda": 61,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 118
+    },
+    {
+      "idTurno": 129,
+      "idCampania": 1,
+      "idTienda": 61,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 87
+    },
+    {
+      "idTurno": 130,
+      "idCampania": 1,
+      "idTienda": 61,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 118
+    },
+    {
+      "idTurno": 131,
+      "idCampania": 1,
+      "idTienda": 61,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 87
+    },
+    {
+      "idTurno": 132,
+      "idCampania": 1,
+      "idTienda": 67,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 115
+    },
+    {
+      "idTurno": 133,
+      "idCampania": 1,
+      "idTienda": 67,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 115
+    },
+    {
+      "idTurno": 134,
+      "idCampania": 1,
+      "idTienda": 67,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 143
+    },
+    {
+      "idTurno": 135,
+      "idCampania": 1,
+      "idTienda": 67,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 143
+    },
+    {
+      "idTurno": 136,
+      "idCampania": 1,
+      "idTienda": 69,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 68
+    },
+    {
+      "idTurno": 137,
+      "idCampania": 1,
+      "idTienda": 69,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 68
+    },
+    {
+      "idTurno": 138,
+      "idCampania": 1,
+      "idTienda": 69,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 68
+    },
+    {
+      "idTurno": 139,
+      "idCampania": 1,
+      "idTienda": 69,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 68
+    },
+    {
+      "idTurno": 140,
+      "idCampania": 1,
+      "idTienda": 70,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 34
+    },
+    {
+      "idTurno": 141,
+      "idCampania": 1,
+      "idTienda": 70,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 34
+    },
+    {
+      "idTurno": 142,
+      "idCampania": 1,
+      "idTienda": 70,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 34
+    },
+    {
+      "idTurno": 143,
+      "idCampania": 1,
+      "idTienda": 70,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 34
+    },
+    {
+      "idTurno": 144,
+      "idCampania": 1,
+      "idTienda": 71,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 316
+    },
+    {
+      "idTurno": 145,
+      "idCampania": 1,
+      "idTienda": 71,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 123
+    },
+    {
+      "idTurno": 146,
+      "idCampania": 1,
+      "idTienda": 71,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 123
+    },
+    {
+      "idTurno": 147,
+      "idCampania": 1,
+      "idTienda": 71,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 123
+    },
+    {
+      "idTurno": 148,
+      "idCampania": 1,
+      "idTienda": 72,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 317
+    },
+    {
+      "idTurno": 149,
+      "idCampania": 1,
+      "idTienda": 72,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 230
+    },
+    {
+      "idTurno": 150,
+      "idCampania": 1,
+      "idTienda": 72,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 317
+    },
+    {
+      "idTurno": 151,
+      "idCampania": 1,
+      "idTienda": 72,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 317
+    },
+    {
+      "idTurno": 152,
+      "idCampania": 1,
+      "idTienda": 75,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 219
+    },
+    {
+      "idTurno": 153,
+      "idCampania": 1,
+      "idTienda": 75,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 219
+    },
+    {
+      "idTurno": 154,
+      "idCampania": 1,
+      "idTienda": 75,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 219
+    },
+    {
+      "idTurno": 155,
+      "idCampania": 1,
+      "idTienda": 75,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 219
+    },
+    {
+      "idTurno": 156,
+      "idCampania": 1,
+      "idTienda": 76,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 103
+    },
+    {
+      "idTurno": 157,
+      "idCampania": 1,
+      "idTienda": 76,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 103
+    },
+    {
+      "idTurno": 158,
+      "idCampania": 1,
+      "idTienda": 76,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 103
+    },
+    {
+      "idTurno": 159,
+      "idCampania": 1,
+      "idTienda": 76,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 103
+    },
+    {
+      "idTurno": 160,
+      "idCampania": 1,
+      "idTienda": 77,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 121
+    },
+    {
+      "idTurno": 161,
+      "idCampania": 1,
+      "idTienda": 77,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 121
+    },
+    {
+      "idTurno": 162,
+      "idCampania": 1,
+      "idTienda": 77,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 121
+    },
+    {
+      "idTurno": 163,
+      "idCampania": 1,
+      "idTienda": 77,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 121
+    },
+    {
+      "idTurno": 164,
+      "idCampania": 1,
+      "idTienda": 78,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 247
+    },
+    {
+      "idTurno": 165,
+      "idCampania": 1,
+      "idTienda": 78,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 247
+    },
+    {
+      "idTurno": 166,
+      "idCampania": 1,
+      "idTienda": 78,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 247
+    },
+    {
+      "idTurno": 167,
+      "idCampania": 1,
+      "idTienda": 78,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 247
+    },
+    {
+      "idTurno": 168,
+      "idCampania": 1,
+      "idTienda": 79,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 208
+    },
+    {
+      "idTurno": 169,
+      "idCampania": 1,
+      "idTienda": 79,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 208
+    },
+    {
+      "idTurno": 170,
+      "idCampania": 1,
+      "idTienda": 79,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 208
+    },
+    {
+      "idTurno": 171,
+      "idCampania": 1,
+      "idTienda": 79,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 208
+    },
+    {
+      "idTurno": 172,
+      "idCampania": 1,
+      "idTienda": 80,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 36
+    },
+    {
+      "idTurno": 173,
+      "idCampania": 1,
+      "idTienda": 80,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 36
+    },
+    {
+      "idTurno": 174,
+      "idCampania": 1,
+      "idTienda": 80,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 36
+    },
+    {
+      "idTurno": 175,
+      "idCampania": 1,
+      "idTienda": 80,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 36
+    },
+    {
+      "idTurno": 176,
+      "idCampania": 1,
+      "idTienda": 81,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 318
+    },
+    {
+      "idTurno": 177,
+      "idCampania": 1,
+      "idTienda": 81,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 319
+    },
+    {
+      "idTurno": 178,
+      "idCampania": 1,
+      "idTienda": 81,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 318
+    },
+    {
+      "idTurno": 179,
+      "idCampania": 1,
+      "idTienda": 82,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 25
+    },
+    {
+      "idTurno": 180,
+      "idCampania": 1,
+      "idTienda": 82,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 25
+    },
+    {
+      "idTurno": 181,
+      "idCampania": 1,
+      "idTienda": 82,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 25
+    },
+    {
+      "idTurno": 182,
+      "idCampania": 1,
+      "idTienda": 82,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 25
+    },
+    {
+      "idTurno": 183,
+      "idCampania": 1,
+      "idTienda": 83,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 101
+    },
+    {
+      "idTurno": 184,
+      "idCampania": 1,
+      "idTienda": 83,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 101
+    },
+    {
+      "idTurno": 185,
+      "idCampania": 1,
+      "idTienda": 83,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 101
+    },
+    {
+      "idTurno": 186,
+      "idCampania": 1,
+      "idTienda": 83,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 101
+    },
+    {
+      "idTurno": 187,
+      "idCampania": 1,
+      "idTienda": 85,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 155
+    },
+    {
+      "idTurno": 188,
+      "idCampania": 1,
+      "idTienda": 85,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 155
+    },
+    {
+      "idTurno": 189,
+      "idCampania": 1,
+      "idTienda": 85,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 155
+    },
+    {
+      "idTurno": 190,
+      "idCampania": 1,
+      "idTienda": 85,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 155
+    },
+    {
+      "idTurno": 191,
+      "idCampania": 1,
+      "idTienda": 86,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 222
+    },
+    {
+      "idTurno": 192,
+      "idCampania": 1,
+      "idTienda": 86,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 222
+    },
+    {
+      "idTurno": 193,
+      "idCampania": 1,
+      "idTienda": 86,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 222
+    },
+    {
+      "idTurno": 194,
+      "idCampania": 1,
+      "idTienda": 86,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 222
+    },
+    {
+      "idTurno": 195,
+      "idCampania": 1,
+      "idTienda": 87,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 119
+    },
+    {
+      "idTurno": 196,
+      "idCampania": 1,
+      "idTienda": 87,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 119
+    },
+    {
+      "idTurno": 197,
+      "idCampania": 1,
+      "idTienda": 87,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 119
+    },
+    {
+      "idTurno": 198,
+      "idCampania": 1,
+      "idTienda": 87,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 119
+    },
+    {
+      "idTurno": 199,
+      "idCampania": 1,
+      "idTienda": 88,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 116
+    },
+    {
+      "idTurno": 200,
+      "idCampania": 1,
+      "idTienda": 88,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 116
+    },
+    {
+      "idTurno": 201,
+      "idCampania": 1,
+      "idTienda": 88,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 116
+    },
+    {
+      "idTurno": 202,
+      "idCampania": 1,
+      "idTienda": 88,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 320
+    },
+    {
+      "idTurno": 203,
+      "idCampania": 1,
+      "idTienda": 89,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 22
+    },
+    {
+      "idTurno": 204,
+      "idCampania": 1,
+      "idTienda": 89,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 22
+    },
+    {
+      "idTurno": 205,
+      "idCampania": 1,
+      "idTienda": 89,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 22
+    },
+    {
+      "idTurno": 206,
+      "idCampania": 1,
+      "idTienda": 89,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 22
+    },
+    {
+      "idTurno": 207,
+      "idCampania": 1,
+      "idTienda": 93,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 52
+    },
+    {
+      "idTurno": 208,
+      "idCampania": 1,
+      "idTienda": 93,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 52
+    },
+    {
+      "idTurno": 209,
+      "idCampania": 1,
+      "idTienda": 93,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 52
+    },
+    {
+      "idTurno": 210,
+      "idCampania": 1,
+      "idTienda": 93,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 52
+    },
+    {
+      "idTurno": 211,
+      "idCampania": 1,
+      "idTienda": 97,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 321
+    },
+    {
+      "idTurno": 212,
+      "idCampania": 1,
+      "idTienda": 97,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 322
+    },
+    {
+      "idTurno": 213,
+      "idCampania": 1,
+      "idTienda": 101,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 233
+    },
+    {
+      "idTurno": 214,
+      "idCampania": 1,
+      "idTienda": 101,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 233
+    },
+    {
+      "idTurno": 215,
+      "idCampania": 1,
+      "idTienda": 101,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 323
+    },
+    {
+      "idTurno": 216,
+      "idCampania": 1,
+      "idTienda": 105,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 71
+    },
+    {
+      "idTurno": 217,
+      "idCampania": 1,
+      "idTienda": 105,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 71
+    },
+    {
+      "idTurno": 218,
+      "idCampania": 1,
+      "idTienda": 105,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 71
+    },
+    {
+      "idTurno": 219,
+      "idCampania": 1,
+      "idTienda": 106,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 324
+    },
+    {
+      "idTurno": 220,
+      "idCampania": 1,
+      "idTienda": 106,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 324
+    },
+    {
+      "idTurno": 221,
+      "idCampania": 1,
+      "idTienda": 107,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 20
+    },
+    {
+      "idTurno": 222,
+      "idCampania": 1,
+      "idTienda": 107,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 233
+    },
+    {
+      "idTurno": 223,
+      "idCampania": 1,
+      "idTienda": 108,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 26
+    },
+    {
+      "idTurno": 224,
+      "idCampania": 1,
+      "idTienda": 108,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 26
+    },
+    {
+      "idTurno": 225,
+      "idCampania": 1,
+      "idTienda": 108,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 26
+    },
+    {
+      "idTurno": 226,
+      "idCampania": 1,
+      "idTienda": 108,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 26
+    },
+    {
+      "idTurno": 227,
+      "idCampania": 1,
+      "idTienda": 109,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 228
+    },
+    {
+      "idTurno": 228,
+      "idCampania": 1,
+      "idTienda": 109,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 228
+    },
+    {
+      "idTurno": 229,
+      "idCampania": 1,
+      "idTienda": 109,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 138
+    },
+    {
+      "idTurno": 230,
+      "idCampania": 1,
+      "idTienda": 110,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 26
+    },
+    {
+      "idTurno": 231,
+      "idCampania": 1,
+      "idTienda": 110,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 26
+    },
+    {
+      "idTurno": 232,
+      "idCampania": 1,
+      "idTienda": 110,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 26
+    },
+    {
+      "idTurno": 233,
+      "idCampania": 1,
+      "idTienda": 110,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 26
+    },
+    {
+      "idTurno": 234,
+      "idCampania": 1,
+      "idTienda": 111,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 233
+    },
+    {
+      "idTurno": 235,
+      "idCampania": 1,
+      "idTienda": 111,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 233
+    },
+    {
+      "idTurno": 236,
+      "idCampania": 1,
+      "idTienda": 111,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 233
+    },
+    {
+      "idTurno": 237,
+      "idCampania": 1,
+      "idTienda": 112,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 113
+    },
+    {
+      "idTurno": 238,
+      "idCampania": 1,
+      "idTienda": 112,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 26
+    },
+    {
+      "idTurno": 239,
+      "idCampania": 1,
+      "idTienda": 112,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 325
+    },
+    {
+      "idTurno": 240,
+      "idCampania": 1,
+      "idTienda": 114,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 41
+    },
+    {
+      "idTurno": 241,
+      "idCampania": 1,
+      "idTienda": 114,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 41
+    },
+    {
+      "idTurno": 242,
+      "idCampania": 1,
+      "idTienda": 114,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 41
+    },
+    {
+      "idTurno": 243,
+      "idCampania": 1,
+      "idTienda": 114,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 41
+    },
+    {
+      "idTurno": 244,
+      "idCampania": 1,
+      "idTienda": 115,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 89
+    },
+    {
+      "idTurno": 245,
+      "idCampania": 1,
+      "idTienda": 115,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 89
+    },
+    {
+      "idTurno": 246,
+      "idCampania": 1,
+      "idTienda": 115,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 89
+    },
+    {
+      "idTurno": 247,
+      "idCampania": 1,
+      "idTienda": 115,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 89
+    },
+    {
+      "idTurno": 248,
+      "idCampania": 1,
+      "idTienda": 116,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 168
+    },
+    {
+      "idTurno": 249,
+      "idCampania": 1,
+      "idTienda": 116,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 168
+    },
+    {
+      "idTurno": 250,
+      "idCampania": 1,
+      "idTienda": 116,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 168
+    },
+    {
+      "idTurno": 251,
+      "idCampania": 1,
+      "idTienda": 116,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 168
+    },
+    {
+      "idTurno": 252,
+      "idCampania": 1,
+      "idTienda": 117,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 29
+    },
+    {
+      "idTurno": 253,
+      "idCampania": 1,
+      "idTienda": 117,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 29
+    },
+    {
+      "idTurno": 254,
+      "idCampania": 1,
+      "idTienda": 117,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 29
+    },
+    {
+      "idTurno": 255,
+      "idCampania": 1,
+      "idTienda": 117,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 29
+    },
+    {
+      "idTurno": 256,
+      "idCampania": 1,
+      "idTienda": 118,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 257,
+      "idCampania": 1,
+      "idTienda": 118,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 258,
+      "idCampania": 1,
+      "idTienda": 118,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 259,
+      "idCampania": 1,
+      "idTienda": 118,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 260,
+      "idCampania": 1,
+      "idTienda": 119,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 261,
+      "idCampania": 1,
+      "idTienda": 119,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 262,
+      "idCampania": 1,
+      "idTienda": 119,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 263,
+      "idCampania": 1,
+      "idTienda": 119,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 264,
+      "idCampania": 1,
+      "idTienda": 120,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 265,
+      "idCampania": 1,
+      "idTienda": 120,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 266,
+      "idCampania": 1,
+      "idTienda": 120,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 267,
+      "idCampania": 1,
+      "idTienda": 120,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 268,
+      "idCampania": 1,
+      "idTienda": 121,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 269,
+      "idCampania": 1,
+      "idTienda": 121,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 270,
+      "idCampania": 1,
+      "idTienda": 121,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 271,
+      "idCampania": 1,
+      "idTienda": 121,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 272,
+      "idCampania": 1,
+      "idTienda": 122,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 273,
+      "idCampania": 1,
+      "idTienda": 122,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 274,
+      "idCampania": 1,
+      "idTienda": 122,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 275,
+      "idCampania": 1,
+      "idTienda": 122,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 276,
+      "idCampania": 1,
+      "idTienda": 123,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 277,
+      "idCampania": 1,
+      "idTienda": 123,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 278,
+      "idCampania": 1,
+      "idTienda": 123,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 279,
+      "idCampania": 1,
+      "idTienda": 123,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 234
+    },
+    {
+      "idTurno": 280,
+      "idCampania": 1,
+      "idTienda": 124,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 8
+    },
+    {
+      "idTurno": 281,
+      "idCampania": 1,
+      "idTienda": 124,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 8
+    },
+    {
+      "idTurno": 282,
+      "idCampania": 1,
+      "idTienda": 124,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 8
+    },
+    {
+      "idTurno": 283,
+      "idCampania": 1,
+      "idTienda": 124,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 8
+    },
+    {
+      "idTurno": 284,
+      "idCampania": 1,
+      "idTienda": 125,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 43
+    },
+    {
+      "idTurno": 285,
+      "idCampania": 1,
+      "idTienda": 125,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 54
+    },
+    {
+      "idTurno": 286,
+      "idCampania": 1,
+      "idTienda": 125,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 54
+    },
+    {
+      "idTurno": 287,
+      "idCampania": 1,
+      "idTienda": 126,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 326
+    },
+    {
+      "idTurno": 288,
+      "idCampania": 1,
+      "idTienda": 126,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 151
+    },
+    {
+      "idTurno": 289,
+      "idCampania": 1,
+      "idTienda": 126,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 151
+    },
+    {
+      "idTurno": 290,
+      "idCampania": 1,
+      "idTienda": 127,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 235
+    },
+    {
+      "idTurno": 291,
+      "idCampania": 1,
+      "idTienda": 127,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 235
+    },
+    {
+      "idTurno": 292,
+      "idCampania": 1,
+      "idTienda": 127,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 235
+    },
+    {
+      "idTurno": 293,
+      "idCampania": 1,
+      "idTienda": 127,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 235
+    },
+    {
+      "idTurno": 294,
+      "idCampania": 1,
+      "idTienda": 129,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 235
+    },
+    {
+      "idTurno": 295,
+      "idCampania": 1,
+      "idTienda": 129,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 235
+    },
+    {
+      "idTurno": 296,
+      "idCampania": 1,
+      "idTienda": 130,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 235
+    },
+    {
+      "idTurno": 297,
+      "idCampania": 1,
+      "idTienda": 131,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 327
+    },
+    {
+      "idTurno": 298,
+      "idCampania": 1,
+      "idTienda": 131,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 327
+    },
+    {
+      "idTurno": 299,
+      "idCampania": 1,
+      "idTienda": 131,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 327
+    },
+    {
+      "idTurno": 300,
+      "idCampania": 1,
+      "idTienda": 131,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 327
+    },
+    {
+      "idTurno": 301,
+      "idCampania": 1,
+      "idTienda": 132,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 32
+    },
+    {
+      "idTurno": 302,
+      "idCampania": 1,
+      "idTienda": 132,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 32
+    },
+    {
+      "idTurno": 303,
+      "idCampania": 1,
+      "idTienda": 132,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 32
+    },
+    {
+      "idTurno": 304,
+      "idCampania": 1,
+      "idTienda": 132,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 32
+    },
+    {
+      "idTurno": 305,
+      "idCampania": 1,
+      "idTienda": 133,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 107
+    },
+    {
+      "idTurno": 306,
+      "idCampania": 1,
+      "idTienda": 133,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 235
+    },
+    {
+      "idTurno": 307,
+      "idCampania": 1,
+      "idTienda": 133,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 151
+    },
+    {
+      "idTurno": 308,
+      "idCampania": 1,
+      "idTienda": 133,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 235
+    },
+    {
+      "idTurno": 309,
+      "idCampania": 1,
+      "idTienda": 134,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 328
+    },
+    {
+      "idTurno": 310,
+      "idCampania": 1,
+      "idTienda": 134,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 328
+    },
+    {
+      "idTurno": 311,
+      "idCampania": 1,
+      "idTienda": 134,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 328
+    },
+    {
+      "idTurno": 312,
+      "idCampania": 1,
+      "idTienda": 138,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 229
+    },
+    {
+      "idTurno": 313,
+      "idCampania": 1,
+      "idTienda": 140,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 187
+    },
+    {
+      "idTurno": 314,
+      "idCampania": 1,
+      "idTienda": 140,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 187
+    },
+    {
+      "idTurno": 315,
+      "idCampania": 1,
+      "idTienda": 140,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 187
+    },
+    {
+      "idTurno": 316,
+      "idCampania": 1,
+      "idTienda": 140,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 229
+    },
+    {
+      "idTurno": 317,
+      "idCampania": 1,
+      "idTienda": 141,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 124
+    },
+    {
+      "idTurno": 318,
+      "idCampania": 1,
+      "idTienda": 141,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 329
+    },
+    {
+      "idTurno": 319,
+      "idCampania": 1,
+      "idTienda": 141,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 330
+    },
+    {
+      "idTurno": 320,
+      "idCampania": 1,
+      "idTienda": 142,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 195
+    },
+    {
+      "idTurno": 321,
+      "idCampania": 1,
+      "idTienda": 142,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 124
+    },
+    {
+      "idTurno": 322,
+      "idCampania": 1,
+      "idTienda": 145,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 8
+    },
+    {
+      "idTurno": 323,
+      "idCampania": 1,
+      "idTienda": 145,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 8
+    },
+    {
+      "idTurno": 324,
+      "idCampania": 1,
+      "idTienda": 145,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 8
+    },
+    {
+      "idTurno": 325,
+      "idCampania": 1,
+      "idTienda": 145,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 8
+    },
+    {
+      "idTurno": 326,
+      "idCampania": 1,
+      "idTienda": 146,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 331
+    },
+    {
+      "idTurno": 327,
+      "idCampania": 1,
+      "idTienda": 146,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 331
+    },
+    {
+      "idTurno": 328,
+      "idCampania": 1,
+      "idTienda": 146,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 331
+    },
+    {
+      "idTurno": 329,
+      "idCampania": 1,
+      "idTienda": 146,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 331
+    },
+    {
+      "idTurno": 330,
+      "idCampania": 1,
+      "idTienda": 152,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 23
+    },
+    {
+      "idTurno": 331,
+      "idCampania": 1,
+      "idTienda": 152,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 23
+    },
+    {
+      "idTurno": 332,
+      "idCampania": 1,
+      "idTienda": 152,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 23
+    },
+    {
+      "idTurno": 333,
+      "idCampania": 1,
+      "idTienda": 152,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 23
+    },
+    {
+      "idTurno": 334,
+      "idCampania": 1,
+      "idTienda": 153,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 129
+    },
+    {
+      "idTurno": 335,
+      "idCampania": 1,
+      "idTienda": 153,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 129
+    },
+    {
+      "idTurno": 336,
+      "idCampania": 1,
+      "idTienda": 153,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 129
+    },
+    {
+      "idTurno": 337,
+      "idCampania": 1,
+      "idTienda": 153,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 129
+    },
+    {
+      "idTurno": 338,
+      "idCampania": 1,
+      "idTienda": 154,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 332
+    },
+    {
+      "idTurno": 339,
+      "idCampania": 1,
+      "idTienda": 154,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 333
+    },
+    {
+      "idTurno": 340,
+      "idCampania": 1,
+      "idTienda": 154,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 332
+    },
+    {
+      "idTurno": 341,
+      "idCampania": 1,
+      "idTienda": 154,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 333
+    },
+    {
+      "idTurno": 342,
+      "idCampania": 1,
+      "idTienda": 155,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 332
+    },
+    {
+      "idTurno": 343,
+      "idCampania": 1,
+      "idTienda": 155,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 333
+    },
+    {
+      "idTurno": 344,
+      "idCampania": 1,
+      "idTienda": 155,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 332
+    },
+    {
+      "idTurno": 345,
+      "idCampania": 1,
+      "idTienda": 155,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 333
+    },
+    {
+      "idTurno": 346,
+      "idCampania": 1,
+      "idTienda": 156,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 332
+    },
+    {
+      "idTurno": 347,
+      "idCampania": 1,
+      "idTienda": 156,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 333
+    },
+    {
+      "idTurno": 348,
+      "idCampania": 1,
+      "idTienda": 156,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 332
+    },
+    {
+      "idTurno": 349,
+      "idCampania": 1,
+      "idTienda": 156,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 333
+    },
+    {
+      "idTurno": 350,
+      "idCampania": 1,
+      "idTienda": 157,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 332
+    },
+    {
+      "idTurno": 351,
+      "idCampania": 1,
+      "idTienda": 157,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 333
+    },
+    {
+      "idTurno": 352,
+      "idCampania": 1,
+      "idTienda": 157,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 332
+    },
+    {
+      "idTurno": 353,
+      "idCampania": 1,
+      "idTienda": 157,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 333
+    },
+    {
+      "idTurno": 354,
+      "idCampania": 1,
+      "idTienda": 158,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 332
+    },
+    {
+      "idTurno": 355,
+      "idCampania": 1,
+      "idTienda": 158,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 333
+    },
+    {
+      "idTurno": 356,
+      "idCampania": 1,
+      "idTienda": 158,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 332
+    },
+    {
+      "idTurno": 357,
+      "idCampania": 1,
+      "idTienda": 158,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 333
+    },
+    {
+      "idTurno": 358,
+      "idCampania": 1,
+      "idTienda": 159,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 332
+    },
+    {
+      "idTurno": 359,
+      "idCampania": 1,
+      "idTienda": 159,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 333
+    },
+    {
+      "idTurno": 360,
+      "idCampania": 1,
+      "idTienda": 159,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 332
+    },
+    {
+      "idTurno": 361,
+      "idCampania": 1,
+      "idTienda": 159,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 333
+    },
+    {
+      "idTurno": 362,
+      "idCampania": 1,
+      "idTienda": 160,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 334
+    },
+    {
+      "idTurno": 363,
+      "idCampania": 1,
+      "idTienda": 160,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 335
+    },
+    {
+      "idTurno": 364,
+      "idCampania": 1,
+      "idTienda": 160,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 336
+    },
+    {
+      "idTurno": 365,
+      "idCampania": 1,
+      "idTienda": 160,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 336
+    },
+    {
+      "idTurno": 366,
+      "idCampania": 1,
+      "idTienda": 163,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 211
+    },
+    {
+      "idTurno": 367,
+      "idCampania": 1,
+      "idTienda": 163,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 211
+    },
+    {
+      "idTurno": 368,
+      "idCampania": 1,
+      "idTienda": 163,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 211
+    },
+    {
+      "idTurno": 369,
+      "idCampania": 1,
+      "idTienda": 163,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 211
+    },
+    {
+      "idTurno": 370,
+      "idCampania": 1,
+      "idTienda": 164,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 232
+    },
+    {
+      "idTurno": 371,
+      "idCampania": 1,
+      "idTienda": 164,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 232
+    },
+    {
+      "idTurno": 372,
+      "idCampania": 1,
+      "idTienda": 164,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 232
+    },
+    {
+      "idTurno": 373,
+      "idCampania": 1,
+      "idTienda": 164,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 232
+    },
+    {
+      "idTurno": 374,
+      "idCampania": 1,
+      "idTienda": 167,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 59
+    },
+    {
+      "idTurno": 375,
+      "idCampania": 1,
+      "idTienda": 167,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 59
+    },
+    {
+      "idTurno": 376,
+      "idCampania": 1,
+      "idTienda": 167,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 59
+    },
+    {
+      "idTurno": 377,
+      "idCampania": 1,
+      "idTienda": 167,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 59
+    },
+    {
+      "idTurno": 378,
+      "idCampania": 1,
+      "idTienda": 169,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 44
+    },
+    {
+      "idTurno": 379,
+      "idCampania": 1,
+      "idTienda": 169,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 44
+    },
+    {
+      "idTurno": 380,
+      "idCampania": 1,
+      "idTienda": 169,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 44
+    },
+    {
+      "idTurno": 381,
+      "idCampania": 1,
+      "idTienda": 169,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 44
+    },
+    {
+      "idTurno": 382,
+      "idCampania": 1,
+      "idTienda": 170,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 337
+    },
+    {
+      "idTurno": 383,
+      "idCampania": 1,
+      "idTienda": 176,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 338
+    },
+    {
+      "idTurno": 384,
+      "idCampania": 1,
+      "idTienda": 176,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 338
+    },
+    {
+      "idTurno": 385,
+      "idCampania": 1,
+      "idTienda": 176,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 338
+    },
+    {
+      "idTurno": 386,
+      "idCampania": 1,
+      "idTienda": 176,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 338
+    },
+    {
+      "idTurno": 387,
+      "idCampania": 1,
+      "idTienda": 177,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 339
+    },
+    {
+      "idTurno": 388,
+      "idCampania": 1,
+      "idTienda": 177,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 339
+    },
+    {
+      "idTurno": 389,
+      "idCampania": 1,
+      "idTienda": 177,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 339
+    },
+    {
+      "idTurno": 390,
+      "idCampania": 1,
+      "idTienda": 177,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 339
+    },
+    {
+      "idTurno": 391,
+      "idCampania": 1,
+      "idTienda": 182,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 340
+    },
+    {
+      "idTurno": 392,
+      "idCampania": 1,
+      "idTienda": 182,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 341
+    },
+    {
+      "idTurno": 393,
+      "idCampania": 1,
+      "idTienda": 182,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 341
+    },
+    {
+      "idTurno": 394,
+      "idCampania": 1,
+      "idTienda": 182,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 341
+    },
+    {
+      "idTurno": 395,
+      "idCampania": 1,
+      "idTienda": 183,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 185
+    },
+    {
+      "idTurno": 396,
+      "idCampania": 1,
+      "idTienda": 184,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 185
+    },
+    {
+      "idTurno": 397,
+      "idCampania": 1,
+      "idTienda": 184,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 185
+    },
+    {
+      "idTurno": 398,
+      "idCampania": 1,
+      "idTienda": 184,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 185
+    },
+    {
+      "idTurno": 399,
+      "idCampania": 1,
+      "idTienda": 184,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 185
+    },
+    {
+      "idTurno": 400,
+      "idCampania": 1,
+      "idTienda": 185,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 342
+    },
+    {
+      "idTurno": 401,
+      "idCampania": 1,
+      "idTienda": 185,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 342
+    },
+    {
+      "idTurno": 402,
+      "idCampania": 1,
+      "idTienda": 185,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 342
+    },
+    {
+      "idTurno": 403,
+      "idCampania": 1,
+      "idTienda": 185,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 342
+    },
+    {
+      "idTurno": 404,
+      "idCampania": 1,
+      "idTienda": 186,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 343
+    },
+    {
+      "idTurno": 405,
+      "idCampania": 1,
+      "idTienda": 186,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 344
+    },
+    {
+      "idTurno": 406,
+      "idCampania": 1,
+      "idTienda": 186,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 345
+    },
+    {
+      "idTurno": 407,
+      "idCampania": 1,
+      "idTienda": 187,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 346
+    },
+    {
+      "idTurno": 408,
+      "idCampania": 1,
+      "idTienda": 187,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 346
+    },
+    {
+      "idTurno": 409,
+      "idCampania": 1,
+      "idTienda": 187,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 346
+    },
+    {
+      "idTurno": 410,
+      "idCampania": 1,
+      "idTienda": 187,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 346
+    },
+    {
+      "idTurno": 411,
+      "idCampania": 1,
+      "idTienda": 188,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 110
+    },
+    {
+      "idTurno": 412,
+      "idCampania": 1,
+      "idTienda": 188,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 110
+    },
+    {
+      "idTurno": 413,
+      "idCampania": 1,
+      "idTienda": 189,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 347
+    },
+    {
+      "idTurno": 414,
+      "idCampania": 1,
+      "idTienda": 189,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 347
+    },
+    {
+      "idTurno": 415,
+      "idCampania": 1,
+      "idTienda": 189,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 347
+    },
+    {
+      "idTurno": 416,
+      "idCampania": 1,
+      "idTienda": 189,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 347
+    },
+    {
+      "idTurno": 417,
+      "idCampania": 1,
+      "idTienda": 190,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 348
+    },
+    {
+      "idTurno": 418,
+      "idCampania": 1,
+      "idTienda": 190,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 348
+    },
+    {
+      "idTurno": 419,
+      "idCampania": 1,
+      "idTienda": 190,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 348
+    },
+    {
+      "idTurno": 420,
+      "idCampania": 1,
+      "idTienda": 190,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 348
+    },
+    {
+      "idTurno": 421,
+      "idCampania": 1,
+      "idTienda": 193,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 349
+    },
+    {
+      "idTurno": 422,
+      "idCampania": 1,
+      "idTienda": 193,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 350
+    },
+    {
+      "idTurno": 423,
+      "idCampania": 1,
+      "idTienda": 194,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 351
+    },
+    {
+      "idTurno": 424,
+      "idCampania": 1,
+      "idTienda": 194,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 351
+    },
+    {
+      "idTurno": 425,
+      "idCampania": 1,
+      "idTienda": 194,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 351
+    },
+    {
+      "idTurno": 426,
+      "idCampania": 1,
+      "idTienda": 194,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 351
+    },
+    {
+      "idTurno": 427,
+      "idCampania": 1,
+      "idTienda": 195,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 352
+    },
+    {
+      "idTurno": 428,
+      "idCampania": 1,
+      "idTienda": 195,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 352
+    },
+    {
+      "idTurno": 429,
+      "idCampania": 1,
+      "idTienda": 197,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 353
+    },
+    {
+      "idTurno": 430,
+      "idCampania": 1,
+      "idTienda": 197,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 353
+    },
+    {
+      "idTurno": 431,
+      "idCampania": 1,
+      "idTienda": 197,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 353
+    },
+    {
+      "idTurno": 432,
+      "idCampania": 1,
+      "idTienda": 197,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 353
+    },
+    {
+      "idTurno": 433,
+      "idCampania": 1,
+      "idTienda": 198,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 354
+    },
+    {
+      "idTurno": 434,
+      "idCampania": 1,
+      "idTienda": 199,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 355
+    },
+    {
+      "idTurno": 435,
+      "idCampania": 1,
+      "idTienda": 199,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 356
+    },
+    {
+      "idTurno": 436,
+      "idCampania": 1,
+      "idTienda": 200,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 357
+    },
+    {
+      "idTurno": 437,
+      "idCampania": 1,
+      "idTienda": 200,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 357
+    },
+    {
+      "idTurno": 438,
+      "idCampania": 1,
+      "idTienda": 200,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 357
+    },
+    {
+      "idTurno": 439,
+      "idCampania": 1,
+      "idTienda": 200,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 357
+    },
+    {
+      "idTurno": 440,
+      "idCampania": 1,
+      "idTienda": 201,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 358
+    },
+    {
+      "idTurno": 441,
+      "idCampania": 1,
+      "idTienda": 201,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 358
+    },
+    {
+      "idTurno": 442,
+      "idCampania": 1,
+      "idTienda": 201,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 358
+    },
+    {
+      "idTurno": 443,
+      "idCampania": 1,
+      "idTienda": 201,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 358
+    },
+    {
+      "idTurno": 444,
+      "idCampania": 1,
+      "idTienda": 202,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 5
+    },
+    {
+      "idTurno": 445,
+      "idCampania": 1,
+      "idTienda": 202,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 5
+    },
+    {
+      "idTurno": 446,
+      "idCampania": 1,
+      "idTienda": 202,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 5
+    },
+    {
+      "idTurno": 447,
+      "idCampania": 1,
+      "idTienda": 202,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 5
+    },
+    {
+      "idTurno": 448,
+      "idCampania": 1,
+      "idTienda": 207,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 27
+    },
+    {
+      "idTurno": 449,
+      "idCampania": 1,
+      "idTienda": 207,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 27
+    },
+    {
+      "idTurno": 450,
+      "idCampania": 1,
+      "idTienda": 207,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 27
+    },
+    {
+      "idTurno": 451,
+      "idCampania": 1,
+      "idTienda": 207,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 27
+    },
+    {
+      "idTurno": 452,
+      "idCampania": 1,
+      "idTienda": 208,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 453,
+      "idCampania": 1,
+      "idTienda": 208,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 454,
+      "idCampania": 1,
+      "idTienda": 208,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 455,
+      "idCampania": 1,
+      "idTienda": 208,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 456,
+      "idCampania": 1,
+      "idTienda": 209,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 457,
+      "idCampania": 1,
+      "idTienda": 209,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 458,
+      "idCampania": 1,
+      "idTienda": 209,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 459,
+      "idCampania": 1,
+      "idTienda": 209,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 460,
+      "idCampania": 1,
+      "idTienda": 210,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 461,
+      "idCampania": 1,
+      "idTienda": 210,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 462,
+      "idCampania": 1,
+      "idTienda": 210,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 463,
+      "idCampania": 1,
+      "idTienda": 210,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 464,
+      "idCampania": 1,
+      "idTienda": 211,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 465,
+      "idCampania": 1,
+      "idTienda": 211,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 466,
+      "idCampania": 1,
+      "idTienda": 211,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 467,
+      "idCampania": 1,
+      "idTienda": 211,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 468,
+      "idCampania": 1,
+      "idTienda": 212,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 469,
+      "idCampania": 1,
+      "idTienda": 212,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 470,
+      "idCampania": 1,
+      "idTienda": 212,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 471,
+      "idCampania": 1,
+      "idTienda": 212,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 472,
+      "idCampania": 1,
+      "idTienda": 213,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 473,
+      "idCampania": 1,
+      "idTienda": 213,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 474,
+      "idCampania": 1,
+      "idTienda": 213,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 475,
+      "idCampania": 1,
+      "idTienda": 213,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 476,
+      "idCampania": 1,
+      "idTienda": 214,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 477,
+      "idCampania": 1,
+      "idTienda": 214,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 478,
+      "idCampania": 1,
+      "idTienda": 214,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 479,
+      "idCampania": 1,
+      "idTienda": 214,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 480,
+      "idCampania": 1,
+      "idTienda": 215,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 481,
+      "idCampania": 1,
+      "idTienda": 215,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 482,
+      "idCampania": 1,
+      "idTienda": 215,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 483,
+      "idCampania": 1,
+      "idTienda": 215,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 484,
+      "idCampania": 1,
+      "idTienda": 218,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 359
+    },
+    {
+      "idTurno": 485,
+      "idCampania": 1,
+      "idTienda": 218,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 359
+    },
+    {
+      "idTurno": 486,
+      "idCampania": 1,
+      "idTienda": 218,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 359
+    },
+    {
+      "idTurno": 487,
+      "idCampania": 1,
+      "idTienda": 218,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 359
+    },
+    {
+      "idTurno": 488,
+      "idCampania": 1,
+      "idTienda": 221,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 5
+    },
+    {
+      "idTurno": 489,
+      "idCampania": 1,
+      "idTienda": 221,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 5
+    },
+    {
+      "idTurno": 490,
+      "idCampania": 1,
+      "idTienda": 221,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 5
+    },
+    {
+      "idTurno": 491,
+      "idCampania": 1,
+      "idTienda": 221,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 5
+    },
+    {
+      "idTurno": 492,
+      "idCampania": 1,
+      "idTienda": 222,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 5
+    },
+    {
+      "idTurno": 493,
+      "idCampania": 1,
+      "idTienda": 222,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 5
+    },
+    {
+      "idTurno": 494,
+      "idCampania": 1,
+      "idTienda": 222,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 5
+    },
+    {
+      "idTurno": 495,
+      "idCampania": 1,
+      "idTienda": 222,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 5
+    },
+    {
+      "idTurno": 496,
+      "idCampania": 1,
+      "idTienda": 223,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 148
+    },
+    {
+      "idTurno": 497,
+      "idCampania": 1,
+      "idTienda": 223,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 148
+    },
+    {
+      "idTurno": 498,
+      "idCampania": 1,
+      "idTienda": 223,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 148
+    },
+    {
+      "idTurno": 499,
+      "idCampania": 1,
+      "idTienda": 223,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 148
+    },
+    {
+      "idTurno": 500,
+      "idCampania": 1,
+      "idTienda": 224,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 359
+    },
+    {
+      "idTurno": 501,
+      "idCampania": 1,
+      "idTienda": 224,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 359
+    },
+    {
+      "idTurno": 502,
+      "idCampania": 1,
+      "idTienda": 224,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 359
+    },
+    {
+      "idTurno": 503,
+      "idCampania": 1,
+      "idTienda": 224,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 359
+    },
+    {
+      "idTurno": 504,
+      "idCampania": 1,
+      "idTienda": 225,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 360
+    },
+    {
+      "idTurno": 505,
+      "idCampania": 1,
+      "idTienda": 225,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 360
+    },
+    {
+      "idTurno": 506,
+      "idCampania": 1,
+      "idTienda": 225,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 360
+    },
+    {
+      "idTurno": 507,
+      "idCampania": 1,
+      "idTienda": 225,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 360
+    },
+    {
+      "idTurno": 508,
+      "idCampania": 1,
+      "idTienda": 226,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 509,
+      "idCampania": 1,
+      "idTienda": 226,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 510,
+      "idCampania": 1,
+      "idTienda": 226,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 511,
+      "idCampania": 1,
+      "idTienda": 226,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 512,
+      "idCampania": 1,
+      "idTienda": 227,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 31
+    },
+    {
+      "idTurno": 513,
+      "idCampania": 1,
+      "idTienda": 227,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 31
+    },
+    {
+      "idTurno": 514,
+      "idCampania": 1,
+      "idTienda": 227,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 31
+    },
+    {
+      "idTurno": 515,
+      "idCampania": 1,
+      "idTienda": 227,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 31
+    },
+    {
+      "idTurno": 516,
+      "idCampania": 1,
+      "idTienda": 228,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 82
+    },
+    {
+      "idTurno": 517,
+      "idCampania": 1,
+      "idTienda": 228,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 82
+    },
+    {
+      "idTurno": 518,
+      "idCampania": 1,
+      "idTienda": 228,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 82
+    },
+    {
+      "idTurno": 519,
+      "idCampania": 1,
+      "idTienda": 228,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 82
+    },
+    {
+      "idTurno": 520,
+      "idCampania": 1,
+      "idTienda": 229,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 521,
+      "idCampania": 1,
+      "idTienda": 229,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 522,
+      "idCampania": 1,
+      "idTienda": 229,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 523,
+      "idCampania": 1,
+      "idTienda": 229,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 139
+    },
+    {
+      "idTurno": 524,
+      "idCampania": 1,
+      "idTienda": 231,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 525,
+      "idCampania": 1,
+      "idTienda": 231,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 526,
+      "idCampania": 1,
+      "idTienda": 231,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 527,
+      "idCampania": 1,
+      "idTienda": 231,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 528,
+      "idCampania": 1,
+      "idTienda": 236,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 529,
+      "idCampania": 1,
+      "idTienda": 236,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 530,
+      "idCampania": 1,
+      "idTienda": 236,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 531,
+      "idCampania": 1,
+      "idTienda": 236,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 532,
+      "idCampania": 1,
+      "idTienda": 237,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 360
+    },
+    {
+      "idTurno": 533,
+      "idCampania": 1,
+      "idTienda": 237,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 360
+    },
+    {
+      "idTurno": 534,
+      "idCampania": 1,
+      "idTienda": 237,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 360
+    },
+    {
+      "idTurno": 535,
+      "idCampania": 1,
+      "idTienda": 237,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 360
+    },
+    {
+      "idTurno": 536,
+      "idCampania": 1,
+      "idTienda": 238,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 31
+    },
+    {
+      "idTurno": 537,
+      "idCampania": 1,
+      "idTienda": 238,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 31
+    },
+    {
+      "idTurno": 538,
+      "idCampania": 1,
+      "idTienda": 238,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 31
+    },
+    {
+      "idTurno": 539,
+      "idCampania": 1,
+      "idTienda": 238,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 31
+    },
+    {
+      "idTurno": 540,
+      "idCampania": 1,
+      "idTienda": 239,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 541,
+      "idCampania": 1,
+      "idTienda": 239,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 542,
+      "idCampania": 1,
+      "idTienda": 239,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 543,
+      "idCampania": 1,
+      "idTienda": 239,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 544,
+      "idCampania": 1,
+      "idTienda": 240,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 545,
+      "idCampania": 1,
+      "idTienda": 240,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 546,
+      "idCampania": 1,
+      "idTienda": 240,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 547,
+      "idCampania": 1,
+      "idTienda": 240,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 548,
+      "idCampania": 1,
+      "idTienda": 242,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 549,
+      "idCampania": 1,
+      "idTienda": 242,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 550,
+      "idCampania": 1,
+      "idTienda": 242,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 551,
+      "idCampania": 1,
+      "idTienda": 242,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 552,
+      "idCampania": 1,
+      "idTienda": 243,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 553,
+      "idCampania": 1,
+      "idTienda": 243,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 554,
+      "idCampania": 1,
+      "idTienda": 243,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 555,
+      "idCampania": 1,
+      "idTienda": 243,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 37
+    },
+    {
+      "idTurno": 556,
+      "idCampania": 1,
+      "idTienda": 246,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 99
+    },
+    {
+      "idTurno": 557,
+      "idCampania": 1,
+      "idTienda": 246,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 99
+    },
+    {
+      "idTurno": 558,
+      "idCampania": 1,
+      "idTienda": 246,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 99
+    },
+    {
+      "idTurno": 559,
+      "idCampania": 1,
+      "idTienda": 246,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 99
+    },
+    {
+      "idTurno": 560,
+      "idCampania": 1,
+      "idTienda": 247,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 194
+    },
+    {
+      "idTurno": 561,
+      "idCampania": 1,
+      "idTienda": 247,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 194
+    },
+    {
+      "idTurno": 562,
+      "idCampania": 1,
+      "idTienda": 247,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 194
+    },
+    {
+      "idTurno": 563,
+      "idCampania": 1,
+      "idTienda": 248,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 106
+    },
+    {
+      "idTurno": 564,
+      "idCampania": 1,
+      "idTienda": 248,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 106
+    },
+    {
+      "idTurno": 565,
+      "idCampania": 1,
+      "idTienda": 248,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 106
+    },
+    {
+      "idTurno": 566,
+      "idCampania": 1,
+      "idTienda": 248,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 106
+    },
+    {
+      "idTurno": 567,
+      "idCampania": 1,
+      "idTienda": 250,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 568,
+      "idCampania": 1,
+      "idTienda": 250,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 569,
+      "idCampania": 1,
+      "idTienda": 250,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 570,
+      "idCampania": 1,
+      "idTienda": 250,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 571,
+      "idCampania": 1,
+      "idTienda": 251,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 106
+    },
+    {
+      "idTurno": 572,
+      "idCampania": 1,
+      "idTienda": 251,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 106
+    },
+    {
+      "idTurno": 573,
+      "idCampania": 1,
+      "idTienda": 251,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 106
+    },
+    {
+      "idTurno": 574,
+      "idCampania": 1,
+      "idTienda": 251,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 106
+    },
+    {
+      "idTurno": 575,
+      "idCampania": 1,
+      "idTienda": 252,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 576,
+      "idCampania": 1,
+      "idTienda": 252,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 577,
+      "idCampania": 1,
+      "idTienda": 252,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 578,
+      "idCampania": 1,
+      "idTienda": 255,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 19
+    },
+    {
+      "idTurno": 579,
+      "idCampania": 1,
+      "idTienda": 255,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 19
+    },
+    {
+      "idTurno": 580,
+      "idCampania": 1,
+      "idTienda": 255,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 19
+    },
+    {
+      "idTurno": 581,
+      "idCampania": 1,
+      "idTienda": 255,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 19
+    },
+    {
+      "idTurno": 582,
+      "idCampania": 1,
+      "idTienda": 256,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 19
+    },
+    {
+      "idTurno": 583,
+      "idCampania": 1,
+      "idTienda": 256,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 19
+    },
+    {
+      "idTurno": 584,
+      "idCampania": 1,
+      "idTienda": 256,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 19
+    },
+    {
+      "idTurno": 585,
+      "idCampania": 1,
+      "idTienda": 256,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 19
+    },
+    {
+      "idTurno": 586,
+      "idCampania": 1,
+      "idTienda": 261,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 246
+    },
+    {
+      "idTurno": 587,
+      "idCampania": 1,
+      "idTienda": 261,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 246
+    },
+    {
+      "idTurno": 588,
+      "idCampania": 1,
+      "idTienda": 262,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 246
+    },
+    {
+      "idTurno": 589,
+      "idCampania": 1,
+      "idTienda": 262,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 246
+    },
+    {
+      "idTurno": 590,
+      "idCampania": 1,
+      "idTienda": 262,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 246
+    },
+    {
+      "idTurno": 591,
+      "idCampania": 1,
+      "idTienda": 271,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 9
+    },
+    {
+      "idTurno": 592,
+      "idCampania": 1,
+      "idTienda": 271,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 9
+    },
+    {
+      "idTurno": 593,
+      "idCampania": 1,
+      "idTienda": 271,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 9
+    },
+    {
+      "idTurno": 594,
+      "idCampania": 1,
+      "idTienda": 271,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 9
+    },
+    {
+      "idTurno": 595,
+      "idCampania": 1,
+      "idTienda": 272,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 66
+    },
+    {
+      "idTurno": 596,
+      "idCampania": 1,
+      "idTienda": 272,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 66
+    },
+    {
+      "idTurno": 597,
+      "idCampania": 1,
+      "idTienda": 272,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 66
+    },
+    {
+      "idTurno": 598,
+      "idCampania": 1,
+      "idTienda": 272,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 66
+    },
+    {
+      "idTurno": 599,
+      "idCampania": 1,
+      "idTienda": 273,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 362
+    },
+    {
+      "idTurno": 600,
+      "idCampania": 1,
+      "idTienda": 273,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 362
+    },
+    {
+      "idTurno": 601,
+      "idCampania": 1,
+      "idTienda": 273,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 362
+    },
+    {
+      "idTurno": 602,
+      "idCampania": 1,
+      "idTienda": 273,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 362
+    },
+    {
+      "idTurno": 603,
+      "idCampania": 1,
+      "idTienda": 274,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 363
+    },
+    {
+      "idTurno": 604,
+      "idCampania": 1,
+      "idTienda": 274,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 363
+    },
+    {
+      "idTurno": 605,
+      "idCampania": 1,
+      "idTienda": 274,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 363
+    },
+    {
+      "idTurno": 606,
+      "idCampania": 1,
+      "idTienda": 274,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 363
+    },
+    {
+      "idTurno": 607,
+      "idCampania": 1,
+      "idTienda": 275,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 98
+    },
+    {
+      "idTurno": 608,
+      "idCampania": 1,
+      "idTienda": 275,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 98
+    },
+    {
+      "idTurno": 609,
+      "idCampania": 1,
+      "idTienda": 275,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 98
+    },
+    {
+      "idTurno": 610,
+      "idCampania": 1,
+      "idTienda": 275,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 98
+    },
+    {
+      "idTurno": 611,
+      "idCampania": 1,
+      "idTienda": 276,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 363
+    },
+    {
+      "idTurno": 612,
+      "idCampania": 1,
+      "idTienda": 276,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 363
+    },
+    {
+      "idTurno": 613,
+      "idCampania": 1,
+      "idTienda": 276,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 363
+    },
+    {
+      "idTurno": 614,
+      "idCampania": 1,
+      "idTienda": 276,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 363
+    },
+    {
+      "idTurno": 615,
+      "idCampania": 1,
+      "idTienda": 277,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 362
+    },
+    {
+      "idTurno": 616,
+      "idCampania": 1,
+      "idTienda": 277,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 362
+    },
+    {
+      "idTurno": 617,
+      "idCampania": 1,
+      "idTienda": 277,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 362
+    },
+    {
+      "idTurno": 618,
+      "idCampania": 1,
+      "idTienda": 277,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 362
+    },
+    {
+      "idTurno": 619,
+      "idCampania": 1,
+      "idTienda": 278,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 620,
+      "idCampania": 1,
+      "idTienda": 278,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 621,
+      "idCampania": 1,
+      "idTienda": 278,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 622,
+      "idCampania": 1,
+      "idTienda": 278,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 623,
+      "idCampania": 1,
+      "idTienda": 279,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 624,
+      "idCampania": 1,
+      "idTienda": 279,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 625,
+      "idCampania": 1,
+      "idTienda": 279,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 626,
+      "idCampania": 1,
+      "idTienda": 279,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 627,
+      "idCampania": 1,
+      "idTienda": 280,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 628,
+      "idCampania": 1,
+      "idTienda": 280,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 629,
+      "idCampania": 1,
+      "idTienda": 280,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 630,
+      "idCampania": 1,
+      "idTienda": 280,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 631,
+      "idCampania": 1,
+      "idTienda": 281,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 632,
+      "idCampania": 1,
+      "idTienda": 281,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 633,
+      "idCampania": 1,
+      "idTienda": 281,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 634,
+      "idCampania": 1,
+      "idTienda": 281,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 635,
+      "idCampania": 1,
+      "idTienda": 282,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 246
+    },
+    {
+      "idTurno": 636,
+      "idCampania": 1,
+      "idTienda": 282,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 637,
+      "idCampania": 1,
+      "idTienda": 282,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 638,
+      "idCampania": 1,
+      "idTienda": 282,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 639,
+      "idCampania": 1,
+      "idTienda": 283,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 640,
+      "idCampania": 1,
+      "idTienda": 283,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 641,
+      "idCampania": 1,
+      "idTienda": 283,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 642,
+      "idCampania": 1,
+      "idTienda": 283,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 643,
+      "idCampania": 1,
+      "idTienda": 285,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 80
+    },
+    {
+      "idTurno": 644,
+      "idCampania": 1,
+      "idTienda": 285,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 645,
+      "idCampania": 1,
+      "idTienda": 285,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 646,
+      "idCampania": 1,
+      "idTienda": 285,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 647,
+      "idCampania": 1,
+      "idTienda": 286,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 648,
+      "idCampania": 1,
+      "idTienda": 286,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 649,
+      "idCampania": 1,
+      "idTienda": 286,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 650,
+      "idCampania": 1,
+      "idTienda": 286,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 651,
+      "idCampania": 1,
+      "idTienda": 287,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 14
+    },
+    {
+      "idTurno": 652,
+      "idCampania": 1,
+      "idTienda": 287,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 14
+    },
+    {
+      "idTurno": 653,
+      "idCampania": 1,
+      "idTienda": 287,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 14
+    },
+    {
+      "idTurno": 654,
+      "idCampania": 1,
+      "idTienda": 287,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 127
+    },
+    {
+      "idTurno": 655,
+      "idCampania": 1,
+      "idTienda": 291,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 656,
+      "idCampania": 1,
+      "idTienda": 291,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 657,
+      "idCampania": 1,
+      "idTienda": 291,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 173
+    },
+    {
+      "idTurno": 658,
+      "idCampania": 1,
+      "idTienda": 291,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 173
+    },
+    {
+      "idTurno": 659,
+      "idCampania": 1,
+      "idTienda": 297,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 660,
+      "idCampania": 1,
+      "idTienda": 297,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 661,
+      "idCampania": 1,
+      "idTienda": 297,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 662,
+      "idCampania": 1,
+      "idTienda": 299,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 663,
+      "idCampania": 1,
+      "idTienda": 299,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 664,
+      "idCampania": 1,
+      "idTienda": 299,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 665,
+      "idCampania": 1,
+      "idTienda": 300,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 666,
+      "idCampania": 1,
+      "idTienda": 300,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 667,
+      "idCampania": 1,
+      "idTienda": 300,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 668,
+      "idCampania": 1,
+      "idTienda": 300,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 669,
+      "idCampania": 1,
+      "idTienda": 302,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 670,
+      "idCampania": 1,
+      "idTienda": 302,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 671,
+      "idCampania": 1,
+      "idTienda": 302,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 672,
+      "idCampania": 1,
+      "idTienda": 303,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 673,
+      "idCampania": 1,
+      "idTienda": 303,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 674,
+      "idCampania": 1,
+      "idTienda": 303,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 675,
+      "idCampania": 1,
+      "idTienda": 303,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 676,
+      "idCampania": 1,
+      "idTienda": 304,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 677,
+      "idCampania": 1,
+      "idTienda": 304,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 678,
+      "idCampania": 1,
+      "idTienda": 304,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 679,
+      "idCampania": 1,
+      "idTienda": 304,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 680,
+      "idCampania": 1,
+      "idTienda": 305,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 681,
+      "idCampania": 1,
+      "idTienda": 305,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 682,
+      "idCampania": 1,
+      "idTienda": 305,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 683,
+      "idCampania": 1,
+      "idTienda": 305,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 361
+    },
+    {
+      "idTurno": 684,
+      "idCampania": 1,
+      "idTienda": 318,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 364
+    },
+    {
+      "idTurno": 685,
+      "idCampania": 1,
+      "idTienda": 318,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 364
+    },
+    {
+      "idTurno": 686,
+      "idCampania": 1,
+      "idTienda": 318,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 364
+    },
+    {
+      "idTurno": 687,
+      "idCampania": 1,
+      "idTienda": 318,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 364
+    },
+    {
+      "idTurno": 688,
+      "idCampania": 1,
+      "idTienda": 319,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 145
+    },
+    {
+      "idTurno": 689,
+      "idCampania": 1,
+      "idTienda": 319,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 145
+    },
+    {
+      "idTurno": 690,
+      "idCampania": 1,
+      "idTienda": 319,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 145
+    },
+    {
+      "idTurno": 691,
+      "idCampania": 1,
+      "idTienda": 319,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 145
+    },
+    {
+      "idTurno": 692,
+      "idCampania": 1,
+      "idTienda": 320,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 86
+    },
+    {
+      "idTurno": 693,
+      "idCampania": 1,
+      "idTienda": 320,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 86
+    },
+    {
+      "idTurno": 694,
+      "idCampania": 1,
+      "idTienda": 320,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 86
+    },
+    {
+      "idTurno": 695,
+      "idCampania": 1,
+      "idTienda": 320,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 86
+    },
+    {
+      "idTurno": 696,
+      "idCampania": 1,
+      "idTienda": 321,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 17
+    },
+    {
+      "idTurno": 697,
+      "idCampania": 1,
+      "idTienda": 321,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 17
+    },
+    {
+      "idTurno": 698,
+      "idCampania": 1,
+      "idTienda": 321,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 17
+    },
+    {
+      "idTurno": 699,
+      "idCampania": 1,
+      "idTienda": 321,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 17
+    },
+    {
+      "idTurno": 700,
+      "idCampania": 1,
+      "idTienda": 322,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 3
+    },
+    {
+      "idTurno": 701,
+      "idCampania": 1,
+      "idTienda": 323,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 6
+    },
+    {
+      "idTurno": 702,
+      "idCampania": 1,
+      "idTienda": 323,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 6
+    },
+    {
+      "idTurno": 703,
+      "idCampania": 1,
+      "idTienda": 323,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 6
+    },
+    {
+      "idTurno": 704,
+      "idCampania": 1,
+      "idTienda": 323,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 6
+    },
+    {
+      "idTurno": 705,
+      "idCampania": 1,
+      "idTienda": 324,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 250
+    },
+    {
+      "idTurno": 706,
+      "idCampania": 1,
+      "idTienda": 324,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 250
+    },
+    {
+      "idTurno": 707,
+      "idCampania": 1,
+      "idTienda": 324,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 250
+    },
+    {
+      "idTurno": 708,
+      "idCampania": 1,
+      "idTienda": 324,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 250
+    },
+    {
+      "idTurno": 709,
+      "idCampania": 1,
+      "idTienda": 328,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 17
+    },
+    {
+      "idTurno": 710,
+      "idCampania": 1,
+      "idTienda": 328,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 17
+    },
+    {
+      "idTurno": 711,
+      "idCampania": 1,
+      "idTienda": 328,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 17
+    },
+    {
+      "idTurno": 712,
+      "idCampania": 1,
+      "idTienda": 328,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 17
+    },
+    {
+      "idTurno": 713,
+      "idCampania": 1,
+      "idTienda": 330,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 128
+    },
+    {
+      "idTurno": 714,
+      "idCampania": 1,
+      "idTienda": 330,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 128
+    },
+    {
+      "idTurno": 715,
+      "idCampania": 1,
+      "idTienda": 330,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 128
+    },
+    {
+      "idTurno": 716,
+      "idCampania": 1,
+      "idTienda": 330,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 128
+    },
+    {
+      "idTurno": 717,
+      "idCampania": 1,
+      "idTienda": 331,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 128
+    },
+    {
+      "idTurno": 718,
+      "idCampania": 1,
+      "idTienda": 331,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 128
+    },
+    {
+      "idTurno": 719,
+      "idCampania": 1,
+      "idTienda": 331,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 128
+    },
+    {
+      "idTurno": 720,
+      "idCampania": 1,
+      "idTienda": 331,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 128
+    },
+    {
+      "idTurno": 721,
+      "idCampania": 1,
+      "idTienda": 332,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 224
+    },
+    {
+      "idTurno": 722,
+      "idCampania": 1,
+      "idTienda": 332,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 224
+    },
+    {
+      "idTurno": 723,
+      "idCampania": 1,
+      "idTienda": 332,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 224
+    },
+    {
+      "idTurno": 724,
+      "idCampania": 1,
+      "idTienda": 332,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 224
+    },
+    {
+      "idTurno": 725,
+      "idCampania": 1,
+      "idTienda": 333,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 365
+    },
+    {
+      "idTurno": 726,
+      "idCampania": 1,
+      "idTienda": 333,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 365
+    },
+    {
+      "idTurno": 727,
+      "idCampania": 1,
+      "idTienda": 334,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 240
+    },
+    {
+      "idTurno": 728,
+      "idCampania": 1,
+      "idTienda": 334,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 240
+    },
+    {
+      "idTurno": 729,
+      "idCampania": 1,
+      "idTienda": 336,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 146
+    },
+    {
+      "idTurno": 730,
+      "idCampania": 1,
+      "idTienda": 336,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 146
+    },
+    {
+      "idTurno": 731,
+      "idCampania": 1,
+      "idTienda": 336,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 146
+    },
+    {
+      "idTurno": 732,
+      "idCampania": 1,
+      "idTienda": 336,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 146
+    },
+    {
+      "idTurno": 733,
+      "idCampania": 1,
+      "idTienda": 339,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 3
+    },
+    {
+      "idTurno": 734,
+      "idCampania": 1,
+      "idTienda": 340,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 4
+    },
+    {
+      "idTurno": 735,
+      "idCampania": 1,
+      "idTienda": 340,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 4
+    },
+    {
+      "idTurno": 736,
+      "idCampania": 1,
+      "idTienda": 340,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 4
+    },
+    {
+      "idTurno": 737,
+      "idCampania": 1,
+      "idTienda": 340,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 4
+    },
+    {
+      "idTurno": 738,
+      "idCampania": 1,
+      "idTienda": 341,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 136
+    },
+    {
+      "idTurno": 739,
+      "idCampania": 1,
+      "idTienda": 341,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 136
+    },
+    {
+      "idTurno": 740,
+      "idCampania": 1,
+      "idTienda": 341,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 136
+    },
+    {
+      "idTurno": 741,
+      "idCampania": 1,
+      "idTienda": 341,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 136
+    },
+    {
+      "idTurno": 742,
+      "idCampania": 1,
+      "idTienda": 342,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 212
+    },
+    {
+      "idTurno": 743,
+      "idCampania": 1,
+      "idTienda": 342,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 212
+    },
+    {
+      "idTurno": 744,
+      "idCampania": 1,
+      "idTienda": 342,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 212
+    },
+    {
+      "idTurno": 745,
+      "idCampania": 1,
+      "idTienda": 342,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 212
+    },
+    {
+      "idTurno": 746,
+      "idCampania": 1,
+      "idTienda": 343,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 123
+    },
+    {
+      "idTurno": 747,
+      "idCampania": 1,
+      "idTienda": 343,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 123
+    },
+    {
+      "idTurno": 748,
+      "idCampania": 1,
+      "idTienda": 343,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 123
+    },
+    {
+      "idTurno": 749,
+      "idCampania": 1,
+      "idTienda": 343,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 123
+    },
+    {
+      "idTurno": 750,
+      "idCampania": 1,
+      "idTienda": 344,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 64
+    },
+    {
+      "idTurno": 751,
+      "idCampania": 1,
+      "idTienda": 344,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 64
+    },
+    {
+      "idTurno": 752,
+      "idCampania": 1,
+      "idTienda": 344,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 64
+    },
+    {
+      "idTurno": 753,
+      "idCampania": 1,
+      "idTienda": 344,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 64
+    },
+    {
+      "idTurno": 754,
+      "idCampania": 1,
+      "idTienda": 345,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 40
+    },
+    {
+      "idTurno": 755,
+      "idCampania": 1,
+      "idTienda": 345,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 40
+    },
+    {
+      "idTurno": 756,
+      "idCampania": 1,
+      "idTienda": 345,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 40
+    },
+    {
+      "idTurno": 757,
+      "idCampania": 1,
+      "idTienda": 345,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 40
+    },
+    {
+      "idTurno": 758,
+      "idCampania": 1,
+      "idTienda": 346,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 40
+    },
+    {
+      "idTurno": 759,
+      "idCampania": 1,
+      "idTienda": 346,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 40
+    },
+    {
+      "idTurno": 760,
+      "idCampania": 1,
+      "idTienda": 346,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 40
+    },
+    {
+      "idTurno": 761,
+      "idCampania": 1,
+      "idTienda": 346,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 40
+    },
+    {
+      "idTurno": 762,
+      "idCampania": 1,
+      "idTienda": 347,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 231
+    },
+    {
+      "idTurno": 763,
+      "idCampania": 1,
+      "idTienda": 347,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 231
+    },
+    {
+      "idTurno": 764,
+      "idCampania": 1,
+      "idTienda": 347,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 231
+    },
+    {
+      "idTurno": 765,
+      "idCampania": 1,
+      "idTienda": 347,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 231
+    },
+    {
+      "idTurno": 766,
+      "idCampania": 1,
+      "idTienda": 348,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 50
+    },
+    {
+      "idTurno": 767,
+      "idCampania": 1,
+      "idTienda": 348,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 50
+    },
+    {
+      "idTurno": 768,
+      "idCampania": 1,
+      "idTienda": 348,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 61
+    },
+    {
+      "idTurno": 769,
+      "idCampania": 1,
+      "idTienda": 348,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 61
+    },
+    {
+      "idTurno": 770,
+      "idCampania": 1,
+      "idTienda": 350,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 83
+    },
+    {
+      "idTurno": 771,
+      "idCampania": 1,
+      "idTienda": 350,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 83
+    },
+    {
+      "idTurno": 772,
+      "idCampania": 1,
+      "idTienda": 350,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 83
+    },
+    {
+      "idTurno": 773,
+      "idCampania": 1,
+      "idTienda": 350,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 83
+    },
+    {
+      "idTurno": 774,
+      "idCampania": 1,
+      "idTienda": 351,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 366
+    },
+    {
+      "idTurno": 775,
+      "idCampania": 1,
+      "idTienda": 351,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 366
+    },
+    {
+      "idTurno": 776,
+      "idCampania": 1,
+      "idTienda": 351,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 366
+    },
+    {
+      "idTurno": 777,
+      "idCampania": 1,
+      "idTienda": 351,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 366
+    },
+    {
+      "idTurno": 778,
+      "idCampania": 1,
+      "idTienda": 352,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 109
+    },
+    {
+      "idTurno": 779,
+      "idCampania": 1,
+      "idTienda": 352,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 109
+    },
+    {
+      "idTurno": 780,
+      "idCampania": 1,
+      "idTienda": 352,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 109
+    },
+    {
+      "idTurno": 781,
+      "idCampania": 1,
+      "idTienda": 352,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 109
+    },
+    {
+      "idTurno": 782,
+      "idCampania": 1,
+      "idTienda": 353,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 45
+    },
+    {
+      "idTurno": 783,
+      "idCampania": 1,
+      "idTienda": 353,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 45
+    },
+    {
+      "idTurno": 784,
+      "idCampania": 1,
+      "idTienda": 353,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 45
+    },
+    {
+      "idTurno": 785,
+      "idCampania": 1,
+      "idTienda": 353,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 45
+    },
+    {
+      "idTurno": 786,
+      "idCampania": 1,
+      "idTienda": 354,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 45
+    },
+    {
+      "idTurno": 787,
+      "idCampania": 1,
+      "idTienda": 354,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 45
+    },
+    {
+      "idTurno": 788,
+      "idCampania": 1,
+      "idTienda": 354,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 45
+    },
+    {
+      "idTurno": 789,
+      "idCampania": 1,
+      "idTienda": 354,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 45
+    },
+    {
+      "idTurno": 790,
+      "idCampania": 1,
+      "idTienda": 355,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 55
+    },
+    {
+      "idTurno": 791,
+      "idCampania": 1,
+      "idTienda": 355,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 55
+    },
+    {
+      "idTurno": 792,
+      "idCampania": 1,
+      "idTienda": 355,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 55
+    },
+    {
+      "idTurno": 793,
+      "idCampania": 1,
+      "idTienda": 355,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 55
+    },
+    {
+      "idTurno": 794,
+      "idCampania": 1,
+      "idTienda": 357,
+      "fecha": "2025-02-21",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 62
+    },
+    {
+      "idTurno": 795,
+      "idCampania": 1,
+      "idTienda": 357,
+      "fecha": "2025-02-21",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 62
+    },
+    {
+      "idTurno": 796,
+      "idCampania": 1,
+      "idTienda": 357,
+      "fecha": "2025-02-22",
+      "turno": "manana",
+      "observaciones": "",
+      "idEntidad": 62
+    },
+    {
+      "idTurno": 797,
+      "idCampania": 1,
+      "idTienda": 357,
+      "fecha": "2025-02-22",
+      "turno": "tarde",
+      "observaciones": "",
+      "idEntidad": 62
+    }
+  ]
+}

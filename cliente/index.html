@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inicio de sesión</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-login">
+
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="brand-icon">⬡</div>
+        <h1>Bienvenido</h1>
+        <p class="brand-sub">Accede con tus credenciales</p>
+      </div>
+
+      <form id="form-login" novalidate>
+        <div class="field">
+          <label for="nombreUsuario">Usuario</label>
+          <input type="text" id="nombreUsuario" name="nombreUsuario" placeholder="admin" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="contrasena">Contraseña</label>
+          <div class="input-wrap">
+            <input type="password" id="contrasena" name="contrasena" placeholder="••••••••" autocomplete="current-password" required>
+            <button type="button" class="btn-eye" id="btn-eye" aria-label="Mostrar contraseña">👁</button>
+          </div>
+        </div>
+
+        <div id="login-error" class="alert alert-error" hidden></div>
+
+        <button type="submit" class="btn btn-primary btn-full" id="btn-login">
+          <span class="btn-text">Entrar</span>
+          <span class="btn-spinner" hidden>⟳</span>
+        </button>
+      </form>
+
+      <div class="login-hint">
+        <p>Usuarios de prueba:</p>
+        <div class="hint-grid">
+          <span class="badge badge-admin">admin / admin123</span>
+          <span class="badge badge-manager">manager / manager1</span>
+          <span class="badge badge-worker">ana / worker1</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    // Si ya hay sesión, redirigir
+    const perfil = sessionStorage.getItem('perfil');
+    if (perfil) {
+      window.location.href = perfil === 'admin' ? 'admin.html' : perfil === 'manager' ? 'manager.html' : 'worker.html';
+    }
+
+    // Mostrar/ocultar contraseña
+    document.getElementById('btn-eye').addEventListener('click', () => {
+      const input = document.getElementById('contrasena');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
+
+    // Submit login
+    document.getElementById('form-login').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errorEl = document.getElementById('login-error');
+      const btnText = document.querySelector('.btn-text');
+      const btnSpinner = document.querySelector('.btn-spinner');
+      const btn = document.getElementById('btn-login');
+
+      errorEl.hidden = true;
+      btn.disabled = true;
+      btnText.hidden = true;
+      btnSpinner.hidden = false;
+
+      const nombreUsuario = document.getElementById('nombreUsuario').value.trim();
+      const contrasena = document.getElementById('contrasena').value;
+
+      try {
+        const data = await login(nombreUsuario, contrasena);
+        sessionStorage.setItem('token', data.token);
+        sessionStorage.setItem('perfil', data.user.puesto);
+        sessionStorage.setItem('usuario', JSON.stringify(data.user));
+
+        const destino = data.user.puesto === 'admin' ? 'admin.html'
+                      : data.user.puesto === 'manager' ? 'manager.html'
+                      : 'worker.html';
+        window.location.href = destino;
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.hidden = false;
+        btn.disabled = false;
+        btnText.hidden = false;
+        btnSpinner.hidden = true;
+      }
+    });
+  </script>
+</body>
+</html>

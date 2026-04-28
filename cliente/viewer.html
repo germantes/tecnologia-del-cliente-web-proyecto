@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visor JSON — API Explorer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="page-app">
+
+  <nav class="navbar">
+    <a href="admin.html" class="navbar-brand">
+      <span class="navbar-icon">⬡</span> Panel de control
+    </a>
+    <ul class="navbar-nav">
+      <li><a href="admin.html">🏠 Inicio</a></li>
+      <li><a href="personal.html">👥 Personal</a></li>
+      <li><a href="viewer.html" class="active">🔍 Visor JSON</a></li>
+    </ul>
+    <div class="navbar-right">
+      <div class="user-chip">
+        <div class="user-avatar avatar-admin" id="avatar-initials">A</div>
+        <span id="user-nombre">Cargando...</span>
+        <span class="badge badge-admin" id="badge-perfil">admin</span>
+      </div>
+      <button class="btn btn-outline btn-sm" id="btn-logout">Cerrar sesión</button>
+    </div>
+  </nav>
+
+  <main class="main json-viewer-page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">🔍 Visor JSON</div>
+        <div class="page-sub">Explora los objetos devueltos por la API</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden">
+      <!-- Toolbar -->
+      <div class="json-toolbar">
+        <label style="font-size:13px;font-weight:500;color:var(--color-text-muted)">Recurso:</label>
+        <select id="sel-recurso">
+          <option value="usuarios">👥 /usuarios</option>
+          <option value="campanias">/campanias</option>
+          <option value="entidades">/entidades</option>
+          <option value="tiendas">/tiendas</option>
+          <option value="turnos">/turnos</option>
+        </select>
+
+        <label style="font-size:13px;font-weight:500;color:var(--color-text-muted)">Vista:</label>
+        <select id="sel-vista">
+          <option value="cards">🃏 Tarjetas</option>
+          <option value="table">📋 Tabla</option>
+          <option value="raw">{ } JSON raw</option>
+        </select>
+
+        <input type="text" id="input-filtro" placeholder="🔎 Filtrar..." style="flex:1;min-width:120px">
+
+        <button class="btn btn-primary btn-sm" id="btn-cargar">Cargar</button>
+        <span id="count-badge" style="font-size:12px;color:var(--color-text-muted)"></span>
+      </div>
+
+      <!-- Estado inicial -->
+      <div id="estado-inicial" style="padding:48px;text-align:center;color:var(--color-text-muted)">
+        <div style="font-size:40px;margin-bottom:12px">🗄️</div>
+        <div>Selecciona un recurso y pulsa <strong>Cargar</strong></div>
+      </div>
+
+      <!-- Loading -->
+      <div id="loading-area" class="loading" hidden>
+        <div class="spinner"></div> Cargando datos desde la API...
+      </div>
+
+      <!-- Error -->
+      <div id="error-area" hidden style="padding:20px">
+        <div class="alert alert-error" id="error-msg"></div>
+      </div>
+
+      <!-- Vista: Tarjetas -->
+      <div id="vista-cards" class="cards-grid" hidden></div>
+
+      <!-- Vista: Tabla -->
+      <div id="vista-table" class="table-wrap" hidden>
+        <table>
+          <thead id="table-head"></thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Vista: JSON raw -->
+      <pre id="vista-raw" class="json-raw-area" hidden></pre>
+    </div>
+  </main>
+
+  <script src="api.js"></script>
+  <script>
+    // Verificar sesión
+    const perfil = sessionStorage.getItem('perfil');
+    if (!perfil) { window.location.href = 'index.html'; }
+
+    const usuario = JSON.parse(sessionStorage.getItem('usuario') || '{}');
+    document.getElementById('user-nombre').textContent = usuario.nombre || '';
+    document.getElementById('avatar-initials').textContent =
+      (usuario.nombre || 'A').split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
+
+    const badgePerfil = document.getElementById('badge-perfil');
+    badgePerfil.textContent = perfil;
+    badgePerfil.className = `badge badge-${perfil}`;
+
+    // Ajustar navbar según perfil
+    if (perfil !== 'admin') {
+      document.querySelector('.navbar-nav').innerHTML = `
+        <li><a href="${perfil}.html">🏠 Inicio</a></li>
+        <li><a href="viewer.html" class="active">🔍 Visor JSON</a></li>
+      `;
+    }
+
+    // Ocultar /usuarios para no-admin
+    if (perfil !== 'admin') {
+      const optUsuarios = document.querySelector('#sel-recurso option[value="usuarios"]');
+      if (optUsuarios) optUsuarios.remove();
+      document.getElementById('sel-recurso').value = 'schedule';
+    }
+
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      sessionStorage.clear(); window.location.href = 'index.html';
+    });
+
+    let datosActuales = [];
+
+    // Cargar datos
+    async function cargarDatos() {
+      const recurso = document.getElementById('sel-recurso').value;
+      ocultarTodo();
+      document.getElementById('loading-area').hidden = false;
+
+      try {
+        let datos;
+        if (recurso === 'usuarios') datos = await getUsuarios();
+        else if (recurso === 'entidades') datos = await getEntidades();
+        else if (recurso === "campanias") datos = await getCampanias();
+        else if (recurso === "tiendas") datos = await getTiendas();
+        else if (recurso === "turnos") datos = await getTurnos();
+
+        datosActuales = datos;
+        document.getElementById('loading-area').hidden = true;
+        renderVista(datos);
+      } catch (err) {
+        document.getElementById('loading-area').hidden = true;
+        document.getElementById('error-msg').textContent = err.message;
+        document.getElementById('error-area').hidden = false;
+      }
+    }
+
+    function ocultarTodo() {
+      ['estado-inicial', 'loading-area', 'error-area', 'vista-cards', 'vista-table', 'vista-raw']
+        .forEach(id => { document.getElementById(id).hidden = true; });
+      document.getElementById('count-badge').textContent = '';
+    }
+
+    function renderVista(datos) {
+      const vista = document.getElementById('sel-vista').value;
+      const filtro = document.getElementById('input-filtro').value.toLowerCase();
+      const filtrado = filtro
+        ? datos.filter(item => JSON.stringify(item).toLowerCase().includes(filtro))
+        : datos;
+
+      document.getElementById('count-badge').textContent = `${filtrado.length} resultados`;
+
+      if (vista === 'cards') renderCards(filtrado);
+      else if (vista === 'table') renderTable(filtrado);
+      else renderRaw(filtrado);
+    }
+
+    // === Vista: Tarjetas ===
+    function renderCards(datos) {
+      const container = document.getElementById('vista-cards');
+      container.innerHTML = '';
+      if (!datos.length) {
+        container.innerHTML = '<div style="padding:32px;color:var(--color-text-muted);grid-column:1/-1">Sin resultados</div>';
+      }
+      datos.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = 'json-card';
+        card.innerHTML = `
+          <div class="json-card-header">
+            <span>${document.getElementById('sel-recurso').value.slice(0, -1)} #${item.id ?? idx + 1}</span>
+            ${item.puesto ? `<span class="badge badge-${item.puesto}" style="font-size:11px">${item.puesto}</span>` : ''}
+            ${item.turno ? `<span class="badge badge-worker" style="font-size:11px">${item.turno}</span>` : ''}
+          </div>
+          <div class="json-card-body">
+            ${Object.entries(item).map(([k, v]) =>
+          `<div class="json-field">
+                <span class="json-field-key">${k}</span>
+                <span class="json-field-val">${renderValue(v)}</span>
+              </div>`
+        ).join('')}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+      container.hidden = false;
+    }
+
+    function renderValue(v) {
+      if (v === null) return '<em style="color:var(--color-text-muted)">null</em>';
+      if (typeof v === 'boolean') return v
+        ? '<span class="badge badge-active">true</span>'
+        : '<span class="badge badge-inactive">false</span>';
+      if (typeof v === 'object') return `<code style="font-size:11px">${JSON.stringify(v)}</code>`;
+      return String(v);
+    }
+
+    // === Vista: Tabla ===
+    function renderTable(datos) {
+      if (!datos.length) {
+        document.getElementById('table-body').innerHTML = '<tr><td colspan="99" style="text-align:center;color:var(--color-text-muted);padding:32px">Sin resultados</td></tr>';
+        document.getElementById('vista-table').hidden = false;
+        return;
+      }
+      const keys = Object.keys(datos[0]);
+      document.getElementById('table-head').innerHTML =
+        `<tr>${keys.map(k => `<th>${k}</th>`).join('')}<th>JSON</th></tr>`;
+      document.getElementById('table-body').innerHTML = datos.map(item =>
+        `<tr>
+          ${keys.map(k => `<td>${renderValue(item[k])}</td>`).join('')}
+          <td>
+            <button class="btn btn-outline btn-sm" onclick='verRaw(${JSON.stringify(item)})'>{ }</button>
+          </td>
+        </tr>`
+      ).join('');
+      document.getElementById('vista-table').hidden = false;
+    }
+
+    function verRaw(item) {
+      document.getElementById('sel-vista').value = 'raw';
+      const pre = document.getElementById('vista-raw');
+      ['vista-cards', 'vista-table'].forEach(id => { document.getElementById(id).hidden = true; });
+      pre.innerHTML = syntaxHighlight(JSON.stringify(item, null, 2));
+      pre.hidden = false;
+    }
+
+    // === Vista: JSON raw ===
+    function renderRaw(datos) {
+      const pre = document.getElementById('vista-raw');
+      pre.innerHTML = syntaxHighlight(JSON.stringify(datos, null, 2));
+      pre.hidden = false;
+    }
+
+    // Coloreado de syntax JSON
+    function syntaxHighlight(json) {
+      return json
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(
+          /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+          match => {
+            if (/^"/.test(match)) {
+              if (/:$/.test(match)) return `<span class="json-key">${match}</span>`;
+              return `<span class="json-string">${match}</span>`;
+            }
+            if (/true|false/.test(match)) return `<span class="json-bool">${match}</span>`;
+            if (/null/.test(match)) return `<span class="json-null">${match}</span>`;
+            return `<span class="json-number">${match}</span>`;
+          }
+        )
+        .replace(/([{}\[\]])/g, '<span class="json-bracket">$1</span>');
+    }
+
+    // Eventos
+    document.getElementById('btn-cargar').addEventListener('click', cargarDatos);
+
+    document.getElementById('sel-vista').addEventListener('change', () => {
+      if (datosActuales.length) {
+        ocultarTodo();
+        renderVista(datosActuales);
+      }
+    });
+
+    document.getElementById('input-filtro').addEventListener('input', () => {
+      if (datosActuales.length) {
+        ocultarTodo();
+        renderVista(datosActuales);
+      }
+    });
+
+    // Tecla Enter para cargar
+    document.getElementById('sel-recurso').addEventListener('keydown', e => {
+      if (e.key === 'Enter') cargarDatos();
+    });
+  </script>
+</body>
+
+</html>
