@@ -83,12 +83,13 @@ server.use((req, res, next) => {
   const isUsuarios = req.path.startsWith('/usuarios');
   const isEntidades = req.path.startsWith('/entidades');
   const isCampanias = req.path.startsWith('/campanias');
+  const isVoluntarios = req.path.startsWith("/voluntarios");
   const isTiendas = req.path.startsWith('/tiendas');
   const isTurnos = req.path.startsWith('/turnos');
   const isSchedule = req.path.startsWith('/schedule');
 
 
-  if (!isUsuarios && !isSchedule && !isEntidades && !isCampanias && !isTiendas && !isTurnos) return next();
+  if (!isUsuarios && !isSchedule && !isEntidades && !isCampanias && !isTiendas && !isTurnos && !isVoluntarios) return next();
 
   const user = verifyToken(req.headers['authorization']);
   if (!user) {

@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Inicio de sesión</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="common.css">
+  <link rel="stylesheet" href="login.css">
 </head>
+
 <body class="page-login">
 
   <div class="login-container">
@@ -19,12 +22,14 @@
       <form id="form-login" novalidate>
         <div class="field">
           <label for="nombreUsuario">Usuario</label>
-          <input type="text" id="nombreUsuario" name="nombreUsuario" placeholder="admin" autocomplete="username" required>
+          <input type="text" id="nombreUsuario" name="nombreUsuario" placeholder="admin" autocomplete="username"
+            required>
         </div>
         <div class="field">
           <label for="contrasena">Contraseña</label>
           <div class="input-wrap">
-            <input type="password" id="contrasena" name="contrasena" placeholder="••••••••" autocomplete="current-password" required>
+            <input type="password" id="contrasena" name="contrasena" placeholder="••••••••"
+              autocomplete="current-password" required>
             <button type="button" class="btn-eye" id="btn-eye" aria-label="Mostrar contraseña">👁</button>
           </div>
         </div>
@@ -85,8 +90,8 @@
         sessionStorage.setItem('usuario', JSON.stringify(data.user));
 
         const destino = data.user.puesto === 'admin' ? 'admin.html'
-                      : data.user.puesto === 'manager' ? 'manager.html'
-                      : 'worker.html';
+          : data.user.puesto === 'manager' ? 'manager.html'
+            : 'worker.html';
         window.location.href = destino;
       } catch (err) {
         errorEl.textContent = err.message;
@@ -98,4 +103,5 @@
     });
   </script>
 </body>
+
 </html>

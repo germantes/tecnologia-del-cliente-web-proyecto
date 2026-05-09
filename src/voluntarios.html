@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voluntarios — ViewPage</title>
+    <link rel="stylesheet" href="common.css">
+</head>
+
+<body class="page-app">
+
+    <nav class="navbar">
+        <div class="navbar-right">
+            <div class="user-chip">
+                <div class="user-avatar avatar-admin" id="avatar-initials">A</div>
+                <span id="user-nombre">Cargando...</span>
+                <span class="badge badge-admin" id="perfil-badge">admin</span>
+            </div>
+            <button class="btn btn-outline btn-sm" id="btn-logout">Cerrar sesión</button>
+        </div>
+    </nav>
+
+    <main class="main">
+        <div class="page-header">
+            <div>
+                <div class="page-title">👥 Voluntarios</div>
+                <div class="page-sub">Consulta y gestión de voluntarios</div>
+            </div>
+            <button class="btn btn-primary" id="btn-nuevo">+ Nuevo voluntario</button>
+        </div>
+
+        <div id="msg-area"></div>
+
+        <div class="card">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;align-items:center;">
+                <input id="search-voluntario" type="search" placeholder="Buscar por nombre, email, teléfono o entidad"
+                    class="field" style="flex:1;min-width:220px;">
+            </div>
+
+            <div id="loading-area" class="loading">
+                <div class="spinner"></div> Cargando voluntarios...
+            </div>
+
+            <div class="table-wrap" id="tabla-wrap" hidden>
+                <table id="tabla-voluntarios">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Teléfono</th>
+                            <th>Entidad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-voluntarios"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal crear voluntario -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <div class="modal-title" id="modal-titulo">Nuevo voluntario</div>
+            <form id="form-voluntario" novalidate>
+                <div class="field">
+                    <label>Nombre</label>
+                    <input type="text" id="field-nombre" required placeholder="Nombre completo">
+                </div>
+                <div class="field">
+                    <label>Email</label>
+                    <input type="email" id="field-email" required placeholder="voluntario@ejemplo.com">
+                </div>
+                <div class="field">
+                    <label>Teléfono</label>
+                    <input type="text" id="field-telefono" required placeholder="600123456">
+                </div>
+                <div class="field">
+                    <label>Id de entidad</label>
+                    <input type="number" id="field-idEntidad" required placeholder="Id de entidad">
+                </div>
+                <div id="modal-error" class="alert alert-error" hidden></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="btn-cancelar">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btn-guardar">Crear voluntario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        const perfil = sessionStorage.getItem('perfil');
+        const allowedRoles = ['admin', 'coordinador'];
+        if (!perfil || !allowedRoles.includes(perfil)) {
+            window.location.href = 'index.html';
+        }
+
+        const usuario = JSON.parse(sessionStorage.getItem('usuario') || '{}');
+        document.getElementById('user-nombre').textContent = usuario.nombre || usuario.nombreUsuario || '';
+        document.getElementById('avatar-initials').textContent =
+            (usuario.nombre || 'A').split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
+        const avatarEl = document.getElementById('avatar-initials');
+        avatarEl.className = `user-avatar avatar-${perfil}`;
+        document.getElementById('perfil-badge').textContent = perfil;
+        document.getElementById('perfil-badge').className = `badge badge-${perfil}`;
+
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            sessionStorage.clear();
+            window.location.href = 'index.html';
+        });
+
+        const isAdmin = perfil === 'admin';
+        const searchInput = document.getElementById('search-voluntario');
+        const msgArea = document.getElementById('msg-area');
+        const loadingArea = document.getElementById('loading-area');
+        const tablaWrap = document.getElementById('tabla-wrap');
+        const tbody = document.getElementById('tbody-voluntarios');
+        const modal = document.getElementById('modal');
+        const form = document.getElementById('form-voluntario');
+        const modalError = document.getElementById('modal-error');
+        const saveBtn = document.getElementById('btn-guardar');
+
+        let voluntarios = [];
+
+        if (!isAdmin) {
+            msgArea.innerHTML = `<div class="alert alert-info">Como coordinador puedes crear voluntarios y editar solo datos de contacto desde el editor.</div>`;
+        }
+
+        document.getElementById('btn-nuevo').addEventListener('click', () => {
+            document.getElementById('modal-titulo').textContent = 'Nuevo voluntario';
+            form.reset();
+            modalError.hidden = true;
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Crear voluntario';
+            modal.classList.add('open');
+        });
+
+        document.getElementById('btn-cancelar').addEventListener('click', cerrarModal);
+        modal.addEventListener('click', e => { if (e.target === modal) cerrarModal(); });
+
+        searchInput.addEventListener('input', filtrar);
+
+        async function cargarVoluntarios() {
+            loadingArea.hidden = false;
+            tablaWrap.hidden = true;
+            try {
+                voluntarios = await getVoluntarios();
+                renderTabla(voluntarios);
+                tablaWrap.hidden = false;
+            } catch (err) {
+                tablaWrap.hidden = true;
+                loadingArea.innerHTML = `<div class="alert alert-error">${err.message}</div>`;
+            } finally {
+                if (tablaWrap.hidden) return;
+                loadingArea.hidden = true;
+            }
+        }
+
+        function renderTabla(lista) {
+            tbody.innerHTML = '';
+            if (!lista.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5"><div class="alert alert-info">No hay voluntarios que coincidan con la búsqueda.</div></td>
+                    </tr>
+                `;
+                return;
+            }
+
+            lista.forEach(v => {
+                const recordId = v.id ?? v.idVoluntario;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${v.nombre}</strong></td>
+                    <td>${v.email}</td>
+                    <td>${v.telefono || '-'}</td>
+                    <td>${v.idEntidad ?? '-'}</td>
+                    <td>
+                        <a href="edit.html?type=voluntarios&id=${recordId}" class="btn btn-outline btn-sm">✏️ Editar</a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filtrar() {
+            const term = searchInput.value.trim().toLowerCase();
+            const filtrados = voluntarios.filter(v => {
+                return [v.nombre, v.email, v.telefono, v.idEntidad].some(value =>
+                    value !== undefined && String(value).toLowerCase().includes(term)
+                );
+            });
+            renderTabla(filtrados);
+        }
+
+        function cerrarModal() {
+            modal.classList.remove('open');
+            modalError.hidden = true;
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Guardando...';
+            modalError.hidden = true;
+
+            const datos = {
+                nombre: document.getElementById('field-nombre').value.trim(),
+                email: document.getElementById('field-email').value.trim(),
+                telefono: document.getElementById('field-telefono').value.trim(),
+                idEntidad: Number(document.getElementById('field-idEntidad').value)
+            };
+
+            try {
+                await postVoluntario(datos);
+                cerrarModal();
+                mostrarMsg('✅ Voluntario creado correctamente.', 'success');
+                await cargarVoluntarios();
+            } catch (err) {
+                modalError.textContent = err.message;
+                modalError.hidden = false;
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Crear voluntario';
+            }
+        });
+
+        function mostrarMsg(texto, tipo) {
+            msgArea.innerHTML = `<div class="alert alert-${tipo}">${texto}</div>`;
+            setTimeout(() => { msgArea.innerHTML = ''; }, 4000);
+        }
+
+        cargarVoluntarios();
+    </script>
+</body>
+
+</html>

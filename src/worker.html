@@ -1,30 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Worker — Panel</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="common.css">
 </head>
+
 <body class="page-app">
 
-  <nav class="navbar">
-    <a href="worker.html" class="navbar-brand">
-      <span class="navbar-icon">⬡</span> Mi Panel
-    </a>
-    <ul class="navbar-nav">
-      <li><a href="worker.html" class="active">🏠 Inicio</a></li>
-      <li><a href="viewer.html">🔍 Visor JSON</a></li>
-    </ul>
-    <div class="navbar-right">
-      <div class="user-chip">
-        <div class="user-avatar avatar-worker" id="avatar-initials">W</div>
-        <span id="user-nombre">Cargando...</span>
-        <span class="badge badge-worker">worker</span>
-      </div>
-      <button class="btn btn-outline btn-sm" id="btn-logout">Cerrar sesión</button>
-    </div>
-  </nav>
+  <app-header></app-header>
 
   <main class="main">
     <div class="page-header">
@@ -47,25 +33,22 @@
     <div class="card">
       <div class="card-title" style="margin-bottom:16px">Mis datos</div>
       <div id="mi-info">
-        <div class="loading"><div class="spinner"></div> Cargando...</div>
+        <div class="loading">
+          <div class="spinner"></div> Cargando...
+        </div>
       </div>
     </div>
   </main>
 
+  <app-footer></app-footer>
+
   <script src="api.js"></script>
+  <script src="components.js"></script>
   <script>
     const perfil = sessionStorage.getItem('perfil');
     if (!perfil || perfil !== 'worker') { window.location.href = 'index.html'; }
 
     const usuario = JSON.parse(sessionStorage.getItem('usuario') || '{}');
-    document.getElementById('user-nombre').textContent = usuario.nombre || '';
-    document.getElementById('avatar-initials').textContent =
-      (usuario.nombre || 'W').split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase();
-
-    document.getElementById('btn-logout').addEventListener('click', () => {
-      sessionStorage.clear(); window.location.href = 'index.html';
-    });
-
     // Mostrar info del usuario desde sessionStorage
     const info = document.getElementById('mi-info');
     info.innerHTML = `
@@ -92,4 +75,5 @@
     `;
   </script>
 </body>
+
 </html>

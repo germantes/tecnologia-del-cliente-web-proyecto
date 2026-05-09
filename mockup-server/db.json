@@ -19,6 +19,48 @@
       "rol": "VOLUNTARIO"
     }
   ],
+  "voluntarios": [
+    {
+      "idVoluntario": 1,
+      "id": 1,
+      "nombre": "Carlos López",
+      "email": "carlos@example.com",
+      "telefono": "600123456",
+      "idEntidad": 15
+    },
+    {
+      "idVoluntario": 2,
+      "id": 2,
+      "nombre": "María García",
+      "email": "maria@example.com",
+      "telefono": "600234567",
+      "idEntidad": 251
+    },
+    {
+      "idVoluntario": 3,
+      "id": 3,
+      "nombre": "Juan Rodríguez",
+      "email": "juan@example.com",
+      "telefono": "600345678",
+      "idEntidad": 105
+    },
+    {
+      "idVoluntario": 4,
+      "id": 4,
+      "nombre": "Ana Martínez",
+      "email": "ana@example.com",
+      "telefono": "600456789",
+      "idEntidad": 36
+    },
+    {
+      "idVoluntario": 5,
+      "id": 5,
+      "nombre": "Pedro Sánchez",
+      "email": "pedro@example.com",
+      "telefono": "600567890",
+      "idEntidad": 7
+    }
+  ],
   "campanias": [
     {
       "idCampania": 1,
