@@ -1,0 +1,20 @@
+services:
+  server:
+    build:
+      context: ./mockup-server
+      dockerfile: Dockerfile
+    container_name: bancosol-server
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_KEY: ${SUPABASE_KEY}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./mockup-server:/app
+      - ./src:/src
+      - /app/node_modules
+    command: npm run dev
+    restart: unless-stopped
