@@ -1,0 +1,96 @@
+/* login.css — Estilos específicos para la página de login */
+
+/* === Layout página === */
+.page-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+}
+
+/* === Login card === */
+.login-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    padding: 40px 36px;
+    box-shadow: var(--shadow-lg);
+}
+
+.login-brand {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.brand-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    color: var(--color-primary);
+}
+
+.login-brand h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 4px;
+}
+
+.brand-sub {
+    color: var(--color-text-muted);
+    font-size: 14px;
+}
+
+.login-hint {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-border);
+}
+
+.login-hint p {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    margin-bottom: 8px;
+}
+
+.hint-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* === Formularios específicos === */
+.input-wrap {
+    position: relative;
+}
+
+.input-wrap input {
+    padding-right: 40px;
+}
+
+.btn-eye {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    color: var(--color-text-muted);
+}
+
+/* === Botones específicos === */
+.btn-text {
+    display: inline;
+}
+
+.btn-spinner {
+    animation: spin .6s linear infinite;
+}

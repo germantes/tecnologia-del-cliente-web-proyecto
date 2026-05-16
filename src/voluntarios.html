@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voluntarios — ViewPage</title>
-    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="css/common.css">
 </head>
 
 <body class="page-app">
@@ -89,10 +89,10 @@
         </div>
     </div>
 
-    <script src="api.js"></script>
+    <script src="js/api.js"></script>
     <script>
         const perfil = sessionStorage.getItem('perfil');
-        const allowedRoles = ['admin', 'coordinador'];
+        const allowedRoles = ['admin', 'manager'];
         if (!perfil || !allowedRoles.includes(perfil)) {
             window.location.href = 'index.html';
         }

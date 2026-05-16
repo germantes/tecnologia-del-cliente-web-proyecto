@@ -5,8 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manager — Panel</title>
-  <link rel="stylesheet" href="common.css">
-  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/dashboard.css">
 </head>
 
 <body class="page-app">
@@ -58,11 +58,13 @@
 
   <app-footer></app-footer>
 
-  <script src="api.js"></script>
-  <script src="components.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/components.js"></script>
   <script>
     const perfil = sessionStorage.getItem('perfil');
-    if (!perfil || perfil !== 'manager') { window.location.href = 'index.html'; }
+    if (!perfil || (perfil !== 'manager' && perfil !== 'admin')) { 
+      window.location.href = 'index.html'; 
+    }
 
     async function cargarSchedule() {
       document.getElementById('loading-area').hidden = false;

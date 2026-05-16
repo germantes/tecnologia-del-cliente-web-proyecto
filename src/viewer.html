@@ -5,8 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visor JSON — API Explorer</title>
-  <link rel="stylesheet" href="common.css">
-  <link rel="stylesheet" href="viewer.css">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/viewer.css">
 </head>
 
 <body class="page-app">
@@ -43,14 +43,13 @@
 
         <input type="text" id="input-filtro" placeholder="🔎 Filtrar..." style="flex:1;min-width:120px">
 
-        <button class="btn btn-primary btn-sm" id="btn-cargar">Cargar</button>
         <span id="count-badge" style="font-size:12px;color:var(--color-text-muted)"></span>
       </div>
 
       <!-- Estado inicial -->
-      <div id="estado-inicial" style="padding:48px;text-align:center;color:var(--color-text-muted)">
+      <div id="estado-inicial" style="padding:48px;text-align:center;color:var(--color-text-muted)" hidden>
         <div style="font-size:40px;margin-bottom:12px">🗄️</div>
-        <div>Selecciona un recurso y pulsa <strong>Cargar</strong></div>
+        <div>Cargando datos...</div>
       </div>
 
       <!-- Loading -->
@@ -81,8 +80,8 @@
 
   <app-footer></app-footer>
 
-  <script src="api.js"></script>
-  <script src="components.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/components.js"></script>
   <script>
     // Verificar sesión
     const perfil = sessionStorage.getItem('perfil');
@@ -100,8 +99,14 @@
     // Cargar datos
     async function cargarDatos() {
       const recurso = document.getElementById('sel-recurso').value;
+      
+      // Si no hay recurso seleccionado, no hacer nada
+      if (!recurso) {
+        return;
+      }
+      
       ocultarTodo();
-      document.getElementById('loading-area').hidden = false;
+      document.getElementById('loading-area').style.display = 'block';
 
       try {
         let datos;
@@ -112,19 +117,23 @@
         else if (recurso === "turnos") datos = await getTurnos();
         else if (recurso === "voluntarios") datos = await getVoluntarios();
 
-        datosActuales = datos;
-        document.getElementById('loading-area').hidden = true;
-        renderVista(datos);
+        datosActuales = datos || [];
+        ocultarTodo();
+        renderVista(datosActuales);
       } catch (err) {
-        document.getElementById('loading-area').hidden = true;
+        ocultarTodo();
         document.getElementById('error-msg').textContent = err.message;
-        document.getElementById('error-area').hidden = false;
+        document.getElementById('error-area').style.display = 'block';
       }
     }
 
     function ocultarTodo() {
-      ['estado-inicial', 'loading-area', 'error-area', 'vista-cards', 'vista-table', 'vista-raw']
-        .forEach(id => { document.getElementById(id).hidden = true; });
+      document.getElementById('estado-inicial').style.display = 'none';
+      document.getElementById('loading-area').style.display = 'none';
+      document.getElementById('error-area').style.display = 'none';
+      document.getElementById('vista-cards').style.display = 'none';
+      document.getElementById('vista-table').style.display = 'none';
+      document.getElementById('vista-raw').style.display = 'none';
       document.getElementById('count-badge').textContent = '';
     }
 
@@ -135,6 +144,11 @@
         ? datos.filter(item => JSON.stringify(item).toLowerCase().includes(filtro))
         : datos;
 
+      // Ocultar todas las vistas primero
+      document.getElementById('vista-cards').style.display = 'none';
+      document.getElementById('vista-table').style.display = 'none';
+      document.getElementById('vista-raw').style.display = 'none';
+      
       document.getElementById('count-badge').textContent = `${filtrado.length} resultados`;
 
       if (vista === 'cards') renderCards(filtrado);
@@ -146,9 +160,13 @@
     function renderCards(datos) {
       const container = document.getElementById('vista-cards');
       container.innerHTML = '';
+      container.style.display = 'grid';
+      
       if (!datos.length) {
         container.innerHTML = '<div style="padding:32px;color:var(--color-text-muted);grid-column:1/-1">Sin resultados</div>';
+        return;
       }
+      
       datos.forEach((item, idx) => {
         const card = document.createElement('div');
         card.className = 'json-card';
@@ -169,7 +187,6 @@
         `;
         container.appendChild(card);
       });
-      container.hidden = false;
     }
 
     function renderValue(v) {
@@ -183,9 +200,10 @@
 
     // === Vista: Tabla ===
     function renderTable(datos) {
+      const container = document.getElementById('vista-table');
       if (!datos.length) {
         document.getElementById('table-body').innerHTML = '<tr><td colspan="99" style="text-align:center;color:var(--color-text-muted);padding:32px">Sin resultados</td></tr>';
-        document.getElementById('vista-table').hidden = false;
+        container.style.display = 'block';
         return;
       }
       const keys = Object.keys(datos[0]);
@@ -199,22 +217,23 @@
           </td>
         </tr>`
       ).join('');
-      document.getElementById('vista-table').hidden = false;
+      container.style.display = 'block';
     }
 
     function verRaw(item) {
       document.getElementById('sel-vista').value = 'raw';
       const pre = document.getElementById('vista-raw');
-      ['vista-cards', 'vista-table'].forEach(id => { document.getElementById(id).hidden = true; });
+      document.getElementById('vista-cards').style.display = 'none';
+      document.getElementById('vista-table').style.display = 'none';
       pre.innerHTML = syntaxHighlight(JSON.stringify(item, null, 2));
-      pre.hidden = false;
+      pre.style.display = 'block';
     }
 
     // === Vista: JSON raw ===
     function renderRaw(datos) {
       const pre = document.getElementById('vista-raw');
       pre.innerHTML = syntaxHighlight(JSON.stringify(datos, null, 2));
-      pre.hidden = false;
+      pre.style.display = 'block';
     }
 
     // Coloreado de syntax JSON
@@ -237,26 +256,25 @@
     }
 
     // Eventos
-    document.getElementById('btn-cargar').addEventListener('click', cargarDatos);
+    document.getElementById('sel-recurso').addEventListener('change', cargarDatos);
 
     document.getElementById('sel-vista').addEventListener('change', () => {
-      if (datosActuales.length) {
-        ocultarTodo();
+      if (datosActuales && datosActuales.length) {
         renderVista(datosActuales);
       }
     });
 
     document.getElementById('input-filtro').addEventListener('input', () => {
-      if (datosActuales.length) {
-        ocultarTodo();
+      if (datosActuales && datosActuales.length) {
         renderVista(datosActuales);
       }
     });
 
-    // Tecla Enter para cargar
-    document.getElementById('sel-recurso').addEventListener('keydown', e => {
-      if (e.key === 'Enter') cargarDatos();
-    });
+    // Cargar datos automáticamente al iniciar solo si hay un recurso seleccionado
+    const recursoInicial = document.getElementById('sel-recurso').value;
+    if (recursoInicial) {
+      cargarDatos();
+    }
   </script>
 </body>
 
