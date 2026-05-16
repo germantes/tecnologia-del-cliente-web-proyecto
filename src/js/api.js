@@ -1,7 +1,8 @@
-// api.js — Funciones de comunicación con el servidor (json-server)
+// api.js — Funciones de comunicación con el servidor
 // Todas las funciones son asíncronas y devuelven una promesa con los datos
 
-const API_BASE = 'http://localhost:3000';
+// Usar la URL de la API desde window.API_URL (inyectada por index.html) o la por defecto
+const API_BASE = window.API_URL || 'http://localhost:3000';
 
 // Obtiene el token del sessionStorage
 function getToken() {

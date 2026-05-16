@@ -12,6 +12,20 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Middleware para inyectar la URL de la API en los archivos HTML
+app.use((req, res, next) => {
+  const originalSend = res.send;
+  res.send = function(data) {
+    if (typeof data === 'string' && data.includes('</head>')) {
+      const apiUrl = process.env.API_URL || `http://localhost:${PORT}`;
+      const injection = `<script>window.API_URL = '${apiUrl}';</script>`;
+      data = data.replace('</head>', injection + '</head>');
+    }
+    return originalSend.call(this, data);
+  };
+  next();
+});
+
 // Servir archivos estáticos desde /src (montado en Docker)
 const srcPath = process.env.NODE_ENV === 'development' 
   ? '/src' 
