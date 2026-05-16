@@ -10,6 +10,7 @@ services:
       SUPABASE_URL: ${SUPABASE_URL}
       SUPABASE_KEY: ${SUPABASE_KEY}
       SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
+      API_URL: ${API_URL}
     ports:
       - "3000:3000"
     volumes:
