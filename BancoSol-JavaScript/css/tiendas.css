@@ -1,0 +1,103 @@
+:root {
+    --twilight-indigo: #323266;
+    --sky-surge: #58b9da;
+    --graphite: #333333;
+    --white: #ffffff;
+    --bg-gray: #f4f6f8;
+    --font-main: 'Poppins', sans-serif;
+    --font-alt: 'Raleway', sans-serif;
+}
+
+body {
+    font-family: var(--font-main);
+    color: var(--graphite);
+    background-color: var(--bg-gray);
+    margin: 0;
+    padding: 20px 40px;
+}
+
+/* H1 de la cabecera */
+header {
+    background-color: var(--twilight-indigo);
+    padding: 40px 20px;
+    margin-bottom: 40px;
+}
+
+header h1 {
+    font-family: var(--font-alt);
+    color: var(--white);
+    text-align: center;
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Cuadrícula */
+.tiendas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Cada tienda */
+.tienda-card {
+    background-color: var(--white);
+    border: 6px solid var(--twilight-indigo);
+    border-radius: 12px;
+    padding: 0 20px 20px 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.titulo-tienda {
+    font-family: var(--font-alt);
+    color: var(--twilight-indigo);
+    margin-top: 20px;
+    padding-bottom: 15px;
+    text-align: center;
+    font-size: 1.4rem;
+}
+
+.tienda-card p {
+    margin: 0;
+    padding: 12px 0;
+    font-size: 0.95rem;
+    border-top: 1px solid #d1d5db;
+}
+
+.tienda-card p:first-of-type {
+    border-top: 2px solid var(--twilight-indigo);
+}
+
+.tienda-card strong {
+    color: var(--twilight-indigo);
+    display: inline-block;
+    width: 85px;
+}
+
+/* Botones */
+.botones-card {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid #d1d5db;
+}
+
+.btn-editar, .btn-info {
+    background-color: var(--sky-surge);
+    color: var(--white);
+    border: none;
+    padding: 8px 30px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-editar:hover, .btn-info:hover {
+    background-color: var(--twilight-indigo);
+}
