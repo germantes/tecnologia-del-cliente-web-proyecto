@@ -1,2 +1,2 @@
-// config.js — Configuración de la API
-window.API_URL = 'https://cliente-7sow.onrender.com';
+// config.js — Configuración de la API local
+window.API_URL = 'http://localhost:3000';
