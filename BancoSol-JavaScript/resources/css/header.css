@@ -74,6 +74,7 @@
     font: 700 1rem 'Poppins', sans-serif;
     cursor: pointer;
     transition: color 0.25s ease;
+    text-decoration: none;
 }
 
 .bancosol-header__nav-item:hover {
