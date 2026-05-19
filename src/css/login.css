@@ -1,77 +1,198 @@
-/* Basic Reset for consistent positioning */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+:root {
+  --twilight-indigo: #323266;
+  --sky-surge: #58b9da;
+  --graphite: #333333;
+  --white: #ffffff;
+  --grey: #e0e0e0;
+
+  --font-main: "Poppins", sans-serif;
+  --font-alt: "Raleway", sans-serif;
 }
 
-body, html {
-    height: 100%;
-}
-
+html,
 body {
-    display: flex;
-    flex-direction: column;
+  height: 100%;
+  font-family: var(--font-main);
+  color: var(--graphite);
+  line-height: 1.6;
+  background-color: var(--sky-surge);
+  display: flex;
+  flex-direction: column;
 }
 
-/* Header occupying all visible width with margins */
-.header {
-    width: 100%;
-    padding: 20px;
-    margin-bottom: 20px;
-    text-align: center;
+h1 {
+  font-family: var(--font-alt);
+  color: var(--white);
+  font-weight: 700;
+  font-size: 2.5rem;
 }
 
-.header h1 {
-    font-size: 3.5rem;
+p {
+  margin-bottom: 1.5rem;
 }
 
-/* Main container to center the form in the middle of the screen */
+a {
+  color: var(--sky-surge);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+a:hover {
+  color: var(--twilight-indigo);
+  text-decoration: underline;
+}
+
 .login-container {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    font-size: 1.1rem;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.login-card {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  min-width: 300px;
+  border-radius: 20px;
+  background-color: var(--white);
+  border: 10px solid var(--twilight-indigo);
+}
 
-/* Flexbox layout for the form */
+.login-brand {
+  background-color: var(--twilight-indigo);
+  text-align: center;
+  margin: -2px;
+}
+
 .login-form {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-width: 400px;
-    gap: 20px; /* Space between form fields */
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
 }
 
-/* Grouping labels and inputs */
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
 }
 
-.form-group input {
-    padding: 10px;
+.field label {
+  font-family: var(--font-main);
+  font-weight: 600;
+  color: var(--graphite);
+  margin-bottom: 6px;
 }
 
-/* Positioning the button and link below the fields */
-.form-actions {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    margin-top: 10px;
+.field .input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.form-actions button {
-    width: 50%;
-    padding: 12px;
-    font-size: 1rem;
-    background-color: var(--twilight-indigo);
-    border: none;
-    border-radius: 4px;
-    color: var(--white);
+.field input {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  border: 1px solid var(--grey);
+  border-radius: 8px;
+  font-family: var(--font-main);
+  color: var(--graphite);
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--sky-surge);
+  box-shadow: 0 0 0 3px rgba(88, 185, 218, 0.1);
+}
+
+.field input::placeholder {
+  color: var(--grey);
+}
+
+.btn-eye {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+  transition:
+    opacity 0.3s,
+    color 0.3s;
+}
+
+.btn-eye:hover {
+  opacity: 1;
+}
+
+.eye-icon {
+  width: 20px;
+  height: 20px;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.btn {
+  padding: 14px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background-color: var(--twilight-indigo);
+  color: var(--white);
+}
+
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(50, 50, 102, 0.3);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.alert-error {
+  font-size: 0.95rem;
+  margin-top: -16px;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  color: #c33;
+}
+
+.btn-spinner {
+    width: 14px;
+    height: 14px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
