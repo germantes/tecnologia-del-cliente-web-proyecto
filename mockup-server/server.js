@@ -648,6 +648,89 @@ app.delete('/schedule/:id', requireAuth, async (req, res) => {
   try { res.json(await deleteRows('turno', 'id_turno', req.params.id)); } catch (e) { sendError(res, e, 'Error eliminando schedule'); }
 });
 
+// =========================================================================
+// MIGRACIÓN DE TIENDACONTROLLER.JAVA: ENDPOINT PARA LISTAR TIENDAS POR ROL
+// =========================================================================
+app.get('/api/tiendas', requireAuth, async (req, res) => {
+  try {
+    // 1. Adaptado al payload del token de tus compañeros
+    const id_usuario = req.user.id;
+    const puesto = req.user.puesto.toUpperCase(); // Será ADMIN, MANAGER o WORKER
+
+    const { idZona, participa } = req.query;
+
+    let query = supabase
+        .from('tienda')
+        .select(`
+                id_tienda, domicilio,
+                cadena (id_cadena, establecimiento),
+                cp (
+                    cp, localidad, municipio,
+                    zona (id_zona, zona_geografica),
+                    distrito (id_distrito, nombre_distrito)
+                ),
+                tienda_campania (participa, capitan_id, coordinador_id)
+            `);
+
+    // --- APLICAR FILTRADO ESTRICTO SEGÚN EL ROL ---
+    if (puesto === 'ADMIN') {
+      if (idZona && idZona !== '0') {
+        query = query.eq('cp.id_zona', idZona);
+      }
+      if (participa && participa !== 'all') {
+        query = query.eq('tienda_campania.participa', participa === 'true');
+      }
+
+    } else if (puesto === 'MANAGER') { // Equivale a tu COORDINADOR
+      // Como el CP no viene en el token, lo consultamos un momento en la BD
+      const { data: usuarioData } = await supabase
+          .from('usuario')
+          .select('id_cp')
+          .eq('id_usuario', id_usuario)
+          .single();
+
+      if (usuarioData && usuarioData.id_cp) {
+        const { data: userCp } = await supabase
+            .from('cp')
+            .select('id_zona')
+            .eq('cp', usuarioData.id_cp)
+            .single();
+
+        if (userCp) {
+          query = query.eq('cp.id_zona', userCp.id_zona);
+        }
+      }
+      query = query.eq('tienda_campania.participa', true);
+
+    } else if (puesto === 'WORKER') { // Equivale a tu CAPITAN / RESP. ENTIDAD
+      query = query.eq('tienda_campania.capitan_id', id_usuario);
+      query = query.eq('tienda_campania.participa', true);
+    }
+
+    const { data: tiendas, error } = await query;
+    if (error) throw error;
+
+    const tiendasFiltradas = tiendas.filter(t => {
+      if (!t.cp) return false;
+      if (puesto !== 'ADMIN' && (!t.tienda_campania || t.tienda_campania.length === 0)) return false;
+      return true;
+    });
+
+    res.json(tiendasFiltradas);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al recuperar las tiendas de la base de datos' });
+  }
+});
+
+// Endpoint auxiliar para rellenar el selector de zonas del Admin (Middleware corregido)
+app.get('/api/zonas', requireAuth, async (req, res) => {
+  const { data, error } = await supabase.from('zona').select('*').order('zona_geografica');
+  if (error) return res.status(500).json({ error: error.message });
+  res.json(data);
+});
+
 // Catch-all para la SPA
 app.get('*', (req, res) => {
   const indexPath = process.env.NODE_ENV === 'development'
