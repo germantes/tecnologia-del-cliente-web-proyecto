@@ -337,26 +337,31 @@ app.get('/health', (req, res) => {
 });
 
 app.post('/auth/login', async (req, res) => {
-  const { nombreUsuario, contrasena } = req.body || {};
-  if (!nombreUsuario || !contrasena) {
-    return res.status(400).json({ success: false, message: 'Faltan nombreUsuario y contrasena.' });
+  const { username, password, nombreUsuario, contrasena } = req.body || {};
+  
+  // Support both old (nombreUsuario, contrasena) and new (username, password) field names
+  const userInput = username || nombreUsuario;
+  const passInput = password || contrasena;
+  
+  if (!userInput || !passInput) {
+    return res.status(400).json({ success: false, message: 'Por favor, introduzca su usuario y contraseña' });
   }
 
   try {
     const usuarios = await fetchAll('usuario');
     const usuario = usuarios.find((user) => {
       const login = [
-        getField(user, 'nombre_usuario', 'nombreUsuario'),
+        getField(user, 'nombre_usuario', 'nombreUsuario', 'username'),
         getField(user, 'nombre_completo', 'nombreCompleto'),
         getField(user, 'nombre'),
         getField(user, 'email')
-      ].some((value) => str(value).toLowerCase() === str(nombreUsuario).toLowerCase());
-      const password = str(getField(user, 'contrasenia', 'contraseña', 'password')) === str(contrasena);
-      return login && password;
+      ].some((value) => str(value).toLowerCase() === str(userInput).toLowerCase());
+      const passwordMatch = str(getField(user, 'contrasenia', 'contraseña', 'password', 'password_hash')) === str(passInput);
+      return login && passwordMatch;
     });
 
     if (!usuario) {
-      return res.status(401).json({ success: false, message: 'Usuario o contraseña incorrectos.' });
+      return res.status(401).json({ success: false, message: 'Usuario y/o contraseña incorrectos' });
     }
 
     const token = makeToken(usuario);

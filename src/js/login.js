@@ -1,34 +1,54 @@
-// Redirect if already logged in
-const role = sessionStorage.getItem("perfil");
-if (role) {
-  const redirectMap = {
-    admin: "admin.html",
-    manager: "manager.html",
-    worker: "worker.html",
-  };
-  window.location.href = redirectMap[role] || "admin.html";
+// login.js - Login page functionality
+
+// Configuration
+const REDIRECT_MAP = {
+  admin: "admin.html",
+  manager: "manager.html",
+  worker: "worker.html"
+};
+
+// Check if user is already logged in
+function checkExistingSession() {
+  const role = sessionStorage.getItem("perfil");
+  if (role && REDIRECT_MAP[role]) {
+    window.location.href = REDIRECT_MAP[role];
+  }
 }
 
-// Toggle password visibility
-document.getElementById("toggle-password").addEventListener("click", () => {
-  const passwordInput = document.getElementById("password");
-  const icon = document.querySelector(".eye-icon");
-  const isHidden = passwordInput.type === "password";
+// Toggle password visibility with smooth transition
+function initPasswordToggle() {
+  const toggleBtn = document.getElementById("toggle-password");
+  if (!toggleBtn) return;
 
-  icon.style.opacity = "0";
+  toggleBtn.addEventListener("click", () => {
+    const passwordInput = document.getElementById("password");
+    const icon = document.querySelector(".eye-icon");
+    const isHidden = passwordInput.type === "password";
 
-  setTimeout(() => {
-    passwordInput.type = isHidden ? "text" : "password";
-    icon.src = isHidden
-      ? "resources/icons/eye-open.svg"
-      : "resources/icons/eye-closed.svg";
-    icon.alt = isHidden ? "Ocultar" : "Mostrar";
-    icon.style.opacity = "1";
-  }, 100);
-});
+    // Fade out animation
+    icon.style.opacity = "0";
 
-// Handle login form submission
-document.getElementById("login-form").addEventListener("submit", async (e) => {
+    setTimeout(() => {
+      passwordInput.type = isHidden ? "text" : "password";
+      icon.src = isHidden
+        ? "resources/icons/eye-open.svg"
+        : "resources/icons/eye-closed.svg";
+      icon.alt = isHidden ? "Ocultar" : "Mostrar";
+      icon.style.opacity = "1";
+    }, 100);
+  });
+}
+
+// Handle form submission
+function initLoginForm() {
+  const form = document.getElementById("login-form");
+  if (!form) return;
+
+  form.addEventListener("submit", handleLoginSubmit);
+}
+
+// Process login submission
+async function handleLoginSubmit(e) {
   e.preventDefault();
 
   const errorEl = document.getElementById("login-error");
@@ -44,38 +64,58 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
 
   // Validate inputs
   if (!username || !password) {
-    errorEl.textContent = "Por favor, introduzca su usuario y contraseña";
-    errorEl.hidden = false;
+    showError(errorEl, "Por favor, introduzca su usuario y contraseña");
     return;
   }
 
   // Show loading state
-  submitBtn.disabled = true;
-  btnText.hidden = true;
-  spinner.hidden = false;
+  setLoadingState(submitBtn, btnText, spinner, true);
 
   try {
     const data = await login(username, password);
-    sessionStorage.setItem("token", data.token);
-    sessionStorage.setItem("perfil", data.user.puesto);
-    sessionStorage.setItem("usuario", JSON.stringify(data.user));
-
-    const redirectMap = {
-      admin: "admin.html",
-      manager: "manager.html",
-      worker: "worker.html",
-    };
-    window.location.href = redirectMap[data.user.puesto] || "admin.html";
+    storeSessionData(data);
+    redirectToDashboard(data.user.puesto);
   } catch (err) {
-    let message = err.message;
-    if (message.includes("Faltan") || message.includes("requerido")) {
-      message = "Usuario y/o contraseña incorrectos";
-    }
-    errorEl.textContent = message;
-    errorEl.hidden = false;
-
-    submitBtn.disabled = false;
-    btnText.hidden = false;
-    spinner.hidden = true;
+    showError(errorEl, err.message);
+    setLoadingState(submitBtn, btnText, spinner, false);
   }
-});
+}
+
+// Store session data
+function storeSessionData(data) {
+  sessionStorage.setItem("token", data.token);
+  sessionStorage.setItem("perfil", data.user.puesto);
+  sessionStorage.setItem("usuario", JSON.stringify(data.user));
+}
+
+// Redirect to appropriate dashboard
+function redirectToDashboard(role) {
+  window.location.href = REDIRECT_MAP[role];
+}
+
+// Display error message
+function showError(element, message) {
+  element.textContent = message;
+  element.hidden = false;
+}
+
+// Toggle loading state
+function setLoadingState(btn, text, spinner, isLoading) {
+  btn.disabled = isLoading;
+  text.hidden = isLoading;
+  spinner.hidden = !isLoading;
+}
+
+// Initialize login page
+function initLoginPage() {
+  checkExistingSession();
+  initPasswordToggle();
+  initLoginForm();
+}
+
+// Start when DOM is ready
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initLoginPage);
+} else {
+  initLoginPage();
+}
