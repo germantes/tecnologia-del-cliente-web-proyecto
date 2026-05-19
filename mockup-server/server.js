@@ -5,6 +5,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const supabase = require('./supabase-client');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -349,19 +350,49 @@ app.post('/auth/login', async (req, res) => {
 
   try {
     const usuarios = await fetchAll('usuario');
-    const usuario = usuarios.find((user) => {
-      const login = [
-        getField(user, 'nombre_usuario', 'nombreUsuario', 'username'),
+    
+    // Buscar usuario de forma asíncrona
+    let usuario = null;
+    for (const user of usuarios) {
+      const loginMatch = [
+        getField(user, 'nombre_usuario', 'nombreUsuario'),
         getField(user, 'nombre_completo', 'nombreCompleto'),
         getField(user, 'nombre'),
         getField(user, 'email')
       ].some((value) => str(value).toLowerCase() === str(userInput).toLowerCase());
-      const passwordMatch = str(getField(user, 'contrasenia', 'contraseña', 'password', 'password_hash')) === str(passInput);
-      return login && passwordMatch;
-    });
+      
+      if (loginMatch) {
+        // Obtener la contraseña almacenada
+        const storedPassword = getField(user, 'contrasenia', 'contraseña', 'password');
+        
+        console.log(`🔍 Usuario encontrado: ${getField(user, 'nombre_completo')} | Hash: ${storedPassword?.substring(0, 20)}...`);
+        
+        // Verificar contraseña
+        let passwordValid = false;
+        
+        if (storedPassword) {
+          // Si la contraseña almacenada comienza con $2b$ (formato bcrypt)
+          if (storedPassword.startsWith('$2b$') || storedPassword.startsWith('$2a$') || storedPassword.startsWith('$2y$')) {
+            // Comparar usando bcrypt
+            console.log(`🔐 Comparando con bcrypt...`);
+            passwordValid = await bcrypt.compare(passInput, storedPassword);
+            console.log(`✅ Resultado bcrypt: ${passwordValid}`);
+          } else {
+            // Fallback: comparación directa (para contraseñas en texto plano)
+            passwordValid = str(storedPassword) === str(passInput);
+            console.log(`📝 Comparación directa: ${passwordValid}`);
+          }
+        }
+        
+        if (passwordValid) {
+          usuario = user;
+          break;
+        }
+      }
+    }
 
     if (!usuario) {
-      return res.status(401).json({ success: false, message: 'Usuario y/o contraseña incorrectos' });
+      return res.status(401).json({ success: false, message: 'Usuario o contraseña incorrectos.' });
     }
 
     const token = makeToken(usuario);
