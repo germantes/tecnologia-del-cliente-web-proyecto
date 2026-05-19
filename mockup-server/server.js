@@ -41,7 +41,8 @@ const tableNameCache = new Map();
 const PUBLIC_GET_PATHS = new Set([
   '/usuarios', '/campanias', '/tiendas', '/tiendas_zona', '/tienda_detalle', '/tienda_editar',
   '/voluntarios', '/entidades', '/turnos', '/schedule', '/tienda_turnos', '/turno_editar',
-  '/turno_filtrar', '/info_Voluntario', '/turno_observaciones', '/turno_observaciones_editar'
+  '/turno_filtrar', '/info_Voluntario', '/turno_observaciones', '/turno_observaciones_editar',
+  '/api/entidades', '/api/voluntarios'
 ]);
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -396,7 +397,17 @@ app.get('/campanias', requireAuth, async (req, res) => {
   } catch (error) { sendError(res, error, 'Error obteniendo campañas'); }
 });
 
-app.get('/entidades', requireAuth, async (req, res) => {
+// ─── RUTAS PARA SERVIR PÁGINAS HTML (FRONTEND) ───────────────────────────────
+app.get('/entidades', requireAuth, (req, res) => {
+  res.sendFile(path.join(srcPath, 'entidades.html'));
+});
+
+app.get('/voluntarios', requireAuth, (req, res) => {
+  res.sendFile(path.join(srcPath, 'voluntarios.html'));
+});
+
+// ─── RUTAS DE API (DATOS JSON PURAMENTE) ──────────────────────────────────────
+app.get('/api/entidades', requireAuth, async (req, res) => {
   try {
     let rows = await fetchAll('entidad');
     const { idEntidad, idTienda, ligadoABancosol, busqueda, q } = req.query;
@@ -412,7 +423,7 @@ app.get('/entidades', requireAuth, async (req, res) => {
   } catch (error) { sendError(res, error, 'Error obteniendo entidades'); }
 });
 
-app.get('/voluntarios', requireAuth, async (req, res) => {
+app.get('/api/voluntarios', requireAuth, async (req, res) => {
   try {
     let rows = await fetchAll('voluntario');
     const { idVoluntario, idEntidad, busqueda, q } = req.query;
@@ -646,6 +657,56 @@ app.put('/schedule/:id', requireAuth, async (req, res) => {
 });
 app.delete('/schedule/:id', requireAuth, async (req, res) => {
   try { res.json(await deleteRows('turno', 'id_turno', req.params.id)); } catch (e) { sendError(res, e, 'Error eliminando schedule'); }
+});
+
+app.get('/usuarios/:id', requireAuth, async (req, res) => {
+  try {
+    const usuario = await findById('usuario', req.params.id, ['idUsuario', 'id_usuario', 'id']);
+    if (!usuario) return res.status(404).json({ success: false, message: 'Usuario no encontrado.' });
+    res.json(usuario);
+  } catch (error) { sendError(res, error, 'Error obteniendo usuario'); }
+});
+app.get('/campanias/:id', requireAuth, async (req, res) => {
+  try {
+    const campania = await findById('campania', req.params.id, ['idCampania', 'id_campania', 'id']);
+    if (!campania) return res.status(404).json({ success: false, message: 'Campaña no encontrada.' });
+    res.json(campania);
+  } catch (error) { sendError(res, error, 'Error obteniendo campaña'); }
+});
+app.get('/entidades/:id', requireAuth, async (req, res) => {
+  try {
+    const entidad = await findById('entidad', req.params.id, ['idEntidad', 'id_entidad', 'id']);
+    if (!entidad) return res.status(404).json({ success: false, message: 'Entidad no encontrada.' });
+    res.json(entidad);
+  } catch (error) { sendError(res, error, 'Error obteniendo entidad'); }
+});
+app.get('/voluntarios/:id', requireAuth, async (req, res) => {
+  try {
+    const voluntario = await findById('voluntario', req.params.id, ['idVoluntario', 'id_voluntario', 'id']);
+    if (!voluntario) return res.status(404).json({ success: false, message: 'Voluntario no encontrado.' });
+    res.json(voluntario);
+  } catch (error) { sendError(res, error, 'Error obteniendo voluntario'); }
+});
+app.get('/tiendas/:id', requireAuth, async (req, res) => {
+  try {
+    const tienda = await findById('tienda', req.params.id, ['idTienda', 'id_tienda', 'id']);
+    if (!tienda) return res.status(404).json({ success: false, message: 'Tienda no encontrada.' });
+    res.json(tienda);
+  } catch (error) { sendError(res, error, 'Error obteniendo tienda'); }
+});
+app.get('/turnos/:id', requireAuth, async (req, res) => {
+  try {
+    const turno = await findById('turno', req.params.id, ['idTurno', 'id_turno', 'id']);
+    if (!turno) return res.status(404).json({ success: false, message: 'Turno no encontrado.' });
+    res.json(turno);
+  } catch (error) { sendError(res, error, 'Error obteniendo turno'); }
+});
+app.get('/schedule/:id', requireAuth, async (req, res) => {
+  try {
+    const turno = await findById('turno', req.params.id, ['idTurno', 'id_turno', 'id']);
+    if (!turno) return res.status(404).json({ success: false, message: 'Schedule no encontrado.' });
+    res.json(turno);
+  } catch (error) { sendError(res, error, 'Error obteniendo schedule'); }
 });
 
 // Catch-all para la SPA

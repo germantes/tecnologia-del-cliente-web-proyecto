@@ -1,0 +1,104 @@
+:root {
+    --twilight-indigo: #323266;
+    --sky-surge: #58b9da;
+    --white: #ffffff;
+    --font-main: 'Poppins', sans-serif;
+}
+
+/* Centramos el contenido en medio de la pantalla sobre el fondo gris */
+body {
+    font-family: var(--font-main);
+    background-color: #f4f6f8;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* El bloque central tipo "Modal/Tarjeta" */
+.total {
+    background-color: var(--white);
+    border: 5px solid var(--twilight-indigo);
+    border-radius: 10px;
+    overflow: hidden; /* Corta las esquinas para que la cabecera encaje perfecto */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    max-width: 900px;
+    width: 100%;
+}
+
+/* Cabecera integrada en la tarjeta */
+header {
+    background-color: var(--twilight-indigo);
+    padding: 25px;
+    text-align: center;
+}
+
+header h1 {
+    color: var(--white);
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: bold;
+}
+
+/* Las dos tablas alineadas */
+.tablas {
+    display: flex;
+    justify-content: space-around;
+    gap: 30px;
+    padding: 40px;
+}
+
+/* Estructura de tablas (Figma style) */
+table {
+    width: 100%;
+    border-collapse: collapse; /* Para que los bordes se peguen */
+}
+
+/* Bordes gruesos para todas las celdas */
+td {
+    border: 3px solid var(--twilight-indigo);
+    padding: 12px 15px;
+    font-size: 0.95rem;
+}
+
+/* 1ª Columna: Fondo azul oscuro, letra blanca, negrita */
+td:first-child {
+    background-color: var(--twilight-indigo);
+    color: var(--white);
+    font-weight: bold;
+    width: 40%; /* Ajusta el ancho de los títulos */
+}
+
+/* 2ª Columna: Fondo blanco, letra azul oscura, negrita y centrada */
+td:last-child {
+    background-color: var(--white);
+    color: var(--twilight-indigo);
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Botones inferiores */
+.botones-card {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    padding: 0 40px 40px 40px;
+}
+
+.btn-cerrar, .btn-editar {
+    background-color: var(--sky-surge);
+    color: var(--white);
+    border: none;
+    padding: 12px 50px;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-cerrar:hover, .btn-editar:hover {
+    background-color: var(--twilight-indigo);
+}

@@ -1,96 +1,77 @@
-/* login.css — Estilos específicos para la página de login */
-
-/* === Layout página === */
-.page-login {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 24px;
+/* Basic Reset for consistent positioning */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-/* === Login card === */
-.login-container {
-    width: 100%;
-    max-width: 400px;
+body, html {
+    height: 100%;
 }
 
-.login-card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 16px;
-    padding: 40px 36px;
-    box-shadow: var(--shadow-lg);
-}
-
-.login-brand {
-    text-align: center;
-    margin-bottom: 32px;
-}
-
-.brand-icon {
-    font-size: 40px;
-    margin-bottom: 12px;
-    color: var(--color-primary);
-}
-
-.login-brand h1 {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--color-text);
-    margin-bottom: 4px;
-}
-
-.brand-sub {
-    color: var(--color-text-muted);
-    font-size: 14px;
-}
-
-.login-hint {
-    margin-top: 24px;
-    padding-top: 20px;
-    border-top: 1px solid var(--color-border);
-}
-
-.login-hint p {
-    font-size: 12px;
-    color: var(--color-text-muted);
-    margin-bottom: 8px;
-}
-
-.hint-grid {
+body {
     display: flex;
     flex-direction: column;
-    gap: 6px;
 }
 
-/* === Formularios específicos === */
-.input-wrap {
-    position: relative;
+/* Header occupying all visible width with margins */
+.header {
+    width: 100%;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
 }
 
-.input-wrap input {
-    padding-right: 40px;
+.header h1 {
+    font-size: 3.5rem;
 }
 
-.btn-eye {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
+/* Main container to center the form in the middle of the screen */
+.login-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    font-size: 1.1rem;
+}
+
+
+/* Flexbox layout for the form */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 400px;
+    gap: 20px; /* Space between form fields */
+}
+
+/* Grouping labels and inputs */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group input {
+    padding: 10px;
+}
+
+/* Positioning the button and link below the fields */
+.form-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.form-actions button {
+    width: 50%;
+    padding: 12px;
+    font-size: 1rem;
+    background-color: var(--twilight-indigo);
     border: none;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 4px;
-    color: var(--color-text-muted);
-}
-
-/* === Botones específicos === */
-.btn-text {
-    display: inline;
-}
-
-.btn-spinner {
-    animation: spin .6s linear infinite;
+    border-radius: 4px;
+    color: var(--white);
 }

@@ -79,11 +79,11 @@ async function getRecord(resource, id) {
 
 // Ahora estas funciones son "alias" de las genéricas
 async function getUsuarios(params = {}) { return getRecords('usuarios', params); }
-async function getEntidades(params = {}) { return getRecords('entidades', params); }
+async function getEntidades(params = {}) { return getRecords('api/entidades', params); }
 async function getCampanias(params = {}) { return getRecords('campanias', params); }
 async function getTiendas(params = {}) { return getRecords('tiendas', params); }
 async function getTurnos(params = {}) { return getRecords('turnos', params); }
-async function getVoluntarios(params = {}) { return getRecords('voluntarios', params); }
+async function getVoluntarios(params = {}) { return getRecords('api/voluntarios', params); }
 async function getSchedule(params = {}) { return getRecords('schedule', params); }
 async function getMe() { return getRecord('me'); }
 
