@@ -102,3 +102,9 @@ td:last-child {
 .btn-cerrar:hover, .btn-editar:hover {
     background-color: var(--twilight-indigo);
 }
+
+/* === SOLUCIÓN AL BORDE INFERIOR === */
+/* Esta regla anula el "border-bottom: none" de tu common.css */
+tbody tr:last-child td {
+    border-bottom: 3px solid var(--twilight-indigo) !important;
+}

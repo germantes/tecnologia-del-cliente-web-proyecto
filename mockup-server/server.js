@@ -435,11 +435,11 @@ app.get('/campanias', requireAuth, async (req, res) => {
 
 // ─── RUTAS PARA SERVIR PÁGINAS HTML (FRONTEND) ───────────────────────────────
 app.get('/entidades', requireAuth, (req, res) => {
-  res.sendFile(path.join(srcPath, 'entidades.html'));
+  res.sendFile(path.join(srcPath, 'html', 'entidades.html'));
 });
 
 app.get('/voluntarios', requireAuth, (req, res) => {
-  res.sendFile(path.join(srcPath, 'voluntarios.html'));
+  res.sendFile(path.join(srcPath, 'html', 'voluntarios.html'));
 });
 
 // ─── RUTAS DE API (DATOS JSON PURAMENTE) ──────────────────────────────────────
@@ -752,10 +752,25 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
   try {
     const id_usuario = req.user.id;
     const puesto = req.user.puesto.toUpperCase();
+    const { idZona, participa, idCampania: queryIdCampania } = req.query;
+    const idCampania = queryIdCampania ? parseInt(queryIdCampania) : null;
 
-    const { idZona, participa } = req.query;
+    // 1. Obtener todas las campañas y calcular cuál es la "Activa" de hoy
+    const { data: campanias } = await supabase.from('campania').select('*');
+    let idActiva = null;
+    if (campanias) {
+      const hoy = new Date();
+      const activa = campanias.find(c => {
+        if (!c.fecha_inicio || !c.fecha_fin) return false;
+        const inicio = new Date(c.fecha_inicio);
+        const fin = new Date(c.fecha_fin);
+        fin.setHours(23, 59, 59, 999); // Expandimos el fin hasta el último segundo del día
+        return hoy >= inicio && hoy <= fin;
+      });
+      if (activa) idActiva = activa.id_campania;
+    }
 
-    // 1. CORRECCIÓN DEFINITIVA: Nombres exactos de las columnas en tienda_campania
+    // 2. Consulta Base (Añadimos id_campania a la petición de Supabase)
     let query = supabase
         .from('tienda')
         .select(`
@@ -772,57 +787,59 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
                     participa, 
                     id_capitan, 
                     id_coordinador, 
-                    id_responsable_tienda
+                    id_responsable_tienda,
+                    id_campania
                 )
             `);
 
-    // 2. APLICAR FILTRADO ESTRICTO SEGÚN EL ROL
+    // 3. Filtros previos en Base de Datos según el ROL
     if (puesto === 'ADMIN') {
-      if (idZona && idZona !== '0') {
-        query = query.eq('cp.id_zona', idZona);
-      }
-      if (participa && participa !== 'all') {
-        query = query.eq('tienda_campania.participa', participa === 'true');
-      }
-
+      if (idZona && idZona !== '0') query = query.eq('cp.id_zona', idZona);
     } else if (puesto === 'MANAGER') {
-      const { data: usuarioData } = await supabase
-          .from('usuario')
-          .select('id_cp')
-          .eq('id_usuario', id_usuario)
-          .single();
-
+      const { data: usuarioData } = await supabase.from('usuario').select('id_cp').eq('id_usuario', id_usuario).single();
       if (usuarioData && usuarioData.id_cp) {
-        const { data: userCp } = await supabase
-            .from('cp')
-            .select('id_zona')
-            .eq('cp', usuarioData.id_cp)
-            .single();
-
-        if (userCp) {
-          query = query.eq('cp.id_zona', userCp.id_zona);
-        }
+        const { data: userCp } = await supabase.from('cp').select('id_zona').eq('cp', usuarioData.id_cp).single();
+        if (userCp) query = query.eq('cp.id_zona', userCp.id_zona);
       }
-      query = query.eq('tienda_campania.participa', true);
-
     } else if (puesto === 'WORKER') {
-      // CORRECCIÓN: Usamos id_capitan e id_responsable_tienda en el filtro OR
       query = query.or(`id_capitan.eq.${id_usuario},id_responsable_tienda.eq.${id_usuario}`, { foreignTable: 'tienda_campania' });
-      query = query.eq('tienda_campania.participa', true);
     }
 
     const { data: tiendas, error } = await query;
     if (error) throw error;
 
-    // 3. LIMPIEZA POST-CONSULTA
+    // 4. LIMPIEZA POST-CONSULTA Y FILTRADO ESTRICTO
     const tiendasFiltradas = tiendas.filter(t => {
       if (!t.cp) return false;
-      if (puesto !== 'ADMIN' && (!t.tienda_campania || t.tienda_campania.length === 0)) return false;
-      return true;
+
+      if (puesto === 'ADMIN') {
+        // Admin: si ha elegido una campaña, vemos si participa en esa.
+        if (idCampania && idCampania > 0) {
+          const relacion = t.tienda_campania?.find(tc => tc.id_campania === idCampania);
+          if (!relacion) return false;
+
+          const participaReal = relacion.participa === true;
+          if (participa && participa !== 'all') {
+            return participa === 'true' ? participaReal : !participaReal;
+          }
+          return true;
+        } else {
+          // Admin: Todas las campañas (Si elige participa=true, comprobamos si participa en ALGUNA)
+          if (participa && participa !== 'all') {
+            const quiereParticipar = participa === 'true';
+            return t.tienda_campania?.some(tc => tc.participa === true) === quiereParticipar;
+          }
+          return true;
+        }
+      } else {
+        // NO ADMIN: Filtro drástico. Solo ven las que participan en la campaña ACTIVA.
+        if (!idActiva) return false;
+        const relacionActiva = t.tienda_campania?.find(tc => tc.id_campania === idActiva);
+        return relacionActiva && relacionActiva.participa === true;
+      }
     });
 
     res.json(tiendasFiltradas);
-
   } catch (error) {
     console.error("Error en /api/tiendas:", error);
     res.status(500).json({ error: 'Error al recuperar las tiendas de la base de datos' });
@@ -877,7 +894,7 @@ app.get('/api/zonas', requireAuth, async (req, res) => {
 // Catch-all para la SPA
 app.get('*', (req, res) => {
   const indexPath = process.env.NODE_ENV === 'development'
-    ? '/src/index.html'
+    ? '/src/html/index.html'
     : path.join(__dirname, '..', 'src', 'index.html');
   res.sendFile(indexPath);
 });
@@ -888,3 +905,4 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`   Supabase URL: ${process.env.SUPABASE_URL ? 'configurada' : 'NO configurada'}`);
   console.log(`   GET de datos públicos para pruebas en navegador; POST/PUT/DELETE con token.\n`);
 });
+

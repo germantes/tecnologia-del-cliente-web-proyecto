@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BancoSol - Detalle de Tienda</title>
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/info_tienda.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/info_tienda.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/footer.css">
     <script src="/api/config.js"></script>
 </head>
 <body class="page-app">
 
-<app-header></app-header>
+<include-html src="/componentes/header.html" active="tiendas"></include-html>
 
 <main class="main">
     <div class="detalle-container" id="detalleContenedor">
@@ -20,10 +22,10 @@
     </div>
 </main>
 
-<app-footer></app-footer>
+<include-html src="/componentes/footer.html"></include-html>
 
-<script src="js/api.js"></script>
-<script src="js/components.js"></script>
-<script src="js/info_tienda.js"></script>
+<script src="/js/api.js"></script>
+<script src="/componentes/include-html.js"></script>
+<script src="/js/info_tienda.js"></script>
 </body>
 </html>
