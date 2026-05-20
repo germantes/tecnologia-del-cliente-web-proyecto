@@ -9,6 +9,7 @@
 }
 
 body {
+<<<<<<< HEAD
     margin: 0 !important;
     padding: 0 !important;
     font-family: var(--font-main);
@@ -39,6 +40,23 @@ body > header:not(.bancosol-header) {
 
 .bancosol-header + header h1,
 body > header:not(.bancosol-header) h1 {
+=======
+    font-family: var(--font-main);
+    color: var(--graphite);
+    background-color: var(--bg-gray);
+    margin: 0;
+    padding: 20px 40px;
+}
+
+/* H1 de la cabecera */
+header {
+    background-color: var(--twilight-indigo);
+    padding: 40px 20px;
+    margin-bottom: 40px;
+}
+
+header h1 {
+>>>>>>> main
     font-family: var(--font-alt);
     color: var(--white);
     text-align: center;
@@ -47,12 +65,17 @@ body > header:not(.bancosol-header) h1 {
     margin: 0;
 }
 
+<<<<<<< HEAD
+=======
+/* Cuadrícula */
+>>>>>>> main
 .tiendas-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 30px;
     max-width: 1200px;
     margin: 0 auto;
+<<<<<<< HEAD
     padding: 0 40px 60px 40px;
 }
 
@@ -86,10 +109,33 @@ body > header:not(.bancosol-header) h1 {
     font-size: 1.4rem;
     font-weight: 800;
     text-align: center;
+=======
+}
+
+/* Cada tienda */
+.tienda-card {
+    background-color: var(--white);
+    border: 6px solid var(--twilight-indigo);
+    border-radius: 12px;
+    padding: 0 20px 20px 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.titulo-tienda {
+    font-family: var(--font-alt);
+    color: var(--twilight-indigo);
+    margin-top: 20px;
+    padding-bottom: 15px;
+    text-align: center;
+    font-size: 1.4rem;
+>>>>>>> main
 }
 
 .tienda-card p {
     margin: 0;
+<<<<<<< HEAD
     padding: 12px 20px;
     font-size: 0.95rem;
     border-bottom: 2px solid var(--twilight-indigo);
@@ -97,6 +143,15 @@ body > header:not(.bancosol-header) h1 {
 
 .tienda-card p:last-of-type {
     border-bottom: none;
+=======
+    padding: 12px 0;
+    font-size: 0.95rem;
+    border-top: 1px solid #d1d5db;
+}
+
+.tienda-card p:first-of-type {
+    border-top: 2px solid var(--twilight-indigo);
+>>>>>>> main
 }
 
 .tienda-card strong {
@@ -105,10 +160,15 @@ body > header:not(.bancosol-header) h1 {
     width: 85px;
 }
 
+<<<<<<< HEAD
+=======
+/* Botones */
+>>>>>>> main
 .botones-card {
     display: flex;
     justify-content: space-evenly;
     margin-top: auto;
+<<<<<<< HEAD
     padding: 20px;
     background-color: var(--white);
     gap: 10px;
@@ -119,12 +179,24 @@ body > header:not(.bancosol-header) h1 {
     color: var(--white);
     border: none;
     padding: 8px 20px;
+=======
+    padding-top: 20px;
+    border-top: 1px solid #d1d5db;
+}
+
+.btn-editar, .btn-info {
+    background-color: var(--sky-surge);
+    color: var(--white);
+    border: none;
+    padding: 8px 30px;
+>>>>>>> main
     border-radius: 20px;
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
+<<<<<<< HEAD
 .btn-editar:hover, .btn-info:hover, .btn-turnos:hover{
     background-color: var(--twilight-indigo);
 }
@@ -188,3 +260,8 @@ body > header:not(.bancosol-header) h1 {
     background-color: var(--white);
     color: var(--twilight-indigo);
 }
+=======
+.btn-editar:hover, .btn-info:hover {
+    background-color: var(--twilight-indigo);
+}
+>>>>>>> main

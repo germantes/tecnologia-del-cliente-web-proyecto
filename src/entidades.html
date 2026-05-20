@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Voluntarios</title>
+    <title>Lista de entidades</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/turnos.css">
     <link rel="stylesheet" href="/css/template.css">
@@ -144,7 +144,7 @@
 <body>
     <header class="app-header">
         <div class="header-content">
-            <h1 class="header-title">Lista de Voluntarios</h1>
+            <h1 class="header-title">Lista de Entidades</h1>
             <nav class="header-nav">
                 <a href="/" class="nav-link">Inicio</a>
             </nav>
@@ -152,26 +152,26 @@
     </header>
 
     <header class="turnos-header">
-        <h1>Lista de Voluntarios</h1>
+        <h1>Lista de Entidades</h1>
     </header>
 
     <main class="turnos-main">
-        <div class="turnos-grid" id="voluntariosGrid">
+        <div class="turnos-grid" id="entidadesGrid">
             <div class="turnos-vacio">
-                <h3>Cargando voluntarios...</h3>
+                <h3>Cargando entidades...</h3>
             </div>
         </div>
     </main>
 
-    <div class="popup-voluntario" id="popupVoluntario" aria-hidden="true" style="display: none;">
-        <div class="popup-voluntario-overlay" onclick="cerrarInfoVoluntario();"></div>
-        <div class="popup-voluntario-panel" role="dialog" aria-modal="true" aria-labelledby="popupVoluntarioTitulo">
+    <div class="popup-voluntario" id="popupEntidad" aria-hidden="true" style="display: none;">
+        <div class="popup-voluntario-overlay" onclick="cerrarInfoEntidad();"></div>
+        <div class="popup-voluntario-panel" role="dialog" aria-modal="true" aria-labelledby="popupEntidadTitulo">
             <div class="popup-voluntario-header">
-                <h2 id="popupVoluntarioTitulo">Información voluntario</h2>
+                <h2 id="popupEntidadTitulo">Información entidad</h2>
                 <button type="button" class="popup-voluntario-cerrar" aria-label="Cerrar"
-                    onclick="cerrarInfoVoluntario();">×</button>
+                    onclick="cerrarInfoEntidad();">×</button>
             </div>
-            <div id="popupVoluntarioContenido">
+            <div id="popupEntidadContenido">
                 <table class="popup-voluntario-tabla">
                     <tbody>
                         <tr>
@@ -179,15 +179,19 @@
                             <td>Cargando...</td>
                         </tr>
                         <tr>
-                            <th>Email</th>
+                            <th>Código Bancosol</th>
                             <td>Cargando...</td>
                         </tr>
                         <tr>
-                            <th>Teléfono</th>
+                            <th>Vinculado Bancosol</th>
                             <td>Cargando...</td>
                         </tr>
                         <tr>
-                            <th>Entidad</th>
+                            <th>Domicilio</th>
+                            <td>Cargando...</td>
+                        </tr>
+                        <tr>
+                            <th>CP</th>
                             <td>Cargando...</td>
                         </tr>
                     </tbody>
@@ -196,7 +200,7 @@
         </div>
     </div>
     <script src="/js/api.js"></script>
-    <script src="/js/voluntarios.js"></script>
+    <script src="/js/entidades.js"></script>
 </body>
 
 </html>
