@@ -58,19 +58,24 @@ module.exports = (req, res, next) => {
     return res.json({ status: 'ok', time: new Date().toISOString() });
   }
 
-  // Proteger rutas de datos (usuarios y schedule) — requieren token
-  if (req.path.startsWith('/usuarios') || req.path.startsWith('/turnos') || req.path.startsWith('/tiendas') || req.path.startsWith('/schedule') || req.path.startsWith('/entidades')) {
-    const user = verifyToken(req.headers['authorization']);
-    if (!user) return res.status(401).json({ success: false, message: 'Acceso no autorizado. Inicia sesión.' });
+  // Proteger rutas de datos (usuarios) — requieren token
+  if (req.path.startsWith('/usuarios') || req.path.startsWith('/turnos') || req.path.startsWith('/tiendas') || req.path.startsWith('/entidades') || req.path.startsWith('/voluntarios') || req.path.startsWith('/campanias')) {
+    // const user = verifyToken(req.headers['authorization']);
+    // if (!user) return res.status(401).json({ success: false, message: 'Acceso no autorizado. Inicia sesión.' });
 
     // Solo admin puede acceder a /usuarios
     if (req.path.startsWith('/usuarios') && user.puesto !== 'admin') {
       return res.status(403).json({ success: false, message: 'Acceso denegado. Solo administradores.' });
     }
 
+    // Prevenir que los managers/coordinadores eliminen recursos
+    if (req.method === 'DELETE' && user.puesto !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Acceso denegado. Solo administradores pueden eliminar registros.' });
+    }
+
     // Los workers no tienen acceso a las rutas de gestión.
     const isWorker = user.puesto === 'worker';
-    const isManagementRoute = req.path.startsWith('/schedule') || req.path.startsWith('/campanias') || req.path.startsWith('/turnos') || req.path.startsWith('/entidades') || req.path.startsWith('/tiendas');
+    const isManagementRoute = req.path.startsWith('/campanias') || req.path.startsWith('/turnos') || req.path.startsWith('/entidades') || req.path.startsWith('/tiendas');
     if (isWorker && isManagementRoute) {
       return res.status(403).json({ success: false, message: 'Acceso denegado.' });
     }

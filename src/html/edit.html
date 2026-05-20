@@ -8,12 +8,9 @@
     <link rel="stylesheet" href="css/common.css">
     <script src="/api/config.js"></script>
     <script src="js/api.js"></script>
-    <script src="js/components.js"></script>
 </head>
 
-<body class="page-app">
-
-    <app-header></app-header>
+<body>
 
     <main class="main">
         <div class="page-header">
@@ -21,7 +18,7 @@
                 <h1 class="page-title" id="edit-title">Editar</h1>
                 <p class="page-sub">Modifica la información del registro y guarda los cambios.</p>
             </div>
-            <a href="index.html" class="btn btn-outline">Volver</a>
+            <a href="/index.html" id="back-btn" class="btn btn-outline">Volver</a>
         </div>
 
         <div id="alert-container"></div>
@@ -38,7 +35,6 @@
         </div>
     </main>
 
-    <app-footer></app-footer>
     <script src="/js/schemas.js"></script>
 
     <script src="js/edit.js"></script>

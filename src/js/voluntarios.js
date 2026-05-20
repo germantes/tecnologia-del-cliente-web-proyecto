@@ -9,6 +9,7 @@ async function cargarVoluntarios() {
     ]);
     voluntariosCache = voluntarios || [];
     entidadesCache = entidades || [];
+    configurarFiltros();
     renderizarVoluntarios(voluntariosCache);
   } catch (error) {
     console.error('Error cargando voluntarios:', error);
@@ -25,6 +26,47 @@ async function cargarVoluntarios() {
       grid.appendChild(divError);
     }
   }
+}
+
+function configurarFiltros() {
+  const inputBusqueda = document.getElementById('buscadorVoluntarios');
+  const selectEntidad = document.getElementById('filtroEntidad');
+
+  if (!inputBusqueda || !selectEntidad) return;
+
+  // Mantenemos la opción por defecto e inyectamos las demás
+  selectEntidad.innerHTML = '<option value="">Todas las entidades</option>';
+
+  const entidadesOrdenadas = [...entidadesCache].sort((a, b) =>
+    (a.nombre || '').localeCompare(b.nombre || '')
+  );
+
+  entidadesOrdenadas.forEach(entidad => {
+    const option = document.createElement('option');
+    option.value = entidad.id_entidad;
+    option.textContent = entidad.nombre || 'Entidad sin nombre';
+    selectEntidad.appendChild(option);
+  });
+
+  const aplicarFiltros = () => {
+    const texto = inputBusqueda.value.toLowerCase().trim();
+    const idEntidad = selectEntidad.value;
+
+    const filtrados = voluntariosCache.filter(v => {
+      const coincideEntidad = !idEntidad || String(v.id_entidad) === String(idEntidad);
+
+      const nombreCompleto = (v.nombre_completo || `${v.nombre || ''} ${v.apellido_1 || ''} ${v.apellido_2 || ''}`).toLowerCase();
+      const email = (v.email || '').toLowerCase();
+      const coincideTexto = !texto || nombreCompleto.includes(texto) || email.includes(texto);
+
+      return coincideEntidad && coincideTexto;
+    });
+
+    renderizarVoluntarios(filtrados);
+  };
+
+  inputBusqueda.addEventListener('input', aplicarFiltros);
+  selectEntidad.addEventListener('change', aplicarFiltros);
 }
 
 function obtenerNombreEntidad(idEntidad) {
@@ -190,4 +232,14 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("keydown", event => {
     if (event.key === "Escape") cerrarInfoVoluntario();
   });
+
+  // Control de visibilidad para el botón de creación ("Nuevo")
+  const perfil = sessionStorage.getItem('perfil');
+  const btnNuevo = document.getElementById('btn-nuevo');
+  if (btnNuevo) {
+    const canCreate = perfil === 'admin' || perfil === 'coordinador' || perfil === 'manager';
+    if (!canCreate) {
+      btnNuevo.style.display = 'none'; // Ocultamos el botón si no tiene permisos
+    }
+  }
 });
