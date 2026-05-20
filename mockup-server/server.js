@@ -349,32 +349,24 @@ app.get('/health', (req, res) => {
 });
 
 app.post('/auth/login', async (req, res) => {
-  const { username, password, nombreUsuario, contrasena } = req.body || {};
+  const email = req.body?.email;
+  const password = req.body?.password;
 
-  // Support both old (nombreUsuario, contrasena) and new (username, password) field names
-  const userInput = username || nombreUsuario;
-  const passInput = password || contrasena;
-
-  if (!userInput || !passInput) {
-    return res.status(400).json({ success: false, message: 'Por favor, introduzca su usuario y contraseña' });
+  if (!email || !password) {
+    return res.status(400).json({ success: false, message: 'Por favor, introduzca su email y contraseña' });
   }
 
   try {
     const usuarios = await fetchAll('usuario');
 
-    // Buscar usuario de forma asíncrona
+    // Buscar usuario por email solamente
     let usuario = null;
     for (const user of usuarios) {
-      const loginMatch = [
-        getField(user, 'nombre_usuario', 'nombreUsuario'),
-        getField(user, 'nombre_completo', 'nombreCompleto'),
-        getField(user, 'nombre'),
-        getField(user, 'email')
-      ].some((value) => str(value).toLowerCase() === str(userInput).toLowerCase());
+      const loginMatch = str(getField(user, 'email')).toLowerCase() === str(email).toLowerCase();
 
       if (loginMatch) {
         // Obtener la contraseña almacenada
-        const storedPassword = getField(user, 'contrasenia', 'contraseña', 'password');
+        const storedPassword = getField(user, 'contrasenia');
 
         console.log(`🔍 Usuario encontrado: ${getField(user, 'nombre_completo')} | Hash: ${storedPassword?.substring(0, 20)}...`);
 
@@ -386,11 +378,11 @@ app.post('/auth/login', async (req, res) => {
           if (storedPassword.startsWith('$2b$') || storedPassword.startsWith('$2a$') || storedPassword.startsWith('$2y$')) {
             // Comparar usando bcrypt
             console.log(`🔐 Comparando con bcrypt...`);
-            passwordValid = await bcrypt.compare(passInput, storedPassword);
+            passwordValid = await bcrypt.compare(password, storedPassword);
             console.log(`✅ Resultado bcrypt: ${passwordValid}`);
           } else {
             // Fallback: comparación directa (para contraseñas en texto plano)
-            passwordValid = str(storedPassword) === str(passInput);
+            passwordValid = str(storedPassword) === str(password);
             console.log(`📝 Comparación directa: ${passwordValid}`);
           }
         }

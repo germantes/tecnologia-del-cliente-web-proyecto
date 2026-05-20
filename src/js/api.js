@@ -117,12 +117,15 @@ async function putSchedule(id, datos) { return updateRecord('schedule', id, dato
 async function deleteSchedule(id) { return deleteRecord('schedule', id); }
 
 // POST /auth/login — devuelve { success, token, user }
-async function login(nombreUsuario, contrasena) {
+async function login(email, password) {
+
   const response = await fetch(`${API_BASE}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nombreUsuario, contrasena })
+    body: JSON.stringify({ email, password })
   });
+
+
   const data = await response.json();
   if (!response.ok || !data.success) throw new Error(data.message || 'Error de autenticación');
   return data;
