@@ -552,15 +552,129 @@ app.get('/tienda_editar', requireAuth, async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 app.get('/api/tienda_turnos', requireAuth, async (req, res) => {
   try {
-    const query = { ...req.query, idTienda: req.query.idTienda || req.query.id };
-    const turnosTienda = filterTurnos(await fetchAll('turno'), query);
+    const idTienda = req.query.idTienda;
+    const idCampania = req.query.idCampania;
+
+    if (!idTienda) {
+      return res.status(400).json({
+        success: false,
+        message: 'Falta el parámetro idTienda.'
+      });
+    }
+
+    if (!idCampania) {
+      return res.status(400).json({
+        success: false,
+        message: 'Falta el parámetro idCampania.'
+      });
+    }
+
+    const tiendaCampanias = await fetchAll('tiendaCampania').catch(() => []);
+
+    const tiendaCampania = tiendaCampanias.find((row) =>
+      sameNumberOrString(getIdTienda(row), idTienda)
+      && sameNumberOrString(getIdCampania(row), idCampania)
+    );
+
+    const turnos = filterTurnos(await fetchAll('turno'), {
+      idTienda,
+      idCampania
+    });
+
+    const relacionesTurnoVoluntario = await fetchAll('turnoVoluntario').catch(() => []);
+    const voluntarios = await fetchAll('voluntario').catch(() => []);
+
+    const turnosTienda = turnos
+      .map((turno) => {
+        const idsVoluntarios = relacionesTurnoVoluntario
+          .filter((relacion) =>
+            sameNumberOrString(
+              getField(relacion, 'idTurno', 'id_turno'),
+              getIdTurno(turno)
+            )
+          )
+          .map((relacion) =>
+            getField(relacion, 'idVoluntario', 'id_voluntario')
+          );
+
+        return {
+          ...turno,
+          voluntarios: voluntarios.filter((voluntario) =>
+            idsVoluntarios.some((idVoluntario) =>
+              sameNumberOrString(getIdVoluntario(voluntario), idVoluntario)
+            )
+          )
+        };
+      })
+      .sort((a, b) => {
+        const comparacionFecha = str(getFecha(a)).localeCompare(str(getFecha(b)));
+
+        if (comparacionFecha !== 0) {
+          return comparacionFecha;
+        }
+
+        return normalizeTurno(getTipoTurno(a)).localeCompare(
+          normalizeTurno(getTipoTurno(b))
+        );
+      });
+
+    const { data: tiendaDetalle } = await supabase
+      .from('tienda')
+      .select(`
+        id_tienda,
+        domicilio,
+        cadena (
+          id_cadena,
+          establecimiento,
+          nombre_particular
+        ),
+        cp (
+          cp,
+          localidad,
+          municipio,
+          zona (
+            id_zona,
+            zona_geografica
+          )
+        )
+      `)
+      .eq('id_tienda', idTienda)
+      .single();
+
+    const campania = await findById('campania', idCampania, [
+      'idCampania',
+      'id_campania',
+      'id'
+    ]).catch(() => null);
+
+    const idResponsable = getField(
+      tiendaCampania,
+      'idResponsableTienda',
+      'id_responsable_tienda'
+    );
+
+    const responsableTienda = idResponsable
+      ? await findById('usuario', idResponsable, [
+          'idUsuario',
+          'id_usuario',
+          'id'
+        ]).catch(() => null)
+      : null;
+
     res.json({
       turnosTienda,
-      idTienda: query.idTienda || null,
-      idCampania: query.idCampania || null,
-      tiendaCampania: null
+      idTienda,
+      idCampania,
+      tiendaCampania: {
+        ...(tiendaCampania || {}),
+        tienda: tiendaDetalle || null,
+        campania,
+        responsableTienda
+      }
     });
-  } catch (error) { sendError(res, error, 'Error obteniendo turnos de tienda'); }
+  } catch (error) {
+    sendError(res, error, 'Error obteniendo turnos de tienda');
+  }
 });
 
 async function buildTurnoEditarResponse(query) {
@@ -902,6 +1016,10 @@ app.get('/api/zonas', requireAuth, async (req, res) => {
   res.json(data);
 });
 
+app.get('/tienda_turnos', (req, res) => {
+  res.sendFile(path.join(srcPath, 'html', 'tienda_turnos.html'));
+});
+
 app.all([
   '/voluntarios',
   '/voluntarios/:id',
@@ -909,7 +1027,6 @@ app.all([
   '/turnos/:id',
   '/schedule',
   '/schedule/:id',
-  '/tienda_turnos',
   '/turno_editar',
   '/turno_filtrar',
   '/turno_guardar_voluntarios',

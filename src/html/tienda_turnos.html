@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bancosol - Turnos Voluntarios</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="/css/template.css">
+    <link rel="stylesheet" href="/css/turnos_comun.css">
+    <link rel="stylesheet" href="/css/turnos.css">
+    <script src="/api/config.js"></script>
+</head>
+<body>
+    <include-html src="/componentes/header.html" active="tiendas"></include-html>
+
+    <header class="turnos-header" id="turnosHeader">
+        <h1 id="nombreTienda">Nombre tienda</h1>
+        <h4 id="direccionTienda">Domicilio completo (Localidad, CP)</h4>
+        <h2 id="responsableTienda">Responsable: Nombre del Responsable</h2>
+    </header>
+
+    <main class="turnos-main">
+        <div class="turnos-grid" id="turnosGrid">
+            <div class="turnos-vacio turnos-empty turnos-panel">
+                <h3>Cargando turnos...</h3>
+            </div>
+        </div>
+    </main>
+
+    <include-html src="/componentes/footer.html"></include-html>
+
+    <script src="/componentes/include-html.js"></script>
+    <script src="/js/tienda_turnos_api.js"></script>
+    <script src="/js/tienda_turnos.js"></script>
+</body>
+</html>
