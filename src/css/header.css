@@ -49,6 +49,7 @@
 .bancosol-header__profile:hover {
     background-color: #58b9da;
     color: #ffffff;
+    text-decoration: none;
 }
 
 .bancosol-header__profile-icon {
@@ -78,6 +79,7 @@
 
 .bancosol-header__nav-item:hover {
     color: #58b9da;
+    text-decoration: none;
 }
 
 .bancosol-header__nav-item--active {
