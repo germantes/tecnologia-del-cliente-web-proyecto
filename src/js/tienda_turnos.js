@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", iniciarPaginaTurnos);
 
 async function iniciarPaginaTurnos() {
     var parametros = new URLSearchParams(window.location.search);
-    var idTienda = parametros.get("idTienda") || parametros.get("id");
+    var idTienda = parametros.get("idTienda");
     var idCampania = parametros.get("idCampania");
 
     if (!idTienda || !idCampania) {
@@ -26,7 +26,7 @@ function pintarCabecera(datos) {
     var cp = tienda.cp || {};
     var responsable = tiendaCampania.responsableTienda || {};
 
-    var nombreTienda = cadena.nombre_particular || cadena.establecimiento || "Nombre tienda";
+    var nombreTienda = obtenerNombreTienda(cadena);
     var domicilio = tienda.domicilio || "Domicilio no disponible";
     var localidad = cp.localidad || "Localidad no disponible";
     var codigoPostal = cp.cp || "CP no disponible";
@@ -231,6 +231,25 @@ function textoTurno(turno) {
     }
 
     return turno || "Turno";
+}
+
+function obtenerNombreTienda(cadena) {
+    var establecimiento = cadena.establecimiento || "";
+    var nombreParticular = cadena.nombre_particular || "";
+
+    if (establecimiento && nombreParticular) {
+        return establecimiento + " - " + nombreParticular;
+    }
+
+    if (establecimiento) {
+        return establecimiento;
+    }
+
+    if (nombreParticular) {
+        return nombreParticular;
+    }
+
+    return "Nombre tienda";
 }
 
 function nombreVoluntario(voluntario) {
