@@ -38,12 +38,14 @@ const FALLBACK_TABLE_NAMES = {
 };
 
 const tableNameCache = new Map();
+const SUPABASE_PAGE_SIZE = 1000;
 
 const PUBLIC_GET_PATHS = new Set([
   '/usuarios', '/campanias', '/tiendas', '/tiendas_zona', '/tienda_detalle', '/tienda_editar',
-  '/voluntarios', '/entidades', '/turnos', '/schedule', '/tienda_turnos', '/turno_editar',
-  '/turno_filtrar', '/info_Voluntario', '/turno_observaciones', '/turno_observaciones_editar',
-  '/api/entidades', '/api/voluntarios'
+  '/entidades',
+  '/api/entidades', '/api/voluntarios', '/api/turnos', '/api/schedule', '/api/tienda_turnos',
+  '/api/turno_editar', '/api/turno_filtrar', '/api/info_voluntario',
+  '/api/turno_observaciones', '/api/turno_observaciones_editar'
 ]);
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -174,9 +176,22 @@ async function getWorkingTableName(key) {
 
 async function fetchAll(key) {
   const table = await getWorkingTableName(key);
-  const { data, error } = await supabase.from(table).select('*');
-  if (error) throw error;
-  return normalizeRows(data || []);
+  const rows = [];
+  let from = 0;
+
+  while (true) {
+    const to = from + SUPABASE_PAGE_SIZE - 1;
+    const { data, error } = await supabase.from(table).select('*').range(from, to);
+    if (error) throw error;
+
+    const page = data || [];
+    rows.push(...page);
+
+    if (page.length < SUPABASE_PAGE_SIZE) break;
+    from += SUPABASE_PAGE_SIZE;
+  }
+
+  return normalizeRows(rows);
 }
 
 async function insertRows(key, rows) {
@@ -438,10 +453,6 @@ app.get('/entidades', requireAuth, (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'entidades.html'));
 });
 
-app.get('/voluntarios', requireAuth, (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'voluntarios.html'));
-});
-
 // ─── RUTAS DE API (DATOS JSON PURAMENTE) ──────────────────────────────────────
 app.get('/api/entidades', requireAuth, async (req, res) => {
   try {
@@ -487,14 +498,14 @@ app.get('/tiendas', requireAuth, async (req, res) => {
   } catch (error) { sendError(res, error, 'Error obteniendo tiendas'); }
 });
 
-app.get('/turnos', requireAuth, async (req, res) => {
+app.get('/api/turnos', requireAuth, async (req, res) => {
   try {
     const rows = filterTurnos(await fetchAll('turno'), req.query);
     res.json(rows);
   } catch (error) { sendError(res, error, 'Error obteniendo turnos'); }
 });
 
-app.get('/schedule', requireAuth, async (req, res) => {
+app.get('/api/schedule', requireAuth, async (req, res) => {
   try {
     const rows = filterTurnos(await fetchAll('turno'), req.query);
     res.json(rows);
@@ -539,7 +550,7 @@ app.get('/tienda_editar', requireAuth, async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // Endpoints equivalentes a TurnoController
 // ─────────────────────────────────────────────────────────────────────────────
-app.get('/tienda_turnos', requireAuth, async (req, res) => {
+app.get('/api/tienda_turnos', requireAuth, async (req, res) => {
   try {
     const query = { ...req.query, idTienda: req.query.idTienda || req.query.id };
     const turnosTienda = filterTurnos(await fetchAll('turno'), query);
@@ -574,7 +585,7 @@ async function buildTurnoEditarResponse(query) {
   };
 }
 
-app.get('/turno_editar', requireAuth, async (req, res) => {
+app.get('/api/turno_editar', requireAuth, async (req, res) => {
   try {
     const payload = await buildTurnoEditarResponse(req.query);
     if (!payload) return res.status(404).json({ success: false, message: 'Turno no encontrado.' });
@@ -582,7 +593,7 @@ app.get('/turno_editar', requireAuth, async (req, res) => {
   } catch (error) { sendError(res, error, 'Error preparando edición de turno'); }
 });
 
-app.get('/turno_filtrar', requireAuth, async (req, res) => {
+app.get('/api/turno_filtrar', requireAuth, async (req, res) => {
   try {
     const payload = await buildTurnoEditarResponse(req.query);
     if (!payload) return res.status(404).json({ success: false, message: 'Turno no encontrado.' });
@@ -590,7 +601,7 @@ app.get('/turno_filtrar', requireAuth, async (req, res) => {
   } catch (error) { sendError(res, error, 'Error filtrando voluntarios de turno'); }
 });
 
-app.post('/turno_guardar_voluntarios', requireAuth, async (req, res) => {
+app.post('/api/turno_guardar_voluntarios', requireAuth, async (req, res) => {
   try {
     const params = { ...req.query, ...req.body };
     const turno = await findTurnoParaEditar(params);
@@ -612,7 +623,7 @@ app.post('/turno_guardar_voluntarios', requireAuth, async (req, res) => {
   } catch (error) { sendError(res, error, 'Error guardando voluntarios de turno'); }
 });
 
-app.get('/info_Voluntario', requireAuth, async (req, res) => {
+app.get('/api/info_voluntario', requireAuth, async (req, res) => {
   try {
     const voluntario = await findById('voluntario', req.query.idVoluntario, ['idVoluntario', 'id_voluntario', 'id']);
     res.json({ voluntario });
@@ -624,7 +635,7 @@ async function getTurnoObservaciones(query) {
   return turnos[0] || null;
 }
 
-app.get('/turno_observaciones', requireAuth, async (req, res) => {
+app.get('/api/turno_observaciones', requireAuth, async (req, res) => {
   try {
     const turno = await getTurnoObservaciones(req.query);
     if (!turno) return res.status(404).json({ success: false, message: 'Turno no encontrado.' });
@@ -632,7 +643,7 @@ app.get('/turno_observaciones', requireAuth, async (req, res) => {
   } catch (error) { sendError(res, error, 'Error obteniendo observaciones'); }
 });
 
-app.get('/turno_observaciones_editar', requireAuth, async (req, res) => {
+app.get('/api/turno_observaciones_editar', requireAuth, async (req, res) => {
   try {
     const turno = await getTurnoObservaciones(req.query);
     if (!turno) return res.status(404).json({ success: false, message: 'Turno no encontrado.' });
@@ -640,7 +651,7 @@ app.get('/turno_observaciones_editar', requireAuth, async (req, res) => {
   } catch (error) { sendError(res, error, 'Error preparando edición de observaciones'); }
 });
 
-app.post('/turno_observaciones_guardar', requireAuth, async (req, res) => {
+app.post('/api/turno_observaciones_guardar', requireAuth, async (req, res) => {
   try {
     const params = { ...req.query, ...req.body };
     const turno = await getTurnoObservaciones(params);
@@ -682,16 +693,16 @@ app.put('/entidades/:id', requireAuth, async (req, res) => {
 app.delete('/entidades/:id', requireAuth, async (req, res) => {
   try { res.json(await deleteRows('entidad', 'id_entidad', req.params.id)); } catch (e) { sendError(res, e, 'Error eliminando entidad'); }
 });
-app.post('/turnos', requireAuth, async (req, res) => {
+app.post('/api/turnos', requireAuth, async (req, res) => {
   try { res.json((await insertRows('turno', [req.body]))[0]); } catch (e) { sendError(res, e, 'Error creando turno'); }
 });
-app.post('/schedule', requireAuth, async (req, res) => {
+app.post('/api/schedule', requireAuth, async (req, res) => {
   try { res.json((await insertRows('turno', [req.body]))[0]); } catch (e) { sendError(res, e, 'Error creando schedule'); }
 });
-app.put('/schedule/:id', requireAuth, async (req, res) => {
+app.put('/api/schedule/:id', requireAuth, async (req, res) => {
   try { res.json((await updateRows('turno', 'id_turno', req.params.id, req.body))[0]); } catch (e) { sendError(res, e, 'Error actualizando schedule'); }
 });
-app.delete('/schedule/:id', requireAuth, async (req, res) => {
+app.delete('/api/schedule/:id', requireAuth, async (req, res) => {
   try { res.json(await deleteRows('turno', 'id_turno', req.params.id)); } catch (e) { sendError(res, e, 'Error eliminando schedule'); }
 });
 
@@ -716,7 +727,7 @@ app.get('/entidades/:id', requireAuth, async (req, res) => {
     res.json(entidad);
   } catch (error) { sendError(res, error, 'Error obteniendo entidad'); }
 });
-app.get('/voluntarios/:id', requireAuth, async (req, res) => {
+app.get('/api/voluntarios/:id', requireAuth, async (req, res) => {
   try {
     const voluntario = await findById('voluntario', req.params.id, ['idVoluntario', 'id_voluntario', 'id']);
     if (!voluntario) return res.status(404).json({ success: false, message: 'Voluntario no encontrado.' });
@@ -730,14 +741,14 @@ app.get('/tiendas/:id', requireAuth, async (req, res) => {
     res.json(tienda);
   } catch (error) { sendError(res, error, 'Error obteniendo tienda'); }
 });
-app.get('/turnos/:id', requireAuth, async (req, res) => {
+app.get('/api/turnos/:id', requireAuth, async (req, res) => {
   try {
     const turno = await findById('turno', req.params.id, ['idTurno', 'id_turno', 'id']);
     if (!turno) return res.status(404).json({ success: false, message: 'Turno no encontrado.' });
     res.json(turno);
   } catch (error) { sendError(res, error, 'Error obteniendo turno'); }
 });
-app.get('/schedule/:id', requireAuth, async (req, res) => {
+app.get('/api/schedule/:id', requireAuth, async (req, res) => {
   try {
     const turno = await findById('turno', req.params.id, ['idTurno', 'id_turno', 'id']);
     if (!turno) return res.status(404).json({ success: false, message: 'Schedule no encontrado.' });
@@ -891,6 +902,28 @@ app.get('/api/zonas', requireAuth, async (req, res) => {
   res.json(data);
 });
 
+app.all([
+  '/voluntarios',
+  '/voluntarios/:id',
+  '/turnos',
+  '/turnos/:id',
+  '/schedule',
+  '/schedule/:id',
+  '/tienda_turnos',
+  '/turno_editar',
+  '/turno_filtrar',
+  '/turno_guardar_voluntarios',
+  '/info_Voluntario',
+  '/turno_observaciones',
+  '/turno_observaciones_editar',
+  '/turno_observaciones_guardar'
+], (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Ruta eliminada. Usa el endpoint equivalente bajo /api/.'
+  });
+});
+
 // Catch-all para la SPA
 app.get('*', (req, res) => {
   const indexPath = process.env.NODE_ENV === 'development'
@@ -905,4 +938,3 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`   Supabase URL: ${process.env.SUPABASE_URL ? 'configurada' : 'NO configurada'}`);
   console.log(`   GET de datos públicos para pruebas en navegador; POST/PUT/DELETE con token.\n`);
 });
-
