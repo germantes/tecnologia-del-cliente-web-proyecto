@@ -59,44 +59,7 @@
 }
 
 .btn-observaciones-accion {
-    min-width: 170px;
-    min-height: 52px;
-    padding: 8px 26px;
-    border: none;
-    border-radius: 10px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--sky-surge);
-    color: var(--white);
-    font-family: var(--font-main);
     font-size: 1.45rem;
-    font-weight: 800;
-    line-height: 1;
-    text-decoration: none;
-    cursor: pointer;
-    box-shadow: 0 6px 14px rgba(88, 185, 218, 0.35);
-    box-sizing: border-box;
-    transition:
-            background-color 0.2s ease,
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
-}
-
-.btn-observaciones-accion:hover {
-    background-color: var(--twilight-indigo);
-    color: var(--white);
-    text-decoration: none;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(50, 50, 102, 0.28);
-}
-
-.btn-observaciones-secundario {
-    background-color: var(--twilight-indigo);
-}
-
-.btn-observaciones-secundario:hover {
-    background-color: var(--sky-surge);
 }
 
 @media (max-width: 600px) {
