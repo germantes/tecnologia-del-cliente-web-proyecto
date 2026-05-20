@@ -1,0 +1,190 @@
+:root {
+    --twilight-indigo: #323266;
+    --sky-surge: #58b9da;
+    --graphite: #333333;
+    --white: #ffffff;
+    --bg-gray: #f4f6f8;
+    --font-main: 'Poppins', sans-serif;
+    --font-alt: 'Raleway', sans-serif;
+}
+
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: var(--font-main);
+    color: var(--graphite);
+    background:
+            radial-gradient(
+                    circle at top right,
+                    rgba(88, 185, 218, 0.28),
+                    transparent 34%
+            ),
+            linear-gradient(
+                    135deg,
+                    var(--white) 0%,
+                    #f4fbfe 45%,
+                    rgba(88, 185, 218, 0.22) 100%
+            );
+    background-attachment: fixed;
+}
+
+.bancosol-header + header,
+body > header:not(.bancosol-header) {
+    width: 100%;
+    background-color: var(--twilight-indigo);
+    padding: 40px 20px;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.bancosol-header + header h1,
+body > header:not(.bancosol-header) h1 {
+    font-family: var(--font-alt);
+    color: var(--white);
+    text-align: center;
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.tiendas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px 60px 40px;
+}
+
+.tienda-card {
+    background-color: var(--white);
+    border: 8px solid var(--twilight-indigo);
+    border-radius: 7px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(50, 50, 102, 0.18);
+    display: flex;
+    flex-direction: column;
+    transition:
+            transform 0.25s ease,
+            box-shadow 0.25s ease,
+            border-color 0.25s ease;
+}
+
+.tienda-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 18px 38px rgba(50, 50, 102, 0.28);
+    border-color: var(--sky-surge);
+}
+
+.titulo-tienda {
+    margin: 0;
+    padding: 12px 12px 10px;
+    background-color: var(--twilight-indigo);
+    color: var(--white);
+    font-family: var(--font-main);
+    font-size: 1.4rem;
+    font-weight: 800;
+    text-align: center;
+}
+
+.tienda-card p {
+    margin: 0;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    border-bottom: 2px solid var(--twilight-indigo);
+}
+
+.tienda-card p:last-of-type {
+    border-bottom: none;
+}
+
+.tienda-card strong {
+    color: var(--twilight-indigo);
+    display: inline-block;
+    width: 85px;
+}
+
+.botones-card {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: auto;
+    padding: 20px;
+    background-color: var(--white);
+    gap: 10px;
+}
+
+.btn-editar, .btn-info, .btn-turnos {
+    background-color: var(--sky-surge);
+    color: var(--white);
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-editar:hover, .btn-info:hover, .btn-turnos:hover{
+    background-color: var(--twilight-indigo);
+}
+
+.barra-filtro {
+    display: flex;
+    justify-content: center;
+    background-color: var(--twilight-indigo);
+    padding: 15px;
+    margin-bottom: 30px;
+    border-top: 1px solid var(--white);
+    border-bottom: 3px solid var(--twilight-indigo);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+}
+
+.barra-filtro form {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.barra-filtro label {
+    font-weight: bold;
+    color: var(--white);
+    font-size: 1.1rem;
+}
+
+.barra-filtro select {
+    padding: 8px 15px;
+    border: 2px solid var(--twilight-indigo);
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--twilight-indigo);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.barra-filtro select:focus {
+    outline: none;
+    border-color: var(--sky-surge);
+    box-shadow: 0 0 8px rgba(88, 185, 218, 0.4);
+}
+
+.btn-aplicar {
+    background-color: var(--sky-surge);
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    height: 100%;
+}
+
+.btn-aplicar:hover {
+    background-color: var(--white);
+    color: var(--twilight-indigo);
+}

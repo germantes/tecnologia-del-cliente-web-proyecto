@@ -653,26 +653,33 @@ app.delete('/schedule/:id', requireAuth, async (req, res) => {
 // =========================================================================
 app.get('/api/tiendas', requireAuth, async (req, res) => {
   try {
-    // 1. Adaptado al payload del token de tus compañeros
     const id_usuario = req.user.id;
-    const puesto = req.user.puesto.toUpperCase(); // Será ADMIN, MANAGER o WORKER
+    const puesto = req.user.puesto.toUpperCase();
 
     const { idZona, participa } = req.query;
 
+    // 1. CORRECCIÓN DEFINITIVA: Nombres exactos de las columnas en tienda_campania
     let query = supabase
         .from('tienda')
         .select(`
-                id_tienda, domicilio,
+                id_tienda, 
+                domicilio,
                 cadena (id_cadena, establecimiento),
                 cp (
-                    cp, localidad, municipio,
-                    zona (id_zona, zona_geografica),
-                    distrito (id_distrito, nombre_distrito)
+                    cp, 
+                    localidad, 
+                    municipio,
+                    zona (id_zona, zona_geografica)
                 ),
-                tienda_campania (participa, capitan_id, coordinador_id)
+                tienda_campania (
+                    participa, 
+                    id_capitan, 
+                    id_coordinador, 
+                    id_responsable_tienda
+                )
             `);
 
-    // --- APLICAR FILTRADO ESTRICTO SEGÚN EL ROL ---
+    // 2. APLICAR FILTRADO ESTRICTO SEGÚN EL ROL
     if (puesto === 'ADMIN') {
       if (idZona && idZona !== '0') {
         query = query.eq('cp.id_zona', idZona);
@@ -681,8 +688,7 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
         query = query.eq('tienda_campania.participa', participa === 'true');
       }
 
-    } else if (puesto === 'MANAGER') { // Equivale a tu COORDINADOR
-      // Como el CP no viene en el token, lo consultamos un momento en la BD
+    } else if (puesto === 'MANAGER') {
       const { data: usuarioData } = await supabase
           .from('usuario')
           .select('id_cp')
@@ -702,14 +708,16 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
       }
       query = query.eq('tienda_campania.participa', true);
 
-    } else if (puesto === 'WORKER') { // Equivale a tu CAPITAN / RESP. ENTIDAD
-      query = query.eq('tienda_campania.capitan_id', id_usuario);
+    } else if (puesto === 'WORKER') {
+      // CORRECCIÓN: Usamos id_capitan e id_responsable_tienda en el filtro OR
+      query = query.or(`id_capitan.eq.${id_usuario},id_responsable_tienda.eq.${id_usuario}`, { foreignTable: 'tienda_campania' });
       query = query.eq('tienda_campania.participa', true);
     }
 
     const { data: tiendas, error } = await query;
     if (error) throw error;
 
+    // 3. LIMPIEZA POST-CONSULTA
     const tiendasFiltradas = tiendas.filter(t => {
       if (!t.cp) return false;
       if (puesto !== 'ADMIN' && (!t.tienda_campania || t.tienda_campania.length === 0)) return false;
@@ -719,8 +727,46 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
     res.json(tiendasFiltradas);
 
   } catch (error) {
-    console.error(error);
+    console.error("Error en /api/tiendas:", error);
     res.status(500).json({ error: 'Error al recuperar las tiendas de la base de datos' });
+  }
+});
+
+// =========================================================================
+// ENDPOINT: OBTENER DETALLE DE UNA SOLA TIENDA (+ INFO)
+// =========================================================================
+app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
+  try {
+    const tiendaId = req.params.id;
+
+    const { data: tienda, error } = await supabase
+        .from('tienda')
+        .select(`
+                id_tienda, 
+                domicilio,
+                cadena (id_cadena, establecimiento),
+                cp (
+                    cp, 
+                    localidad, 
+                    municipio,
+                    zona (id_zona, zona_geografica)
+                ),
+                tienda_campania (
+                    participa, 
+                    id_capitan, 
+                    id_coordinador, 
+                    id_responsable_tienda
+                )
+            `)
+        .eq('id_tienda', tiendaId)
+        .single(); // Le decimos a Supabase que devuelva 1 solo objeto, no un array
+
+    if (error) throw error;
+    res.json(tienda);
+
+  } catch (error) {
+    console.error("Error al obtener detalle de la tienda:", error);
+    res.status(500).json({ error: 'Error al recuperar la tienda' });
   }
 });
 
