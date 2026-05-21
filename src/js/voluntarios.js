@@ -2,9 +2,34 @@ let voluntariosCache = [];
 let entidadesCache = [];
 
 async function cargarVoluntarios() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const idCampaniaParam = urlParams.get('idCampania');
+  const perfil = sessionStorage.getItem('perfil');
+
+  if (perfil !== 'admin' && !idCampaniaParam) {
+    const grid = document.getElementById('voluntariosGrid');
+    if (grid) {
+      grid.textContent = '';
+      const divError = document.createElement('div');
+      divError.className = 'turnos-vacio';
+      const titulo = document.createElement('h3');
+      titulo.textContent = 'Acceso denegado';
+      const mensaje = document.createElement('p');
+      mensaje.textContent = 'No tienes permiso para ver todos los voluntarios. Por favor, accede mediante una campaña específica.';
+      divError.append(titulo, mensaje);
+      grid.appendChild(divError);
+    }
+    return;
+  }
+
+  const queryParams = {};
+  if (idCampaniaParam) {
+    queryParams.idCampania = idCampaniaParam;
+  }
+
   try {
     const [voluntarios, entidades] = await Promise.all([
-      getVoluntarios(),
+      getVoluntarios(queryParams),
       getEntidades().catch(() => [])
     ]);
     voluntariosCache = voluntarios || [];

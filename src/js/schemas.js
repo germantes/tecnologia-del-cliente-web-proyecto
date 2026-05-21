@@ -11,7 +11,7 @@ const SCHEMAS = {
     ],
     voluntarios: [
         { key: 'id_voluntario', label: 'ID Voluntario', type: 'text', readonly: true },
-        { key: 'id_entidad', label: 'ID Entidad', type: 'text', required: true },
+        { key: 'id_entidad', label: 'Entidad', type: 'select_entidad', required: true },
         { key: 'nombre', label: 'Nombre', type: 'text' },
         { key: 'apellido_1', label: 'Apellido 1', type: 'text' },
         { key: 'apellido_2', label: 'Apellido 2', type: 'text' },

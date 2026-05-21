@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bancosol - Turnos Voluntarios</title>
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="/css/tienda_turnos.css">
+    <link rel="stylesheet" href="/css/popup_voluntario.css">
+    <script src="/api/config.js"></script>
+</head>
+<body>
+    <div class="turnos-contenido" id="turnosContenido">
+        <include-html src="/componentes/header.html" active="inicio"></include-html>
+        <header class="turnos-header" id="turnosHeader">
+            <h1 id="nombreTienda">Nombre tienda</h1>
+            <h4 id="direccionTienda">Domicilio completo (Localidad, CP)</h4>
+            <h2 id="responsableTienda">Responsable: Nombre del Responsable</h2>
+        </header>
+
+        <main class="turnos-main">
+            <div class="turnos-grid" id="turnosGrid">
+                <div class="turnos-vacio turnos-empty turnos-panel">
+                    <h3>Cargando turnos...</h3>
+                </div>
+            </div>
+        </main>
+
+        <include-html src="/componentes/footer.html"></include-html>
+    </div>
+
+    <section class="popup-voluntario" id="popupVoluntario" aria-hidden="true">
+        <div class="popup-voluntario-overlay" data-cerrar-popup></div>
+        <div class="popup-voluntario-panel" role="dialog" aria-modal="true" aria-labelledby="popupVoluntarioTitulo">
+            <header class="popup-voluntario-header">
+                <h2 id="popupVoluntarioTitulo">Informacion voluntario</h2>
+                <button class="popup-voluntario-cerrar" type="button" data-cerrar-popup aria-label="Cerrar">×</button>
+            </header>
+            <table class="popup-voluntario-tabla" aria-live="polite">
+                <tbody id="popupVoluntarioTabla"></tbody>
+            </table>
+            <p class="popup-voluntario-error" id="popupVoluntarioError" hidden></p>
+        </div>
+    </section>
+
+    <script src="/componentes/include-html.js"></script>
+    <script src="/js/tienda_turnos_api.js"></script>
+    <script src="/js/tienda_turnos.js"></script>
+</body>
+</html>

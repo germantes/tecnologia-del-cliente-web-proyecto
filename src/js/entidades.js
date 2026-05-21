@@ -2,10 +2,33 @@ let entidadesCache = [];
 let usuariosCache = [];
 
 async function cargarEntidades() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const idCampaniaParam = urlParams.get('idCampania');
+    const perfil = sessionStorage.getItem('perfil');
+
+    if (perfil !== 'admin' && !idCampaniaParam) {
+        const grid = document.getElementById('entidadesGrid');
+        if (grid) {
+            grid.textContent = '';
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'turnos-vacio';
+            const h3 = document.createElement('h3'); h3.textContent = 'Acceso denegado';
+            const p = document.createElement('p'); p.textContent = 'No tienes permiso para ver todas las entidades. Por favor, accede mediante una campaña específica.';
+            errorDiv.append(h3, p);
+            grid.appendChild(errorDiv);
+        }
+        return;
+    }
+
+    const queryParams = {};
+    if (idCampaniaParam) {
+        queryParams.idCampania = idCampaniaParam;
+    }
+
     try {
         // Cargamos las entidades y los usuarios en paralelo usando api.js
         const [entidades, usuarios] = await Promise.all([
-            getEntidades(),
+            getEntidades(queryParams),
             getUsuarios().catch(() => []) // Evita que falle la carga si el usuario no tiene permisos para ver usuarios
         ]);
 
@@ -234,7 +257,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Control de visibilidad para el botón de creación ("Nuevo")
-    const perfil = sessionStorage.getItem('perfil');
+    const perfil = sessionStorage.getItem('perfil' || "puesto");
     const btnNuevo = document.getElementById('btn-nuevo');
     if (btnNuevo) {
         const canCreate = perfil === 'admin' || perfil === 'coordinador' || perfil === 'manager';
