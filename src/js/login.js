@@ -93,7 +93,8 @@ function storeSessionData(data) {
 
 // Redirect to appropriate dashboard
 function redirectToDashboard(role) {
-  window.location.href = REDIRECT_MAP[role];
+  const url = REDIRECT_MAP[role] || "/html/inicio.html";
+  window.location.href = url;
 }
 
 // Display error message

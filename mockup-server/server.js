@@ -351,6 +351,7 @@ app.post('/auth/login', async (req, res) => {
     const puesto = getField(usuario, 'rol', 'puesto');
     res.json({
       success: true,
+      token: 'mock-token-' + getField(usuario, 'idUsuario', 'id_usuario', 'id'),
       user: {
         id: getField(usuario, 'idUsuario', 'id_usuario', 'id'),
         nombre: getField(usuario, 'nombreCompleto', 'nombre_completo', 'nombre', 'email'),
