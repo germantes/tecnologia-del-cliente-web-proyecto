@@ -1,10 +1,12 @@
 <link rel="stylesheet" href="../../BancoSol-JavaScript/resources/css/header.css">
 
 <header class="bancosol-header">
-    <img
-        class="bancosol-header__logo"
-        src="../resources/img/BancosolLogo.png"
-        alt="BancoSol Alimentos">
+    <a class="bancosol-header__logo-link" href="/inicio.html" aria-label="Ir a inicio">
+        <img
+            class="bancosol-header__logo"
+            src="../resources/img/BancosolLogo.png"
+            alt="BancoSol Alimentos">
+    </a>
 
     <a class="bancosol-header__profile" href="perfil.html" aria-label="Ir al perfil">
         <svg class="bancosol-header__profile-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -17,7 +19,7 @@
     </a>
 
     <nav class="bancosol-header__nav" aria-label="Navegación principal">
-        <a class="bancosol-header__nav-item" data-nav="inicio" href="inicio.html">Inicio</a>
+        <a class="bancosol-header__nav-item bancosol-header__nav-item--active" data-nav="inicio" href="inicio.html">Inicio</a>
         <a class="bancosol-header__nav-item" data-nav="campanias" href="campanias.html">Campañas</a>
         <a class="bancosol-header__nav-item" data-nav="zonas" href="zonas.html">Zonas</a>
         <a class="bancosol-header__nav-item" data-nav="tiendas" href="tiendas.html">Tiendas</a>
