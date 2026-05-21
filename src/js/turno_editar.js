@@ -15,7 +15,10 @@ async function iniciarPaginaEditarTurno() {
     rellenarCamposOcultos();
     prepararEventos();
 
-    var puedeEditarVoluntarios = puedeEditarVoluntariosTurnos();
+    var puedeEditarVoluntarios = await puedeEditarVoluntariosPaginaTurnos(
+        datosPagina.idTienda,
+        datosPagina.idCampania
+    );
 
     if (!puedeEditarVoluntarios) {
         window.location.href = "/tienda_turnos?idTienda="

@@ -11,7 +11,10 @@ async function iniciarPaginaEditarObservaciones() {
     rellenarCamposOcultosObservaciones();
     prepararEventosEditarObservaciones();
 
-    var puedeEditarObservaciones = puedeEditarObservacionesTurnos();
+    var puedeEditarObservaciones = await puedeEditarObservacionesPaginaTurnos(
+        datosEditarObservaciones.idTienda,
+        datosEditarObservaciones.idCampania
+    );
 
     if (!puedeEditarObservaciones) {
         window.location.href = "/turno_observaciones?idTienda="
