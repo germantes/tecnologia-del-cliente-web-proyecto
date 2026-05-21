@@ -401,8 +401,8 @@ app.get('/voluntarios', requireAuth, (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'voluntarios.html'));
 });
 
-app.get('/turno_aniadir', requireAuth, (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'turno_aniadir.html'));
+app.get('/turnos_modificar', requireAuth, (req, res) => {
+  res.sendFile(path.join(srcPath, 'html', 'turnos_modificar.html'));
 });
 
 // Rutas para la página de edición y creación (soporta con y sin .html)

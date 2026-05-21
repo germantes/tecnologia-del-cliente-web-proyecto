@@ -308,7 +308,7 @@ function configurarBotonAnadirTurno(idTienda, idCampania) {
     boton.className = "turnos-btn turnos-btn--add";
     boton.id = "botonAnadirTurno";
     boton.textContent = "Modificar Turnos";
-    boton.href = "/turno_aniadir?idTienda=" + encodeURIComponent(idTienda)
+    boton.href = "/turnos_modificar?idTienda=" + encodeURIComponent(idTienda)
         + "&idCampania=" + encodeURIComponent(idCampania);
     contenedor.appendChild(boton);
 
