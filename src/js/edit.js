@@ -12,8 +12,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Buscar el botón de volver
     const backBtn = document.getElementById('back-btn');
     if (backBtn) {
-        // Si existe un esquema para este 'type' (ej: entidades), volvemos a entidades.html. Si no, a index.html.
-        backBtn.href = (typeof SCHEMAS !== 'undefined' && SCHEMAS[type]) ? `/html/${type}.html` : '/index.html';
+        // Apuntamos correctamente a la carpeta /html/
+        backBtn.href = (typeof SCHEMAS !== 'undefined' && SCHEMAS[type]) ? `/html/${type}.html` : '/html/index.html';
     }
 
     const perfil = sessionStorage.getItem('perfil');
@@ -184,8 +184,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
 
                         await deleteRecord(type, id);
-                        // Si sabemos de qué tipo es (ej: entidades), volvemos a su lista. Si no, al inicio.
-                        window.location.href = (typeof SCHEMAS !== 'undefined' && SCHEMAS[type]) ? `/${type}.html` : '/index.html';
+                        window.location.href = (typeof SCHEMAS !== 'undefined' && SCHEMAS[type]) ? `/html/${type}.html` : '/html/index.html';
                     } catch (err) {
                         alert('Error al eliminar: ' + err.message);
                     }

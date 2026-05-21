@@ -9,7 +9,7 @@ function getToken() {
   const token = sessionStorage.getItem('token');
   if (!token) {
     // Si no hay token en sessionStorage, redirigimos al login y evitamos hacer el fetch
-    window.location.href = '/index.html';
+    window.location.href = '/html/index.html';
     throw new Error('Sesión expirada o no iniciada. Redirigiendo al login...');
   }
   return token;
