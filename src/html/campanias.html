@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BancoSol - Zonas</title>
+    <title>BancoSol - Campañas</title>
     <link rel="stylesheet" href="../css/header.css">
     <link rel="stylesheet" href="../css/footer.css">
     <link rel="stylesheet" href="../css/card-display.css" />
@@ -12,25 +12,28 @@
   <body>
     <include-html
       src="../componentes/header.html"
-      active="zonas"
+      active="campanias"
     ></include-html>
 
     <main>
-      <h1>Zonas</h1>
+      <h1>Campañas</h1>
       <form class="filter-form">
         <div class="filter-group">
-          <label for="filterSearch">Buscar:</label>
+          <label for="filterName">Nombre:</label>
           <input
             type="text"
-            id="filterSearch"
-            placeholder="Buscar por localidad o CP..."
+            id="filterName"
+            placeholder="Buscar por nombre..."
           />
         </div>
 
         <div class="filter-group">
-          <label for="filterZone">Zona:</label>
-          <select id="filterZone">
-            <option value="">Todas las zonas</option>
+          <label for="filterYear">Año:</label>
+          <select id="filterYear">
+            <option value="">Todos los años</option>
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
           </select>
         </div>
 
@@ -42,11 +45,11 @@
       <div class="grid" id="container"></div>
     </main>
 
-    <include-html src="/componentes/footer.html"></include-html>
+    <include-html src="../componentes/footer.html"></include-html>
 
-    <script src="/js/api.js"></script>
-    <script src="/componentes/include-html.js"></script>
-    <script src="/js/export.js"></script>
-    <script src="/js/zones.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../componentes/include-html.js"></script>
+    <script src="../js/export.js"></script>
+    <script src="../js/campaigns.js"></script>
   </body>
 </html>

@@ -109,4 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('form').addEventListener('reset', () => {
     setTimeout(filterZones, 0);
   });
+
+  // Exportar a CSV
+  document.getElementById('exportBtn').addEventListener('click', exportZonesCSV);
 });

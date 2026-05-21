@@ -70,6 +70,12 @@ input::placeholder {
   color: #999;
 }
 
+.filter-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 button {
   padding: 10px 25px;
   border: none;
