@@ -288,19 +288,30 @@ function nombreVoluntario(voluntario) {
 
 function configurarBotonAnadirTurno(idTienda, idCampania) {
     var contenedor = document.getElementById("turnosAcciones");
-    var boton = document.getElementById("botonAnadirTurno");
+    var botonExistente = document.getElementById("botonAnadirTurno");
+    var esAdministrador = obtenerPerfilTurnos() === ROL_ADMINISTRADOR;
 
-    if (!contenedor || !boton) {
+    if (!contenedor) {
         return;
     }
 
-    if (obtenerPerfilTurnos() !== ROL_ADMINISTRADOR) {
+    if (!esAdministrador) {
         contenedor.hidden = true;
         return;
     }
 
+    if (botonExistente) {
+        botonExistente.remove();
+    }
+
+    var boton = document.createElement("a");
+    boton.className = "turnos-btn turnos-btn--add";
+    boton.id = "botonAnadirTurno";
+    boton.textContent = "Modificar Turnos";
     boton.href = "/turno_aniadir?idTienda=" + encodeURIComponent(idTienda)
         + "&idCampania=" + encodeURIComponent(idCampania);
+    contenedor.appendChild(boton);
+
     contenedor.hidden = false;
 }
 
