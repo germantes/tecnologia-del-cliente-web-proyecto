@@ -1049,6 +1049,26 @@ app.get('/api/zonas', requireAuth, async (req, res) => {
   res.json(data);
 });
 
+// Endpoint para obtener códigos postales con sus relaciones
+app.get('/cp', requireAuth, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('cp')
+      .select(`
+        cp,
+        localidad,
+        distrito(nombre_distrito),
+        zona:id_zona(zona_geografica)
+      `);
+    
+    if (error) throw error;
+    res.json(data || []);
+  } catch (error) {
+    console.error('Error obteniendo códigos postales:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/tienda_turnos', (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'tienda_turnos.html'));
 });
