@@ -3,7 +3,8 @@ var datosAnadir = {
     idCampania: "",
     fechaInicio: "",
     fechaFin: "",
-    turnosPorDia: {}
+    turnosPorDia: {},
+    idEntidadBase: ""
 };
 
 document.addEventListener("DOMContentLoaded", iniciarPaginaAnadir);
@@ -102,11 +103,16 @@ async function cargarTurnosTienda() {
 
     var turnos = datos.turnosTienda || [];
     datosAnadir.turnosPorDia = {};
+    datosAnadir.idEntidadBase = "";
 
     for (var i = 0; i < turnos.length; i++) {
         var fecha = turnos[i].fecha;
         if (fecha) {
             datosAnadir.turnosPorDia[fecha] = true;
+        }
+
+        if (!datosAnadir.idEntidadBase && turnos[i].id_entidad) {
+            datosAnadir.idEntidadBase = turnos[i].id_entidad;
         }
     }
 }
@@ -215,18 +221,24 @@ async function manejarEliminarTurnos(fechaIso, boton) {
 }
 
 async function crearTurno(fechaIso, tipoTurno) {
+    var payload = {
+        id_tienda: datosAnadir.idTienda,
+        id_campania: datosAnadir.idCampania,
+        fecha: fechaIso,
+        turno: tipoTurno,
+        observaciones: ""
+    };
+
+    if (datosAnadir.idEntidadBase) {
+        payload.id_entidad = datosAnadir.idEntidadBase;
+    }
+
     return await fetchJsonAnadir("/turnos", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-            id_tienda: datosAnadir.idTienda,
-            id_campania: datosAnadir.idCampania,
-            fecha: fechaIso,
-            turno: tipoTurno,
-            observaciones: ""
-        })
+        body: JSON.stringify(payload)
     });
 }
 
