@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const perfil = sessionStorage.getItem('perfil');
     const token = sessionStorage.getItem('token');
 
+    // Redirigimos al inicio si no hay sesión activa
     if (!perfil || !token) {
         window.location.href = 'index.html';
         return;
@@ -20,50 +21,59 @@ document.addEventListener('DOMContentLoaded', async () => {
     let campaniasGlobal = [];
     let idCampaniaActiva = null;
 
-    // 1. Cargar las campañas antes que nada para saber las fechas
+    // Inicializamos la vista cargando campañas y luego las tiendas
     await cargarCampanias();
+    configurarInterfazPorRol();
+    await cargarTiendas();
 
-    // 2. Configurar Interfaz según el Rol
-    if (usuarioRol === 'ADMIN') {
-        adminFilters.style.display = 'flex';
-        await cargarFiltrosZona();
-        const btnAplicar = document.getElementById('btnAplicar');
-        if (btnAplicar) btnAplicar.addEventListener('click', cargarTiendas);
-        tituloVista.textContent = 'Tiendas por Zona';
-    } else {
-        // UI Especial para Coordinadores y Capitanes
-        tituloVista.style.fontSize = "1.8rem";
-        if (idCampaniaActiva) {
-            const activa = campaniasGlobal.find(c => c.id_campania === idCampaniaActiva);
-            tituloVista.textContent = `Mis Tiendas Asignadas | ${activa.nombre} (Activa)`;
+    // Adapta los filtros y el título según los permisos del usuario
+    async function configurarInterfazPorRol() {
+        if (usuarioRol === 'ADMINISTRADOR') {
+            adminFilters.style.display = 'flex';
+            await cargarFiltrosZona();
+
+            const btnAplicar = document.getElementById('btnAplicar');
+            if (btnAplicar) {
+                btnAplicar.addEventListener('click', cargarTiendas);
+            }
+
+            tituloVista.textContent = 'Tiendas por Zona';
         } else {
-            tituloVista.textContent = `Mis Tiendas Asignadas | Sin campaña activa`;
+            tituloVista.style.fontSize = "1.8rem";
+            if (idCampaniaActiva) {
+                const activa = campaniasGlobal.find(c => c.id_campania === idCampaniaActiva);
+                tituloVista.textContent = `Mis Tiendas Asignadas | ${activa.nombre} (Activa)`;
+            } else {
+                tituloVista.textContent = `Mis Tiendas Asignadas | Sin campaña activa`;
+            }
         }
     }
 
-    // 3. Cargar tarjetas
-    await cargarTiendas();
-
+    // Obtiene las campañas del servidor para determinar cuál está activa
     async function cargarCampanias() {
         try {
-            // AQUÍ ESTABA EL ERROR: Era /campanias, no /api/campanias
-            const res = await fetch(`${API_BASE}/campanias`, { headers: { 'Authorization': `Bearer ${token}` } });
+            const res = await fetch(`${API_BASE}/api/campanias`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
             if (res.ok) {
                 campaniasGlobal = await res.json();
                 const hoy = new Date();
 
-                // Calculamos cuál está activa hoy
+                // Determinamos la campaña activa comparando fechas
                 campaniasGlobal.forEach(c => {
                     if (c.fecha_inicio && c.fecha_fin) {
                         const inicio = new Date(c.fecha_inicio);
                         const fin = new Date(c.fecha_fin);
                         fin.setHours(23, 59, 59, 999);
-                        if (hoy >= inicio && hoy <= fin) idCampaniaActiva = c.id_campania;
+                        if (hoy >= inicio && hoy <= fin) {
+                            idCampaniaActiva = c.id_campania;
+                        }
                     }
                 });
 
-                // Si es Admin, rellenamos el desplegable
-                if (usuarioRol === 'ADMIN' && selectCampania) {
+                // Rellenamos el desplegable si el usuario tiene permisos
+                if (usuarioRol === 'ADMINISTRADOR' && selectCampania) {
                     campaniasGlobal.forEach(c => {
                         const opt = document.createElement('option');
                         opt.value = c.id_campania;
@@ -72,17 +82,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                     });
                 }
             }
-        } catch (e) { console.error("Error cargando campañas:", e); }
+        } catch (error) {
+            console.error("Error cargando campañas:", error);
+        }
     }
 
+    // Consulta las tiendas al servidor y construye las tarjetas manipulando el DOM
     async function cargarTiendas() {
-        tiendasContainer.innerHTML = '<div class="loading" style="grid-column: 1/-1; justify-content:center;"><div class="spinner"></div> Cargando tiendas...</div>';
+        mostrarMensajeCarga();
 
         try {
             let url = '/api/tiendas';
             let idCampaniaBuscada = null;
 
-            if (usuarioRol === 'ADMIN') {
+            // Añadimos parámetros a la URL si es administrador
+            if (usuarioRol === 'ADMINISTRADOR') {
                 const zonaId = selectZona.value;
                 const participa = selectParticipa.value;
                 const campaniaId = selectCampania.value;
@@ -94,67 +108,36 @@ document.addEventListener('DOMContentLoaded', async () => {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
-            if (!response.ok) throw new Error('Error al obtener los datos del servidor.');
+            if (!response.ok) {
+                throw new Error('Error al obtener los datos del servidor.');
+            }
+
             const tiendas = await response.json();
-            tiendasContainer.innerHTML = '';
+            limpiarContenedor(tiendasContainer);
 
             if (tiendas.length === 0) {
-                tiendasContainer.innerHTML = '<div class="alert alert-info" style="grid-column: 1/-1; text-align:center;">No hay tiendas para mostrar con los filtros actuales.</div>';
+                mostrarMensaje('No hay tiendas para mostrar con los filtros actuales.', 'alert-info');
                 return;
             }
 
+            // Generamos una tarjeta por cada tienda recuperada
             tiendas.forEach(tienda => {
-                const card = document.createElement('div');
-                card.className = 'tienda-card';
-
-                const establecimiento = tienda.cadena ? tienda.cadena.establecimiento : 'Sin cadena';
-                const localidad = tienda.cp ? tienda.cp.localidad : 'N/A';
-
-                let participaTexto = "No";
-                let idCampaniaPintar = null;
-
-                // Extraemos los datos de la campaña que estamos visualizando
-                if (tienda.tienda_campania && tienda.tienda_campania.length > 0) {
-                    let relacion = null;
-                    if (idCampaniaBuscada && idCampaniaBuscada > 0) {
-                        relacion = tienda.tienda_campania.find(tc => tc.id_campania === idCampaniaBuscada);
-                    } else if (idCampaniaActiva) {
-                        relacion = tienda.tienda_campania.find(tc => tc.id_campania === idCampaniaActiva);
-                    }
-                    if (!relacion) relacion = tienda.tienda_campania[0];
-
-                    if (relacion) {
-                        participaTexto = relacion.participa ? "Sí" : "No";
-                        idCampaniaPintar = relacion.id_campania;
-                    }
-                }
-
-                card.innerHTML = `
-                    <h3 class="titulo-tienda">Tienda ${tienda.id_tienda} - ${establecimiento}</h3>
-                    <p><strong>Cadena: </strong>${establecimiento}</p>
-                    <p><strong>Localidad: </strong>${localidad}</p>
-                    <p><strong>Domicilio: </strong>${tienda.domicilio || 'N/A'}</p>
-                    <p><strong>Participa: </strong>${participaTexto}</p>
-                    
-                    <div class="botones-card">
-                        ${usuarioRol === 'ADMIN' ? `<button class="btn-editar" onclick="window.location.href='edit.html?type=tiendas&id=${tienda.id_tienda}'">editar</button>` : ''}
-                        ${participaTexto === 'Sí' && idCampaniaPintar ? `<button class="btn-turnos" onclick="window.location.href='tienda_turnos.html?idTienda=${tienda.id_tienda}&idCampania=${idCampaniaPintar}'">turnos</button>` : ''}
-                        <button class="btn-info" onclick="window.location.href='info_tienda.html?id=${tienda.id_tienda}'">+ info</button>
-                    </div>
-                `;
-                tiendasContainer.appendChild(card);
+                construirTarjetaTienda(tienda, idCampaniaBuscada);
             });
 
         } catch (error) {
-            tiendasContainer.innerHTML = `<div class="alert alert-error" style="grid-column: 1/-1; text-align:center;">${error.message}</div>`;
+            limpiarContenedor(tiendasContainer);
+            mostrarMensaje(error.message, 'alert-error');
         }
     }
 
+    // Rellena el desplegable de zonas para el administrador
     async function cargarFiltrosZona() {
         try {
             const response = await fetch(`${API_BASE}/api/zonas`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+
             if (response.ok) {
                 const zonas = await response.json();
                 zonas.forEach(zona => {
@@ -164,8 +147,117 @@ document.addEventListener('DOMContentLoaded', async () => {
                     selectZona.appendChild(opt);
                 });
             }
-        } catch (e) {
-            console.error("Error al cargar las zonas:", e);
+        } catch (error) {
+            console.error("Error al cargar las zonas:", error);
         }
+    }
+
+    // Construye el HTML de una tarjeta de tienda nodo a nodo
+    function construirTarjetaTienda(tienda, idCampaniaBuscada) {
+        const card = document.createElement('div');
+        card.classList.add('tienda-card');
+
+        const establecimiento = tienda.cadena ? tienda.cadena.establecimiento : 'Sin cadena';
+        const localidad = tienda.cp ? tienda.cp.localidad : 'N/A';
+
+        let participaTexto = "No";
+        let idCampaniaPintar = null;
+
+        // Buscamos la relación de la tienda con la campaña solicitada o activa
+        if (tienda.tienda_campania && tienda.tienda_campania.length > 0) {
+            let relacion = null;
+            if (idCampaniaBuscada && idCampaniaBuscada > 0) {
+                relacion = tienda.tienda_campania.find(tc => tc.id_campania === idCampaniaBuscada);
+            } else if (idCampaniaActiva) {
+                relacion = tienda.tienda_campania.find(tc => tc.id_campania === idCampaniaActiva);
+            }
+
+            if (!relacion) {
+                relacion = tienda.tienda_campania[0];
+            }
+
+            if (relacion) {
+                participaTexto = relacion.participa ? "Sí" : "No";
+                idCampaniaPintar = relacion.id_campania;
+            }
+        }
+
+        const titulo = document.createElement('h3');
+        titulo.classList.add('titulo-tienda');
+        titulo.textContent = `Tienda ${tienda.id_tienda} - ${establecimiento}`;
+        card.appendChild(titulo);
+
+        card.appendChild(crearParrafoDato('Cadena: ', establecimiento));
+        card.appendChild(crearParrafoDato('Localidad: ', localidad));
+        card.appendChild(crearParrafoDato('Domicilio: ', tienda.domicilio || 'N/A'));
+        card.appendChild(crearParrafoDato('Participa: ', participaTexto));
+
+        // Construcción de la botonera
+        const divBotones = document.createElement('div');
+        divBotones.classList.add('botones-card');
+
+        if (usuarioRol === 'ADMINISTRADOR') {
+            divBotones.appendChild(crearBoton('editar', 'btn-editar', `editar_tienda.html?id=${tienda.id_tienda}`));
+        }
+
+        if (participaTexto === 'Sí' && idCampaniaPintar) {
+            divBotones.appendChild(crearBoton('turnos', 'btn-turnos', `tienda_turnos.html?idTienda=${tienda.id_tienda}&idCampania=${idCampaniaPintar}`));
+        }
+
+        divBotones.appendChild(crearBoton('+ info', 'btn-info', `info_tienda.html?id=${tienda.id_tienda}`));
+
+        card.appendChild(divBotones);
+        tiendasContainer.appendChild(card);
+    }
+
+    // Funciones de utilidad para manipulación del DOM
+    function crearParrafoDato(etiqueta, valor) {
+        const p = document.createElement('p');
+        const strong = document.createElement('strong');
+        strong.textContent = etiqueta;
+        p.appendChild(strong);
+        p.appendChild(document.createTextNode(valor));
+        return p;
+    }
+
+    function crearBoton(texto, clase, url) {
+        const boton = document.createElement('button');
+        boton.textContent = texto;
+        boton.classList.add(clase);
+        boton.addEventListener('click', () => {
+            window.location.href = url;
+        });
+        return boton;
+    }
+
+    function limpiarContenedor(contenedor) {
+        while (contenedor.firstChild) {
+            contenedor.removeChild(contenedor.firstChild);
+        }
+    }
+
+    function mostrarMensajeCarga() {
+        limpiarContenedor(tiendasContainer);
+
+        const loadingDiv = document.createElement('div');
+        loadingDiv.classList.add('loading');
+        loadingDiv.style.gridColumn = '1/-1';
+        loadingDiv.style.justifyContent = 'center';
+
+        const spinner = document.createElement('div');
+        spinner.classList.add('spinner');
+
+        loadingDiv.appendChild(spinner);
+        loadingDiv.appendChild(document.createTextNode(' Cargando tiendas...'));
+        tiendasContainer.appendChild(loadingDiv);
+    }
+
+    function mostrarMensaje(mensaje, claseAlerta) {
+        const divMsj = document.createElement('div');
+        divMsj.classList.add('alert', claseAlerta);
+        divMsj.style.gridColumn = '1/-1';
+        divMsj.style.textAlign = 'center';
+        divMsj.textContent = mensaje;
+        tiendasContainer.appendChild(divMsj);
     }
 });

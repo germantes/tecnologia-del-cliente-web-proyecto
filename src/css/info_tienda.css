@@ -87,7 +87,7 @@ td:last-child {
     padding: 0 40px 40px 40px;
 }
 
-.btn-cerrar, .btn-editar {
+.btn-cerrar, .btn-editar, .btn-turnos {
     background-color: var(--sky-surge);
     color: var(--white);
     border: none;
@@ -99,7 +99,7 @@ td:last-child {
     transition: background-color 0.3s;
 }
 
-.btn-cerrar:hover, .btn-editar:hover {
+.btn-cerrar:hover, .btn-editar:hover, .btn-turnos:hover {
     background-color: var(--twilight-indigo);
 }
 
