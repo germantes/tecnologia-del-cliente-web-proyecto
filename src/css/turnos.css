@@ -74,9 +74,9 @@ h4 {
     border-radius: 7px;
     overflow: hidden;
     transition:
-            transform 0.25s ease,
-            box-shadow 0.25s ease,
-            border-color 0.25s ease;
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
 }
 
 .dia-card:hover .turno-card {

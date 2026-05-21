@@ -167,3 +167,13 @@
     font-weight: 700 !important;
     overflow-wrap: anywhere !important;
 }
+
+/* Ajuste y separación de los botones en las tarjetas de entidades */
+.boton-editar-turno {
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.boton-editar-turno .btn {
+    flex: 1;
+}
