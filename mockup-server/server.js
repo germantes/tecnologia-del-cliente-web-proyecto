@@ -401,6 +401,21 @@ app.get('/voluntarios', requireAuth, (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'voluntarios.html'));
 });
 
+// Rutas para las demás páginas del frontend
+const paginasFrontend = [
+  'inicio', 'tiendas', 'tienda_turnos', 'info_tienda',
+  'turno_editar', 'turno_observaciones', 'turno_observaciones_editar',
+  'zonas', 'campanias'
+];
+
+paginasFrontend.forEach(pagina => {
+  app.get([`/${pagina}`, `/${pagina}.html`, `/html/${pagina}.html`], requireAuth, (req, res) => {
+    res.sendFile(path.join(srcPath, 'html', `${pagina}.html`), (err) => {
+      if (err) res.sendFile(path.join(srcPath, `${pagina}.html`)); // Fallback si está en raíz
+    });
+  });
+});
+
 // Rutas para la página de edición y creación (soporta con y sin .html)
 app.get('/edit', requireAuth, (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'edit.html'), (err) => {
@@ -414,12 +429,6 @@ app.get('/edit.html', requireAuth, (req, res) => {
 });
 
 // ─── RUTAS DE API (DATOS JSON PURAMENTE) ──────────────────────────────────────
-app.get('/api/cp', requireAuth, async (req, res) => {
-  try {
-    const rows = applyGenericFilters(await fetchAll('cp'), req.query);
-    res.json(rows);
-  } catch (error) { sendError(res, error, 'Error obteniendo códigos postales'); }
-});
 
 app.get('/api/entidades', requireAuth, async (req, res) => {
   try {
@@ -547,7 +556,7 @@ app.get('/tienda_editar', requireAuth, async (req, res) => {
 });
 
 // Endpoint para obtener códigos postales con sus relaciones
-app.get('/cp', requireAuth, async (req, res) => {
+app.get(['/cp', '/api/cp'], requireAuth, async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('cp')

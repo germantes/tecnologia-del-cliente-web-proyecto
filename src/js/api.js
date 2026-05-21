@@ -29,7 +29,7 @@ function apiResource(resource) {
     voluntarios: 'api/voluntarios',
     turnos: 'api/turnos',
     schedule: 'api/schedule',
-    cp: 'cp'
+    cp: 'api/cp'
   };
 
   return apiResources[resource] || resource;
@@ -94,7 +94,7 @@ async function getRecords(resource, queryParams = {}) {
     // Si la respuesta no es JSON, probablemente es un error del servidor (HTML)
     throw new Error(`El servidor devolvió HTML en lugar de JSON. Estado: ${response.status}. Verifica que el servidor esté corriendo y la URL es correcta.`);
   }
-  
+
   if (!response.ok) throw new Error(data.message || `Error al cargar ${resource}`);
   return data;
 }

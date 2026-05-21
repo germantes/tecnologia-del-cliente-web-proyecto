@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    const usuarioRol = perfil;
+    const usuarioRol = perfil.toUpperCase();
     const API_BASE = window.API_URL || 'http://localhost:3000';
 
     const tiendasContainer = document.getElementById('tiendasContainer');
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await cargarCampanias();
 
     // 2. Configurar Interfaz según el Rol
-    if (usuarioRol === 'ADMINISTRADOR') {
+    if (usuarioRol === 'ADMIN') {
         adminFilters.style.display = 'flex';
         await cargarFiltrosZona();
         const btnAplicar = document.getElementById('btnAplicar');
@@ -47,8 +47,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function cargarCampanias() {
         try {
             // AQUÍ ESTABA EL ERROR: Era /campanias, no /api/campanias
-            const res = await fetch(`${API_BASE}/campanias`, { headers: { 'Authorization': `Bearer ${token}` }});
-            if(res.ok) {
+            const res = await fetch(`${API_BASE}/campanias`, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (res.ok) {
                 campaniasGlobal = await res.json();
                 const hoy = new Date();
 
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
 
                 // Si es Admin, rellenamos el desplegable
-                if (usuarioRol === 'ADMINISTRADOR' && selectCampania) {
+                if (usuarioRol === 'ADMIN' && selectCampania) {
                     campaniasGlobal.forEach(c => {
                         const opt = document.createElement('option');
                         opt.value = c.id_campania;
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             let url = '/api/tiendas';
             let idCampaniaBuscada = null;
 
-            if (usuarioRol === 'ADMINISTRADOR') {
+            if (usuarioRol === 'ADMIN') {
                 const zonaId = selectZona.value;
                 const participa = selectParticipa.value;
                 const campaniaId = selectCampania.value;
@@ -137,8 +137,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <p><strong>Participa: </strong>${participaTexto}</p>
                     
                     <div class="botones-card">
-                        ${usuarioRol === 'ADMINISTRADOR' ? `<button class="btn-editar" onclick="window.location.href='edit.html?type=tiendas&id=${tienda.id_tienda}'">editar</button>` : ''}
-                        ${participaTexto === 'Sí' && idCampaniaPintar ? `<button class="btn-turnos" onclick="window.location.href='/html/tienda_turnos.html?idTienda=${tienda.id_tienda}&idCampania=${idCampaniaPintar}'">turnos</button>` : ''}
+                        ${usuarioRol === 'ADMIN' ? `<button class="btn-editar" onclick="window.location.href='edit.html?type=tiendas&id=${tienda.id_tienda}'">editar</button>` : ''}
+                        ${participaTexto === 'Sí' && idCampaniaPintar ? `<button class="btn-turnos" onclick="window.location.href='tienda_turnos?idTienda=${tienda.id_tienda}&idCampania=${idCampaniaPintar}'">turnos</button>` : ''}
                         <button class="btn-info" onclick="window.location.href='info_tienda.html?id=${tienda.id_tienda}'">+ info</button>
                     </div>
                 `;
