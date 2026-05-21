@@ -165,13 +165,16 @@ function crearAccionesTurno(turno, idTienda, idCampania) {
     acciones.className = "acciones-turno";
 
     var tipoTurno = turno.turno || turno.tipo_turno || "";
+    var idTurno = turno.id_turno || turno.idTurno || "";
+    var idEntidad = turno.id_entidad || turno.idEntidad || "";
 
     var enlaceEditar = document.createElement("a");
     enlaceEditar.className = "turnos-btn turnos-btn--small";
     enlaceEditar.href = "/turno_editar?idTienda=" + encodeURIComponent(idTienda)
         + "&idCampania=" + encodeURIComponent(idCampania)
-        + "&fecha=" + encodeURIComponent(turno.fecha)
-        + "&turno=" + encodeURIComponent(tipoTurno);
+        + "&idTurno=" + encodeURIComponent(idTurno)
+        + "&turno=" + encodeURIComponent(tipoTurno)
+        + "&idEntidad=" + encodeURIComponent(idEntidad);
     enlaceEditar.textContent = "Editar";
 
     var enlaceObservaciones = document.createElement("a");

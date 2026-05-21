@@ -44,6 +44,7 @@ const PUBLIC_GET_PATHS = new Set([
   '/usuarios', '/campanias', '/tiendas', '/tiendas_zona', '/tienda_detalle', '/tienda_editar',
   '/entidades',
   '/api/entidades', '/api/voluntarios', '/api/turnos', '/api/schedule', '/api/tienda_turnos',
+  '/api/voluntarios_entidad',
   '/api/turno_editar', '/api/turno_filtrar', '/api/info_voluntario',
   '/api/turno_observaciones', '/api/turno_observaciones_editar'
 ]);
@@ -260,6 +261,9 @@ function filterTurnos(rows, query) {
 
 async function findTurnoParaEditar(query) {
   const turnos = await fetchAll('turno');
+  if (query.idTurno) {
+    return turnos.find((turno) => sameNumberOrString(getIdTurno(turno), query.idTurno)) || null;
+  }
   return filterTurnos(turnos, query)[0] || null;
 }
 
@@ -481,6 +485,37 @@ app.get('/api/voluntarios', requireAuth, async (req, res) => {
     });
     res.json(rows);
   } catch (error) { sendError(res, error, 'Error obteniendo voluntarios'); }
+});
+
+app.get('/api/entidades/:idEntidad/voluntarios', requireAuth, async (req, res) => {
+  try {
+    const entidad = await findById('entidad', req.params.idEntidad, ['idEntidad', 'id_entidad', 'id']);
+    const voluntarios = await getVoluntariosDeEntidad(req.params.idEntidad, req.query.busqueda || req.query.q || '');
+    res.json({
+      idEntidad: req.params.idEntidad,
+      nombreEntidad: getField(entidad, 'nombre', 'nombre_completo', 'razon_social') || '',
+      voluntarios
+    });
+  } catch (error) { sendError(res, error, 'Error obteniendo voluntarios de entidad'); }
+});
+
+app.get('/api/voluntarios_entidad', requireAuth, async (req, res) => {
+  try {
+    const idEntidad = req.query.idEntidad;
+
+    if (!idEntidad) {
+      return res.status(400).json({ success: false, message: 'Falta el parámetro idEntidad.' });
+    }
+
+    const entidad = await findById('entidad', idEntidad, ['idEntidad', 'id_entidad', 'id']);
+    const voluntarios = await getVoluntariosDeEntidad(idEntidad, req.query.busqueda || req.query.q || '');
+
+    res.json({
+      idEntidad,
+      nombreEntidad: getField(entidad, 'nombre', 'nombre_completo', 'razon_social') || '',
+      voluntarios
+    });
+  } catch (error) { sendError(res, error, 'Error obteniendo voluntarios de entidad'); }
 });
 
 app.get('/tiendas', requireAuth, async (req, res) => {
@@ -713,6 +748,43 @@ app.get('/api/turno_filtrar', requireAuth, async (req, res) => {
     if (!payload) return res.status(404).json({ success: false, message: 'Turno no encontrado.' });
     res.json(payload);
   } catch (error) { sendError(res, error, 'Error filtrando voluntarios de turno'); }
+});
+
+app.get('/api/tienda_voluntarios', requireAuth, async (req, res) => {
+  try {
+    const turno = await findTurnoParaEditar(req.query);
+    if (!turno) return res.status(404).json({ success: false, message: 'Turno no encontrado.' });
+
+    const entidad = await resolverEntidadResponsable(turno);
+    const idEntidad = getIdEntidad(entidad);
+    const voluntarios = idEntidad ? await getVoluntariosDeEntidad(idEntidad, req.query.busqueda || '') : [];
+
+    res.json({
+      idEntidad: idEntidad || null,
+      nombreEntidadResponsable: getField(entidad, 'nombre', 'nombre_completo', 'razon_social') || 'Sin entidad responsable',
+      voluntarios
+    });
+  } catch (error) { sendError(res, error, 'Error obteniendo voluntarios de entidad'); }
+});
+
+app.get('/api/turno_voluntarios', requireAuth, async (req, res) => {
+  try {
+    const turno = await findTurnoParaEditar(req.query);
+    if (!turno) return res.status(404).json({ success: false, message: 'Turno no encontrado.' });
+
+    const idsVoluntariosSeleccionados = await getIdsVoluntariosByTurno(getIdTurno(turno));
+    const voluntarios = await fetchAll('voluntario');
+
+    res.json({
+      idTurno: getIdTurno(turno),
+      idsVoluntariosSeleccionados,
+      voluntarios: voluntarios.filter((voluntario) =>
+        idsVoluntariosSeleccionados.some((idVoluntario) =>
+          sameNumberOrString(getIdVoluntario(voluntario), idVoluntario)
+        )
+      )
+    });
+  } catch (error) { sendError(res, error, 'Error obteniendo voluntarios del turno'); }
 });
 
 app.post('/api/turno_guardar_voluntarios', requireAuth, async (req, res) => {
@@ -1020,6 +1092,10 @@ app.get('/tienda_turnos', (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'tienda_turnos.html'));
 });
 
+app.get('/turno_editar', (req, res) => {
+  res.sendFile(path.join(srcPath, 'html', 'turno_editar.html'));
+});
+
 app.all([
   '/voluntarios',
   '/voluntarios/:id',
@@ -1027,7 +1103,6 @@ app.all([
   '/turnos/:id',
   '/schedule',
   '/schedule/:id',
-  '/turno_editar',
   '/turno_filtrar',
   '/turno_guardar_voluntarios',
   '/info_Voluntario',
