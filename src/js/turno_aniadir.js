@@ -144,6 +144,17 @@ function crearFilaDia(fechaIso) {
     if (datosAnadir.turnosPorDia[fechaIso]) {
         celdaEstado.textContent = "Ya existe";
         celdaEstado.className = "aniadir-estado aniadir-estado--completo";
+
+        if (obtenerPerfilTurnos() === ROL_ADMINISTRADOR) {
+            var botonEliminar = document.createElement("button");
+            botonEliminar.type = "button";
+            botonEliminar.className = "aniadir-btn aniadir-btn--delete";
+            botonEliminar.textContent = "Eliminar";
+            botonEliminar.addEventListener("click", function () {
+                manejarEliminarTurnos(fechaIso, botonEliminar);
+            });
+            celdaAccion.appendChild(botonEliminar);
+        }
     } else {
         celdaEstado.textContent = "Pendiente";
         celdaEstado.className = "aniadir-estado aniadir-estado--pendiente";
@@ -182,6 +193,27 @@ async function manejarAgregarTurnos(fechaIso, boton) {
     }
 }
 
+async function manejarEliminarTurnos(fechaIso, boton) {
+    var confirmado = window.confirm("¿Estás seguro de eliminar los turnos de este día?");
+
+    if (!confirmado) {
+        return;
+    }
+
+    boton.disabled = true;
+    boton.textContent = "Eliminando...";
+
+    try {
+        await borrarTurnosDia(fechaIso);
+        delete datosAnadir.turnosPorDia[fechaIso];
+        pintarTablaDias();
+    } catch (error) {
+        boton.disabled = false;
+        boton.textContent = "Eliminar";
+        alert(error.message);
+    }
+}
+
 async function crearTurno(fechaIso, tipoTurno) {
     return await fetchJsonAnadir("/turnos", {
         method: "POST",
@@ -194,6 +226,20 @@ async function crearTurno(fechaIso, tipoTurno) {
             fecha: fechaIso,
             turno: tipoTurno,
             observaciones: ""
+        })
+    });
+}
+
+async function borrarTurnosDia(fechaIso) {
+    return await fetchJsonAnadir("/api/turno_borrar_dia", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            idTienda: datosAnadir.idTienda,
+            idCampania: datosAnadir.idCampania,
+            fecha: fechaIso
         })
     });
 }

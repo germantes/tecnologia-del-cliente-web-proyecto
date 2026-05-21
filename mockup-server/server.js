@@ -786,6 +786,37 @@ app.post('/api/turno_guardar_voluntarios', requireAuth, async (req, res) => {
   } catch (error) { sendError(res, error, 'Error guardando voluntarios de turno'); }
 });
 
+app.post('/api/turno_borrar_dia', requireAuth, async (req, res) => {
+  try {
+    const params = { ...req.query, ...req.body };
+    const idTienda = params.idTienda;
+    const idCampania = params.idCampania;
+    const fecha = params.fecha;
+
+    if (!idTienda || !idCampania || !fecha) {
+      return res.status(400).json({ success: false, message: 'Faltan parámetros para borrar turnos.' });
+    }
+
+    const turnos = filterTurnos(await fetchAll('turno'), {
+      idTienda,
+      idCampania,
+      fecha
+    });
+
+    if (!turnos.length) {
+      return res.json({ success: true, deleted: 0 });
+    }
+
+    for (const turno of turnos) {
+      const idTurno = getIdTurno(turno);
+      await deleteTurnoVoluntarios(idTurno);
+      await deleteRows('turno', 'id_turno', idTurno);
+    }
+
+    res.json({ success: true, deleted: turnos.length });
+  } catch (error) { sendError(res, error, 'Error borrando turnos del día'); }
+});
+
 app.get('/api/info_voluntario', requireAuth, async (req, res) => {
   try {
     const voluntario = await findById('voluntario', req.query.idVoluntario, ['id_voluntario']);

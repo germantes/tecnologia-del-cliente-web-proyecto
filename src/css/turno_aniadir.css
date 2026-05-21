@@ -111,17 +111,29 @@ body {
     box-shadow: 0 10px 20px rgba(50, 50, 102, 0.2);
 }
 
+.aniadir-btn--delete {
+    background-color: #d46262;
+    box-shadow: 0 6px 14px rgba(212, 98, 98, 0.25);
+}
+
+.aniadir-btn--delete:hover {
+    background-color: #b04646;
+}
+
 .aniadir-tabla {
     width: 100%;
     border-collapse: collapse;
     margin: 0;
 }
 
-.aniadir-tabla thead th {
+.aniadir-tabla thead {
     background-color: var(--twilight-indigo);
+}
+
+.aniadir-tabla thead th {
     color: var(--white);
     padding: 14px 16px;
-    text-align: left;
+    text-align: center;
     font-size: 1rem;
 }
 
@@ -130,10 +142,7 @@ body {
     border-bottom: 2px solid rgba(50, 50, 102, 0.12);
     color: var(--twilight-indigo);
     font-weight: 600;
-}
-
-.aniadir-tabla td:last-child {
-    text-align: right;
+    text-align: center;
 }
 
 .aniadir-estado {
