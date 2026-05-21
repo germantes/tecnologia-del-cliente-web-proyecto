@@ -1,19 +1,11 @@
-async function fetchVoluntariosEntidad(idTienda, idCampania, idTurno, busqueda) {
-    var apiBase = window.API_URL || "http://localhost:3000";
-    var url = apiBase + "/api/tienda_voluntarios"
-        + "?idTienda=" + encodeURIComponent(idTienda)
-        + "&idCampania=" + encodeURIComponent(idCampania)
-        + "&idTurno=" + encodeURIComponent(idTurno)
-        + "&busqueda=" + encodeURIComponent(busqueda || "");
-
-    return fetchJsonTurno(url);
-}
-
 async function fetchVoluntariosDeEntidad(idEntidad, busqueda) {
     var apiBase = window.API_URL || "http://localhost:3000";
     var url = apiBase + "/api/voluntarios_entidad"
-        + "?idEntidad=" + encodeURIComponent(idEntidad)
-        + "&busqueda=" + encodeURIComponent(busqueda || "");
+        + "?idEntidad=" + encodeURIComponent(idEntidad);
+
+    if (busqueda) {
+        url = url + "&busqueda=" + encodeURIComponent(busqueda);
+    }
 
     var respuesta = await fetch(url);
     var datos = await respuesta.json();
@@ -25,21 +17,16 @@ async function fetchVoluntariosDeEntidad(idEntidad, busqueda) {
     return datos;
 }
 
-async function fetchTurnosTiendaParaEditar(idTienda, idCampania) {
+async function fetchTurnoPorId(idTurno) {
     var apiBase = window.API_URL || "http://localhost:3000";
-    var url = apiBase + "/api/tienda_turnos"
-        + "?idTienda=" + encodeURIComponent(idTienda)
-        + "&idCampania=" + encodeURIComponent(idCampania);
+    var url = apiBase + "/api/turnos/" + encodeURIComponent(idTurno);
 
     return fetchJsonTurno(url);
 }
 
-async function fetchVoluntariosTurno(idTienda, idCampania, idTurno) {
+async function fetchTiendaPorId(idTienda) {
     var apiBase = window.API_URL || "http://localhost:3000";
-    var url = apiBase + "/api/turno_voluntarios"
-        + "?idTienda=" + encodeURIComponent(idTienda)
-        + "&idCampania=" + encodeURIComponent(idCampania)
-        + "&idTurno=" + encodeURIComponent(idTurno);
+    var url = apiBase + "/api/tiendas/" + encodeURIComponent(idTienda);
 
     return fetchJsonTurno(url);
 }
@@ -51,8 +38,7 @@ async function guardarVoluntariosTurno(idTienda, idCampania, idTurno, idsVolunta
     var respuesta = await fetch(url, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + (sessionStorage.getItem("token") || "")
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({
             idTienda: idTienda,
@@ -72,11 +58,7 @@ async function guardarVoluntariosTurno(idTienda, idCampania, idTurno, idsVolunta
 }
 
 async function fetchJsonTurno(url) {
-    var respuesta = await fetch(url, {
-        headers: {
-            "Authorization": "Bearer " + (sessionStorage.getItem("token") || "")
-        }
-    });
+    var respuesta = await fetch(url);
 
     var datos = await respuesta.json();
 

@@ -4,133 +4,187 @@ var datosPagina = {
     idTurno: "",
     turno: "",
     idEntidad: "",
+    voluntariosEntidad: [],
     idsSeleccionados: []
 };
 
 document.addEventListener("DOMContentLoaded", iniciarPaginaEditarTurno);
 
 async function iniciarPaginaEditarTurno() {
-    var parametros = new URLSearchParams(window.location.search);
-    datosPagina.idTienda = parametros.get("idTienda");
-    datosPagina.idCampania = parametros.get("idCampania");
-    datosPagina.idTurno = parametros.get("idTurno");
-    datosPagina.turno = parametros.get("turno");
-    datosPagina.idEntidad = parametros.get("idEntidad");
-
+    leerParametrosUrl();
     rellenarCamposOcultos();
+    prepararEventos();
 
     if (!datosPagina.idTienda || !datosPagina.idCampania || !datosPagina.idTurno) {
         mostrarMensaje("Faltan parámetros para editar el turno.");
+        pintarMensajeTabla("No se pueden cargar voluntarios porque faltan parámetros.");
         return;
     }
 
+    pintarMensajeTabla("Cargando voluntarios...");
+    await cargarDatosIniciales();
+}
+
+function leerParametrosUrl() {
+    var parametros = new URLSearchParams(window.location.search);
+
+    datosPagina.idTienda = parametros.get("idTienda") || "";
+    datosPagina.idCampania = parametros.get("idCampania") || "";
+    datosPagina.idTurno = parametros.get("idTurno") || "";
+    datosPagina.turno = parametros.get("turno") || "";
+    datosPagina.idEntidad = parametros.get("idEntidad") || "";
+}
+
+function prepararEventos() {
     document.getElementById("volverTurnos").href = "/tienda_turnos?idTienda="
         + encodeURIComponent(datosPagina.idTienda)
         + "&idCampania=" + encodeURIComponent(datosPagina.idCampania);
 
     document.getElementById("formTurnoVoluntarios").addEventListener("submit", guardarFormulario);
-    document.getElementById("botonBuscar").addEventListener("click", buscarVoluntarios);
+    document.getElementById("botonBuscar").addEventListener("click", cargarListasVoluntarios);
 
-    await cargarDatosIniciales();
+    document.getElementById("busquedaVoluntario").addEventListener("keydown", function (evento) {
+        if (evento.key === "Enter") {
+            evento.preventDefault();
+            cargarListasVoluntarios();
+        }
+    });
 }
 
 async function cargarDatosIniciales() {
     try {
-        var datosTurnos = await fetchTurnosTiendaParaEditar(datosPagina.idTienda, datosPagina.idCampania);
-        var turnoActual = buscarTurnoActual(datosTurnos.turnosTienda || []);
+        var turnoActual = await fetchTurnoActual();
 
         if (!turnoActual) {
             mostrarMensaje("No se encontró el turno seleccionado.");
+            pintarMensajeTabla("No se encontró el turno seleccionado.");
             return;
         }
 
         if (!datosPagina.idEntidad) {
-            datosPagina.idEntidad = turnoActual.id_entidad || turnoActual.idEntidad || "";
+            datosPagina.idEntidad = obtenerIdEntidadResponsable(turnoActual);
             rellenarCamposOcultos();
         }
 
-        datosPagina.idsSeleccionados = obtenerIdsVoluntarios(turnoActual.voluntarios || []);
+        var tienda = await fetchTiendaActual();
+        pintarCabecera(tienda, turnoActual);
 
-        pintarCabecera(datosTurnos, turnoActual);
-        await cargarVoluntarios("");
+        await cargarListasVoluntarios();
     } catch (error) {
         mostrarMensaje(error.message);
+        pintarMensajeTabla("No se pudieron cargar los voluntarios.");
     }
 }
 
-async function buscarVoluntarios() {
-    var texto = document.getElementById("busquedaVoluntario").value;
-    await cargarVoluntarios(texto);
-}
-
-async function cargarVoluntarios(busqueda) {
+async function cargarListasVoluntarios() {
     try {
         if (!datosPagina.idEntidad) {
-            mostrarMensaje("El turno no tiene entidad asociada.");
-            pintarTablaVoluntarios([]);
+            mostrarMensaje("No hay entidad responsable para cargar voluntarios.");
+            pintarMensajeTabla("No hay entidad responsable para cargar voluntarios.");
             return;
         }
 
-        var respuesta = await fetchVoluntariosDeEntidad(datosPagina.idEntidad, busqueda);
+        var respuestaVoluntarios = await fetchVoluntariosEntidad();
+        datosPagina.voluntariosEntidad = respuestaVoluntarios.voluntarios || [];
 
-        if (respuesta.nombreEntidad) {
-            document.getElementById("nombreEntidad").textContent = respuesta.nombreEntidad;
+        if (respuestaVoluntarios.nombreEntidad) {
+            document.getElementById("nombreEntidad").textContent = respuestaVoluntarios.nombreEntidad;
         }
 
-        pintarTablaVoluntarios(respuesta.voluntarios || []);
+        var respuestaAsociados = await fetchVoluntariosAsociadosTurno();
+        datosPagina.idsSeleccionados = obtenerIdsSeleccionados(respuestaAsociados);
+
+        pintarFilasVoluntarios(datosPagina.voluntariosEntidad);
         mostrarMensaje("");
+    } catch (error) {
+        mostrarMensaje(error.message);
+        pintarMensajeTabla("No se pudieron cargar los voluntarios.");
+    }
+}
+
+async function guardarFormulario(evento) {
+    evento.preventDefault();
+    actualizarSeleccionadosDesdeTabla();
+
+    try {
+        await guardarVoluntariosSeleccionados();
+
+        window.location.href = "/tienda_turnos?idTienda="
+            + encodeURIComponent(datosPagina.idTienda)
+            + "&idCampania=" + encodeURIComponent(datosPagina.idCampania);
     } catch (error) {
         mostrarMensaje(error.message);
     }
 }
 
-function buscarTurnoActual(turnos) {
-    for (var i = 0; i < turnos.length; i++) {
-        var idTurno = turnos[i].id_turno || turnos[i].idTurno;
-
-        if (String(idTurno) === String(datosPagina.idTurno)) {
-            return turnos[i];
-        }
-    }
-
-    return null;
+async function fetchTurnoActual() {
+    return await fetchJson("/api/turnos/" + encodeURIComponent(datosPagina.idTurno));
 }
 
-function obtenerIdsVoluntarios(voluntarios) {
-    var ids = [];
-
-    for (var i = 0; i < voluntarios.length; i++) {
-        var id = voluntarios[i].id_voluntario || voluntarios[i].idVoluntario || voluntarios[i].id;
-
-        if (id) {
-            ids.push(String(id));
-        }
-    }
-
-    return ids;
+async function fetchTiendaActual() {
+    return await fetchJson("/api/tiendas/" + encodeURIComponent(datosPagina.idTienda));
 }
 
-function pintarCabecera(datosTurnos, turnoActual) {
-    var tiendaCampania = datosTurnos.tiendaCampania || {};
-    var tienda = tiendaCampania.tienda || {};
+async function fetchVoluntariosEntidad() {
+    var busqueda = document.getElementById("busquedaVoluntario").value || "";
+    var parametros = new URLSearchParams();
+
+    parametros.set("idEntidad", datosPagina.idEntidad);
+
+    if (busqueda) {
+        parametros.set("busqueda", busqueda);
+    }
+
+    return await fetchJson("/api/voluntarios_entidad?" + parametros.toString());
+}
+
+async function fetchVoluntariosAsociadosTurno() {
+    var parametros = new URLSearchParams();
+
+    parametros.set("idTienda", datosPagina.idTienda);
+    parametros.set("idCampania", datosPagina.idCampania);
+    parametros.set("idTurno", datosPagina.idTurno);
+
+    if (datosPagina.turno) {
+        parametros.set("turno", datosPagina.turno);
+    }
+
+    return await fetchJson("/api/turno_voluntarios?" + parametros.toString());
+}
+
+async function guardarVoluntariosSeleccionados() {
+    return await fetchJson("/api/turno_guardar_voluntarios", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            idTienda: datosPagina.idTienda,
+            idCampania: datosPagina.idCampania,
+            idTurno: datosPagina.idTurno,
+            idEntidad: datosPagina.idEntidad,
+            voluntariosSeleccionados: datosPagina.idsSeleccionados
+        })
+    });
+}
+
+function pintarCabecera(tienda, turnoActual) {
+    tienda = tienda || {};
+    turnoActual = turnoActual || {};
+
     var cadena = tienda.cadena || {};
 
     document.getElementById("nombreTienda").textContent = obtenerNombreTienda(cadena);
     document.getElementById("fechaTurno").textContent = formatearFecha(turnoActual.fecha);
-    document.getElementById("tituloTurno").textContent = "Turno: " + textoTurno(turnoActual.turno || turnoActual.tipo_turno || datosPagina.turno);
+    document.getElementById("tituloTurno").textContent = "Turno: " + textoTurno(turnoActual.turno);
 }
 
-function pintarTablaVoluntarios(voluntarios) {
+function pintarFilasVoluntarios(voluntarios) {
     var tabla = document.getElementById("tablaVoluntarios");
     tabla.textContent = "";
 
-    if (voluntarios.length === 0) {
-        var filaVacia = document.createElement("tr");
-        var celdaVacia = document.createElement("td");
-        celdaVacia.colSpan = 2;
-        celdaVacia.textContent = "No hay voluntarios disponibles para esta entidad.";
-        filaVacia.appendChild(celdaVacia);
-        tabla.appendChild(filaVacia);
+    if (!voluntarios || voluntarios.length === 0) {
+        pintarMensajeTabla("No hay voluntarios para esta entidad.");
         return;
     }
 
@@ -139,59 +193,111 @@ function pintarTablaVoluntarios(voluntarios) {
     }
 }
 
-function crearFilaVoluntario(voluntario) {
-    var idVoluntario = String(voluntario.id_voluntario || voluntario.idVoluntario || voluntario.id);
+function pintarMensajeTabla(mensaje) {
+    var tabla = document.getElementById("tablaVoluntarios");
+    tabla.textContent = "";
+
     var fila = document.createElement("tr");
+    var celda = document.createElement("td");
 
-    var celdaCheck = document.createElement("td");
-    celdaCheck.className = "celda-participa";
+    celda.colSpan = 2;
+    celda.className = "sin-resultados turnos-empty";
+    celda.textContent = mensaje;
 
+    fila.appendChild(celda);
+    tabla.appendChild(fila);
+}
+
+function crearFilaVoluntario(voluntario) {
+    var fila = document.createElement("tr");
+    var celdaParticipa = document.createElement("td");
+    var celdaNombre = document.createElement("td");
+    var idVoluntario = obtenerIdVoluntario(voluntario);
     var check = document.createElement("input");
+
     check.type = "checkbox";
     check.name = "voluntariosSeleccionados";
     check.value = idVoluntario;
     check.checked = estaSeleccionado(idVoluntario);
 
-    celdaCheck.appendChild(check);
+    celdaParticipa.appendChild(check);
+    celdaNombre.textContent = crearNombreCompleto(voluntario);
 
-    var celdaNombre = document.createElement("td");
-    celdaNombre.className = "celda-nombre";
-    celdaNombre.textContent = nombreVoluntario(voluntario);
-
-    fila.appendChild(celdaCheck);
+    fila.appendChild(celdaParticipa);
     fila.appendChild(celdaNombre);
 
     return fila;
 }
 
-function estaSeleccionado(idVoluntario) {
-    for (var i = 0; i < datosPagina.idsSeleccionados.length; i++) {
-        if (String(datosPagina.idsSeleccionados[i]) === String(idVoluntario)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-async function guardarFormulario(evento) {
-    evento.preventDefault();
-
-    var checks = document.querySelectorAll("input[name='voluntariosSeleccionados']:checked");
+function actualizarSeleccionadosDesdeTabla() {
+    var checks = document.querySelectorAll("input[name='voluntariosSeleccionados']");
     var ids = [];
 
     for (var i = 0; i < checks.length; i++) {
-        ids.push(checks[i].value);
+        if (checks[i].checked) {
+            ids.push(String(checks[i].value));
+        }
     }
 
-    try {
-        await guardarVoluntariosTurno(datosPagina.idTienda, datosPagina.idCampania, datosPagina.idTurno, ids);
-        window.location.href = "/tienda_turnos?idTienda="
-            + encodeURIComponent(datosPagina.idTienda)
-            + "&idCampania=" + encodeURIComponent(datosPagina.idCampania);
-    } catch (error) {
-        mostrarMensaje(error.message);
+    datosPagina.idsSeleccionados = ids;
+}
+
+function obtenerIdsSeleccionados(respuestaAsociados) {
+    var ids = respuestaAsociados.idsVoluntariosSeleccionados || [];
+
+    return convertirIdsAString(ids);
+}
+
+function convertirIdsAString(ids) {
+    var resultado = [];
+
+    for (var i = 0; i < ids.length; i++) {
+        var id = String(ids[i] || "");
+
+        if (id && resultado.indexOf(id) === -1) {
+            resultado.push(id);
+        }
     }
+
+    return resultado;
+}
+
+function estaSeleccionado(idVoluntario) {
+    return datosPagina.idsSeleccionados.indexOf(String(idVoluntario || "")) !== -1;
+}
+
+function obtenerIdEntidadResponsable(turno) {
+    if (!turno) {
+        return "";
+    }
+
+    return turno.id_entidad || "";
+}
+
+function obtenerIdVoluntario(voluntario) {
+    return String(voluntario.id_voluntario || "");
+}
+
+function crearNombreCompleto(voluntario) {
+    var partes = [];
+
+    if (voluntario.nombre) {
+        partes.push(voluntario.nombre);
+    }
+
+    if (voluntario.apellido_1) {
+        partes.push(voluntario.apellido_1);
+    }
+
+    if (voluntario.apellido_2) {
+        partes.push(voluntario.apellido_2);
+    }
+
+    if (partes.length === 0) {
+        return "Sin nombre";
+    }
+
+    return partes.join(" ");
 }
 
 function rellenarCamposOcultos() {
@@ -230,50 +336,38 @@ function textoTurno(turno) {
 }
 
 function obtenerNombreTienda(cadena) {
+    cadena = cadena || {};
+
     var establecimiento = cadena.establecimiento || "";
     var nombreParticular = cadena.nombre_particular || "";
 
-    if (establecimiento && nombreParticular) {
-        return establecimiento + " - " + nombreParticular;
-    }
-
-    if (establecimiento) {
-        return establecimiento;
-    }
-
-    if (nombreParticular) {
-        return nombreParticular;
-    }
-
-    return "Nombre tienda";
+    return establecimiento + " - " + nombreParticular;
 }
 
-function nombreVoluntario(voluntario) {
-    if (voluntario.nombre_completo) {
-        return voluntario.nombre_completo;
+async function fetchJson(ruta, opciones) {
+    var respuesta = await fetch(crearUrlApi(ruta), opciones || {});
+    var texto = await respuesta.text();
+    var datos = {};
+
+    try {
+        datos = texto ? JSON.parse(texto) : {};
+    } catch (error) {
+        datos = {};
     }
 
-    if (voluntario.nombreCompleto) {
-        return voluntario.nombreCompleto;
+    if (!respuesta.ok) {
+        throw new Error(datos.message || datos.error || "Error en la petición al servidor.");
     }
 
-    var partes = [];
+    return datos;
+}
 
-    if (voluntario.nombre) {
-        partes.push(voluntario.nombre);
+function crearUrlApi(ruta) {
+    var apiUrl = window.API_URL || "";
+
+    if (apiUrl.endsWith("/") && ruta.charAt(0) === "/") {
+        return apiUrl.substring(0, apiUrl.length - 1) + ruta;
     }
 
-    if (voluntario.apellido_1) {
-        partes.push(voluntario.apellido_1);
-    }
-
-    if (voluntario.apellido_2) {
-        partes.push(voluntario.apellido_2);
-    }
-
-    if (partes.length === 0) {
-        return "Sin nombre";
-    }
-
-    return partes.join(" ");
+    return apiUrl + ruta;
 }

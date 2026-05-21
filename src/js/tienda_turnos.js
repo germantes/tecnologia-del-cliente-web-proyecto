@@ -30,7 +30,7 @@ function pintarCabecera(datos) {
     var domicilio = tienda.domicilio || "Domicilio no disponible";
     var localidad = cp.localidad || "Localidad no disponible";
     var codigoPostal = cp.cp || "CP no disponible";
-    var nombreResponsable = responsable.nombre_completo || responsable.nombreCompleto || responsable.nombre || "Nombre del Responsable";
+    var nombreResponsable = responsable.nombre_completo || "Nombre del Responsable";
 
     document.getElementById("nombreTienda").textContent = nombreTienda;
     document.getElementById("direccionTienda").textContent = domicilio + " (" + localidad + ", " + codigoPostal + ")";
@@ -115,7 +115,7 @@ function crearBloqueTurno(turno, idTienda, idCampania) {
 
     var titulo = document.createElement("h3");
     titulo.className = "titulo-turno";
-    titulo.textContent = textoTurno(turno.turno || turno.tipo_turno);
+    titulo.textContent = textoTurno(turno.turno);
     bloque.appendChild(titulo);
 
     var voluntarios = turno.voluntarios || [];
@@ -141,7 +141,7 @@ function crearFilaVoluntario(voluntario) {
 
     var enlace = document.createElement("a");
     enlace.className = "link-info js-voluntario-info";
-    enlace.href = "/api/info_voluntario?idVoluntario=" + encodeURIComponent(voluntario.id_voluntario || voluntario.idVoluntario || voluntario.id || "");
+    enlace.href = "/api/info_voluntario?idVoluntario=" + encodeURIComponent(voluntario.id_voluntario || "");
     enlace.textContent = "+info";
 
     fila.appendChild(nombre);
@@ -164,9 +164,9 @@ function crearAccionesTurno(turno, idTienda, idCampania) {
     var acciones = document.createElement("div");
     acciones.className = "acciones-turno";
 
-    var tipoTurno = turno.turno || turno.tipo_turno || "";
-    var idTurno = turno.id_turno || turno.idTurno || "";
-    var idEntidad = turno.id_entidad || turno.idEntidad || "";
+    var tipoTurno = turno.turno || "";
+    var idTurno = turno.id_turno || "";
+    var idEntidad = turno.id_entidad || "";
 
     var enlaceEditar = document.createElement("a");
     enlaceEditar.className = "turnos-btn turnos-btn--small";
@@ -181,7 +181,7 @@ function crearAccionesTurno(turno, idTienda, idCampania) {
     enlaceObservaciones.className = "turnos-btn turnos-btn--small";
     enlaceObservaciones.href = "/turno_observaciones?idTienda=" + encodeURIComponent(idTienda)
         + "&idCampania=" + encodeURIComponent(idCampania)
-        + "&idTurno=" + encodeURIComponent(turno.id_turno || turno.idTurno || "");
+        + "&idTurno=" + encodeURIComponent(turno.id_turno || "");
     enlaceObservaciones.textContent = "Observaciones";
 
     acciones.appendChild(enlaceEditar);
@@ -240,30 +240,10 @@ function obtenerNombreTienda(cadena) {
     var establecimiento = cadena.establecimiento || "";
     var nombreParticular = cadena.nombre_particular || "";
 
-    if (establecimiento && nombreParticular) {
-        return establecimiento + " - " + nombreParticular;
-    }
-
-    if (establecimiento) {
-        return establecimiento;
-    }
-
-    if (nombreParticular) {
-        return nombreParticular;
-    }
-
-    return "Nombre tienda";
+    return establecimiento + " - " + nombreParticular;
 }
 
 function nombreVoluntario(voluntario) {
-    if (voluntario.nombre_completo) {
-        return voluntario.nombre_completo;
-    }
-
-    if (voluntario.nombreCompleto) {
-        return voluntario.nombreCompleto;
-    }
-
     var partes = [];
 
     if (voluntario.nombre) {

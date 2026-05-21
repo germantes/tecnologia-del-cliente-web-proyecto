@@ -40,15 +40,6 @@ const FALLBACK_TABLE_NAMES = {
 const tableNameCache = new Map();
 const SUPABASE_PAGE_SIZE = 1000;
 
-const PUBLIC_GET_PATHS = new Set([
-  '/usuarios', '/campanias', '/tiendas', '/tiendas_zona', '/tienda_detalle', '/tienda_editar',
-  '/entidades',
-  '/api/entidades', '/api/voluntarios', '/api/turnos', '/api/schedule', '/api/tienda_turnos',
-  '/api/voluntarios_entidad',
-  '/api/turno_editar', '/api/turno_filtrar', '/api/info_voluntario',
-  '/api/turno_observaciones', '/api/turno_observaciones_editar'
-]);
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Utilidades generales
 // ─────────────────────────────────────────────────────────────────────────────
@@ -74,23 +65,7 @@ function normalizeTurno(value) {
 }
 
 function normalizeRow(row) {
-  if (!row || typeof row !== 'object') return row;
-  return {
-    ...row,
-    idUsuario: getField(row, 'idUsuario', 'id_usuario', 'id'),
-    idCampania: getField(row, 'idCampania', 'id_campania'),
-    idTienda: getField(row, 'idTienda', 'id_tienda'),
-    idVoluntario: getField(row, 'idVoluntario', 'id_voluntario'),
-    idEntidad: getField(row, 'idEntidad', 'id_entidad'),
-    idTurno: getField(row, 'idTurno', 'id_turno'),
-    idZona: getField(row, 'idZona', 'id_zona'),
-    nombreCompleto: getField(row, 'nombreCompleto', 'nombre_completo'),
-    nombreUsuario: getField(row, 'nombreUsuario', 'nombre_usuario', 'username'),
-    ligadoABancosol: getField(row, 'ligadoABancosol', 'ligado_a_bancosol'),
-    idCampaniaFK: getField(row, 'idCampania', 'id_campania'),
-    idTiendaFK: getField(row, 'idTienda', 'id_tienda'),
-    idEntidadFK: getField(row, 'idEntidad', 'id_entidad'),
-  };
+  return row;
 }
 
 function normalizeRows(rows) {
@@ -101,26 +76,6 @@ function contains(row, text, fields) {
   const q = str(text).trim().toLowerCase();
   if (!q) return true;
   return fields.some((field) => str(getField(row, field)).toLowerCase().includes(q));
-}
-
-function makeToken(user) {
-  const rol = mapRol(getField(user, 'rol', 'puesto'));
-  const payload = {
-    id: getField(user, 'id_usuario', 'idUsuario', 'id'),
-    nombreUsuario: getField(user, 'nombre_usuario', 'nombreUsuario', 'nombre_completo', 'nombreCompleto', 'nombre', 'email'),
-    puesto: rol,
-    nombre: getField(user, 'nombre_completo', 'nombreCompleto', 'nombre', 'email')
-  };
-  return Buffer.from(JSON.stringify(payload)).toString('base64');
-}
-
-function verifyToken(authHeader) {
-  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
-  try {
-    return JSON.parse(Buffer.from(authHeader.slice(7), 'base64').toString('utf-8'));
-  } catch {
-    return null;
-  }
 }
 
 function mapRol(rolSupabase) {
@@ -141,21 +96,10 @@ function mapRol(rolSupabase) {
 }
 
 function requireAuth(req, res, next) {
-  // Los GET de consulta se dejan públicos para poder probarlos directamente en navegador.
-  if (req.method === 'GET' && PUBLIC_GET_PATHS.has(req.path)) return next();
-
-  const user = verifyToken(req.headers.authorization);
-  if (!user) {
-    return res.status(401).json({ success: false, message: 'Acceso no autorizado. Inicia sesión.' });
-  }
-  req.user = user;
   next();
 }
 
 function requireAdmin(req, res, next) {
-  if (req.user?.puesto !== 'admin') {
-    return res.status(403).json({ success: false, message: 'Acceso denegado. Solo administradores.' });
-  }
   next();
 }
 
@@ -240,13 +184,14 @@ function applyGenericFilters(rows, filters) {
   }));
 }
 
-function getIdTienda(row) { return getField(row, 'idTienda', 'id_tienda'); }
-function getIdCampania(row) { return getField(row, 'idCampania', 'id_campania'); }
-function getIdTurno(row) { return getField(row, 'idTurno', 'id_turno'); }
-function getIdEntidad(row) { return getField(row, 'idEntidad', 'id_entidad'); }
-function getIdVoluntario(row) { return getField(row, 'idVoluntario', 'id_voluntario'); }
+function getIdTienda(row) { return getField(row, 'id_tienda'); }
+function getIdCampania(row) { return getField(row, 'id_campania'); }
+function getIdTurno(row) { return getField(row, 'id_turno'); }
+function getIdEntidad(row) { return getField(row, 'id_entidad'); }
+function getIdVoluntario(row) { return getField(row, 'id_voluntario'); }
+function getNombreEntidad(row) { return getField(row, 'nombre'); }
 function getFecha(row) { return getField(row, 'fecha'); }
-function getTipoTurno(row) { return getField(row, 'turno', 'tipo_turno'); }
+function getTipoTurno(row) { return getField(row, 'turno'); }
 
 function filterTurnos(rows, query) {
   return rows.filter((row) => {
@@ -271,8 +216,8 @@ async function getIdsVoluntariosByTurno(idTurno) {
   try {
     const rows = await fetchAll('turnoVoluntario');
     return rows
-      .filter((row) => sameNumberOrString(getField(row, 'idTurno', 'id_turno'), idTurno))
-      .map((row) => getField(row, 'idVoluntario', 'id_voluntario'))
+      .filter((row) => sameNumberOrString(row.id_turno, idTurno))
+      .map((row) => row.id_voluntario)
       .filter((id) => id !== undefined && id !== null);
   } catch (error) {
     console.warn('No se pudo leer la tabla de turnos_voluntarios:', error.message);
@@ -282,24 +227,16 @@ async function getIdsVoluntariosByTurno(idTurno) {
 
 async function resolverEntidadResponsable(turno) {
   const idEntidad = getIdEntidad(turno);
-  if (idEntidad) return await findById('entidad', idEntidad, ['idEntidad', 'id_entidad']);
-
-  const idsVoluntarios = await getIdsVoluntariosByTurno(getIdTurno(turno));
-  if (idsVoluntarios.length) {
-    const voluntarios = await fetchAll('voluntario');
-    const voluntario = voluntarios.find((v) => idsVoluntarios.some((id) => sameNumberOrString(getIdVoluntario(v), id)));
-    const idEntidadVoluntario = getIdEntidad(voluntario);
-    if (idEntidadVoluntario) return await findById('entidad', idEntidadVoluntario, ['idEntidad', 'id_entidad']);
-  }
-
-  return null;
+  if (!idEntidad) return null;
+  return await findById('entidad', idEntidad, ['id_entidad']);
 }
 
 async function getVoluntariosDeEntidad(idEntidad, busqueda = '') {
   const voluntarios = await fetchAll('voluntario');
+
   return voluntarios.filter((voluntario) => {
-    if (idEntidad && !sameNumberOrString(getIdEntidad(voluntario), idEntidad)) return false;
-    return contains(voluntario, busqueda, ['nombre', 'nombre_completo', 'nombreCompleto', 'apellidos', 'email', 'telefono', 'dni']);
+    if (idEntidad && !sameNumberOrString(voluntario.id_entidad, idEntidad)) return false;
+    return contains(voluntario, busqueda, ['nombre', 'apellido_1', 'apellido_2', 'email']);
   });
 }
 
@@ -414,11 +351,9 @@ app.post('/auth/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Usuario o contraseña incorrectos.' });
     }
 
-    const token = makeToken(usuario);
     const puesto = mapRol(getField(usuario, 'rol', 'puesto'));
     res.json({
       success: true,
-      token,
       user: {
         id: getField(usuario, 'idUsuario', 'id_usuario', 'id'),
         nombre: getField(usuario, 'nombreCompleto', 'nombre_completo', 'nombre', 'email'),
@@ -461,13 +396,12 @@ app.get('/entidades', requireAuth, (req, res) => {
 app.get('/api/entidades', requireAuth, async (req, res) => {
   try {
     let rows = await fetchAll('entidad');
-    const { idEntidad, idTienda, ligadoABancosol, busqueda, q } = req.query;
+    const { idEntidad, vinculadoBancosol, busqueda, q } = req.query;
 
     rows = rows.filter((row) => {
       if (idEntidad && !sameNumberOrString(getIdEntidad(row), idEntidad)) return false;
-      if (idTienda && !sameNumberOrString(getIdTienda(row), idTienda)) return false;
-      if (ligadoABancosol !== undefined && str(getField(row, 'ligadoABancosol', 'ligado_a_bancosol')) !== str(ligadoABancosol)) return false;
-      return contains(row, busqueda || q, ['nombre', 'nombre_completo', 'razon_social', 'observaciones', 'Observaciones']);
+      if (vinculadoBancosol !== undefined && str(row.vinculado_bancosol) !== str(vinculadoBancosol)) return false;
+      return contains(row, busqueda || q, ['codigo_bancosol', 'nombre', 'domicilio', 'cp']);
     });
 
     res.json(rows);
@@ -481,7 +415,7 @@ app.get('/api/voluntarios', requireAuth, async (req, res) => {
     rows = rows.filter((row) => {
       if (idVoluntario && !sameNumberOrString(getIdVoluntario(row), idVoluntario)) return false;
       if (idEntidad && !sameNumberOrString(getIdEntidad(row), idEntidad)) return false;
-      return contains(row, busqueda || q, ['nombre', 'nombre_completo', 'apellidos', 'email', 'telefono', 'dni']);
+      return contains(row, busqueda || q, ['nombre', 'apellido_1', 'apellido_2', 'email']);
     });
     res.json(rows);
   } catch (error) { sendError(res, error, 'Error obteniendo voluntarios'); }
@@ -489,11 +423,11 @@ app.get('/api/voluntarios', requireAuth, async (req, res) => {
 
 app.get('/api/entidades/:idEntidad/voluntarios', requireAuth, async (req, res) => {
   try {
-    const entidad = await findById('entidad', req.params.idEntidad, ['idEntidad', 'id_entidad', 'id']);
+    const entidad = await findById('entidad', req.params.idEntidad, ['id_entidad']);
     const voluntarios = await getVoluntariosDeEntidad(req.params.idEntidad, req.query.busqueda || req.query.q || '');
     res.json({
       idEntidad: req.params.idEntidad,
-      nombreEntidad: getField(entidad, 'nombre', 'nombre_completo', 'razon_social') || '',
+      nombreEntidad: getNombreEntidad(entidad) || '',
       voluntarios
     });
   } catch (error) { sendError(res, error, 'Error obteniendo voluntarios de entidad'); }
@@ -507,12 +441,12 @@ app.get('/api/voluntarios_entidad', requireAuth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Falta el parámetro idEntidad.' });
     }
 
-    const entidad = await findById('entidad', idEntidad, ['idEntidad', 'id_entidad', 'id']);
+    const entidad = await findById('entidad', idEntidad, ['id_entidad']);
     const voluntarios = await getVoluntariosDeEntidad(idEntidad, req.query.busqueda || req.query.q || '');
 
     res.json({
       idEntidad,
-      nombreEntidad: getField(entidad, 'nombre', 'nombre_completo', 'razon_social') || '',
+      nombreEntidad: getNombreEntidad(entidad) || '',
       voluntarios
     });
   } catch (error) { sendError(res, error, 'Error obteniendo voluntarios de entidad'); }
@@ -560,7 +494,7 @@ app.get('/tiendas_zona', requireAuth, async (req, res) => {
 
 app.get('/tienda_detalle', requireAuth, async (req, res) => {
   try {
-    const tienda = await findById('tienda', req.query.idTienda, ['idTienda', 'id_tienda']);
+    const tienda = await findById('tienda', req.query.idTienda, ['id_tienda']);
     res.json({ tienda });
   } catch (error) { sendError(res, error, 'Error obteniendo detalle de tienda'); }
 });
@@ -570,7 +504,7 @@ app.get('/tienda_editar', requireAuth, async (req, res) => {
     const usuarios = await fetchAll('usuario');
     const byRol = (rol) => usuarios.filter((u) => str(getField(u, 'rol', 'puesto')).toLowerCase() === rol.toLowerCase());
     res.json({
-      tienda: await findById('tienda', req.query.idTienda, ['idTienda', 'id_tienda']),
+      tienda: await findById('tienda', req.query.idTienda, ['id_tienda']),
       listaCPs: await fetchAll('cp').catch(() => []),
       listaZonas: await fetchAll('zona').catch(() => []),
       listaDistritos: await fetchAll('distrito').catch(() => []),
@@ -624,12 +558,12 @@ app.get('/api/tienda_turnos', requireAuth, async (req, res) => {
         const idsVoluntarios = relacionesTurnoVoluntario
           .filter((relacion) =>
             sameNumberOrString(
-              getField(relacion, 'idTurno', 'id_turno'),
+              relacion.id_turno,
               getIdTurno(turno)
             )
           )
           .map((relacion) =>
-            getField(relacion, 'idVoluntario', 'id_voluntario')
+            relacion.id_voluntario
           );
 
         return {
@@ -676,24 +610,12 @@ app.get('/api/tienda_turnos', requireAuth, async (req, res) => {
       .eq('id_tienda', idTienda)
       .single();
 
-    const campania = await findById('campania', idCampania, [
-      'idCampania',
-      'id_campania',
-      'id'
-    ]).catch(() => null);
+    const campania = await findById('campania', idCampania, ['id_campania']).catch(() => null);
 
-    const idResponsable = getField(
-      tiendaCampania,
-      'idResponsableTienda',
-      'id_responsable_tienda'
-    );
+    const idResponsable = tiendaCampania ? tiendaCampania.id_responsable_tienda : null;
 
     const responsableTienda = idResponsable
-      ? await findById('usuario', idResponsable, [
-          'idUsuario',
-          'id_usuario',
-          'id'
-        ]).catch(() => null)
+      ? await findById('usuario', idResponsable, ['id_usuario']).catch(() => null)
       : null;
 
     res.json({
@@ -727,7 +649,7 @@ async function buildTurnoEditarResponse(query) {
     fecha: query.fecha,
     turno,
     turnoTexto: normalizeTurno(getTipoTurno(turno)).toUpperCase(),
-    nombreEntidadResponsable: getField(entidad, 'nombre', 'nombre_completo', 'razon_social') || 'Sin entidad responsable',
+    nombreEntidadResponsable: getNombreEntidad(entidad) || 'Sin entidad responsable',
     listaVoluntarios,
     idsVoluntariosSeleccionados,
     busqueda: query.busqueda || ''
@@ -761,7 +683,7 @@ app.get('/api/tienda_voluntarios', requireAuth, async (req, res) => {
 
     res.json({
       idEntidad: idEntidad || null,
-      nombreEntidadResponsable: getField(entidad, 'nombre', 'nombre_completo', 'razon_social') || 'Sin entidad responsable',
+      nombreEntidadResponsable: getNombreEntidad(entidad) || 'Sin entidad responsable',
       voluntarios
     });
   } catch (error) { sendError(res, error, 'Error obteniendo voluntarios de entidad'); }
@@ -811,7 +733,7 @@ app.post('/api/turno_guardar_voluntarios', requireAuth, async (req, res) => {
 
 app.get('/api/info_voluntario', requireAuth, async (req, res) => {
   try {
-    const voluntario = await findById('voluntario', req.query.idVoluntario, ['idVoluntario', 'id_voluntario', 'id']);
+    const voluntario = await findById('voluntario', req.query.idVoluntario, ['id_voluntario']);
     res.json({ voluntario });
   } catch (error) { sendError(res, error, 'Error obteniendo voluntario'); }
 });
@@ -901,42 +823,42 @@ app.get('/usuarios/:id', requireAuth, async (req, res) => {
 });
 app.get('/campanias/:id', requireAuth, async (req, res) => {
   try {
-    const campania = await findById('campania', req.params.id, ['idCampania', 'id_campania', 'id']);
+    const campania = await findById('campania', req.params.id, ['id_campania']);
     if (!campania) return res.status(404).json({ success: false, message: 'Campaña no encontrada.' });
     res.json(campania);
   } catch (error) { sendError(res, error, 'Error obteniendo campaña'); }
 });
 app.get('/entidades/:id', requireAuth, async (req, res) => {
   try {
-    const entidad = await findById('entidad', req.params.id, ['idEntidad', 'id_entidad', 'id']);
+    const entidad = await findById('entidad', req.params.id, ['id_entidad']);
     if (!entidad) return res.status(404).json({ success: false, message: 'Entidad no encontrada.' });
     res.json(entidad);
   } catch (error) { sendError(res, error, 'Error obteniendo entidad'); }
 });
 app.get('/api/voluntarios/:id', requireAuth, async (req, res) => {
   try {
-    const voluntario = await findById('voluntario', req.params.id, ['idVoluntario', 'id_voluntario', 'id']);
+    const voluntario = await findById('voluntario', req.params.id, ['id_voluntario']);
     if (!voluntario) return res.status(404).json({ success: false, message: 'Voluntario no encontrado.' });
     res.json(voluntario);
   } catch (error) { sendError(res, error, 'Error obteniendo voluntario'); }
 });
 app.get('/tiendas/:id', requireAuth, async (req, res) => {
   try {
-    const tienda = await findById('tienda', req.params.id, ['idTienda', 'id_tienda', 'id']);
+    const tienda = await findById('tienda', req.params.id, ['id_tienda']);
     if (!tienda) return res.status(404).json({ success: false, message: 'Tienda no encontrada.' });
     res.json(tienda);
   } catch (error) { sendError(res, error, 'Error obteniendo tienda'); }
 });
 app.get('/api/turnos/:id', requireAuth, async (req, res) => {
   try {
-    const turno = await findById('turno', req.params.id, ['idTurno', 'id_turno', 'id']);
+    const turno = await findById('turno', req.params.id, ['id_turno']);
     if (!turno) return res.status(404).json({ success: false, message: 'Turno no encontrado.' });
     res.json(turno);
   } catch (error) { sendError(res, error, 'Error obteniendo turno'); }
 });
 app.get('/api/schedule/:id', requireAuth, async (req, res) => {
   try {
-    const turno = await findById('turno', req.params.id, ['idTurno', 'id_turno', 'id']);
+    const turno = await findById('turno', req.params.id, ['id_turno']);
     if (!turno) return res.status(404).json({ success: false, message: 'Schedule no encontrado.' });
     res.json(turno);
   } catch (error) { sendError(res, error, 'Error obteniendo schedule'); }
@@ -973,7 +895,7 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
         .select(`
                 id_tienda, 
                 domicilio,
-                cadena (id_cadena, establecimiento),
+                cadena (id_cadena, establecimiento, nombre_particular),
                 cp (
                     cp, 
                     localidad, 
@@ -1055,7 +977,7 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
         .select(`
                 id_tienda, 
                 domicilio,
-                cadena (id_cadena, establecimiento),
+                cadena (id_cadena, establecimiento, nombre_particular),
                 cp (
                     cp, 
                     localidad, 
