@@ -37,11 +37,12 @@ async function apiRequest(method, resource, data = null, id = null) {
   if (method === 'DELETE' && response.ok) return true;
 
   const responseData = await response.json();
-  if (!response.ok) throw new Error(responseData.message || `Error en la operación ${method}`);
+  const errorMsg = responseData.detail ? `${responseData.message}: ${responseData.detail}` : responseData.message;
+  if (!response.ok) throw new Error(errorMsg || `Error en la operación ${method}`);
   return responseData;
 }
 
-// --- REUTILIZACIÓN PARA TUS CASOS ESPECÍFICOS ---
+// --- REUTILIZACIÓN PARA CASOS ESPECÍFICOS ---
 
 // Crear cualquier cosa (Colaborador, Capitán, Tienda...)
 const createRecord = (resource, data) => apiRequest('POST', resource, data);
@@ -116,12 +117,15 @@ async function putSchedule(id, datos) { return updateRecord('schedule', id, dato
 async function deleteSchedule(id) { return deleteRecord('schedule', id); }
 
 // POST /auth/login — devuelve { success, token, user }
-async function login(nombreUsuario, contrasena) {
+async function login(email, password) {
+
   const response = await fetch(`${API_BASE}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nombreUsuario, contrasena })
+    body: JSON.stringify({ email, password })
   });
+
+
   const data = await response.json();
   if (!response.ok || !data.success) throw new Error(data.message || 'Error de autenticación');
   return data;

@@ -12,6 +12,7 @@ async function cargarEntidades() {
         entidadesCache = entidades || [];
         usuariosCache = usuarios || [];
 
+        configurarFiltros();
         renderizarEntidades(entidadesCache);
     } catch (error) {
         console.error('Error cargando entidades:', error);
@@ -33,13 +34,65 @@ function obtenerNombreContacto(idContacto) {
     return usuario ? (usuario.nombre_completo || usuario.nombre || usuario.nombreUsuario || 'Sin nombre') : 'Usuario desconocido';
 }
 
+function configurarFiltros() {
+    const inputBusqueda = document.getElementById('buscadorEntidades');
+    const selectVinculado = document.getElementById('filtroVinculado');
+
+    if (!inputBusqueda || !selectVinculado) return;
+
+    // Limpiamos el select antes de inyectar las opciones
+    selectVinculado.textContent = '';
+
+    // Configuración de los filtros
+    const opcionTodos = document.createElement("option");
+    opcionTodos.value = "";
+    opcionTodos.textContent = "Todos los tipos";
+
+    const opcionTrue = document.createElement("option");
+    opcionTrue.value = "true";
+    opcionTrue.textContent = "Vinculadas";
+
+    const opcionFalse = document.createElement("option");
+    opcionFalse.value = "false";
+    opcionFalse.textContent = "No vinculadas";
+
+    selectVinculado.append(opcionTodos, opcionTrue, opcionFalse);
+
+    const aplicarFiltros = () => {
+        const texto = inputBusqueda.value.toLowerCase().trim();
+        const filtroVinculado = selectVinculado.value;
+
+        const filtrados = entidadesCache.filter(entidad => {
+            const esVinculado = (entidad.vinculado_bancosol === true || String(entidad.vinculado_bancosol).toLowerCase() === 'true');
+
+            let coincideVinculado = true;
+            if (filtroVinculado === 'true') coincideVinculado = esVinculado;
+            else if (filtroVinculado === 'false') coincideVinculado = !esVinculado;
+
+            const nombre = (entidad.nombre || '').toLowerCase();
+            const codigo = (entidad.codigo_bancosol || '').toLowerCase();
+            const cp = (entidad.cp || '');
+            const coincideTexto = !texto || nombre.includes(texto) || cp.includes(texto) || codigo.includes(texto);
+
+            return coincideVinculado && coincideTexto;
+        });
+
+        renderizarEntidades(filtrados);
+    };
+
+    inputBusqueda.addEventListener('input', aplicarFiltros);
+    selectVinculado.addEventListener('change', aplicarFiltros);
+}
+
+
 function renderizarEntidades(entidades) {
     const grid = document.getElementById('entidadesGrid');
+    if (!grid) return;
     grid.textContent = ''; // Limpiar el contenido de forma segura
 
     if (!entidades || entidades.length === 0) {
         const divVacio = document.createElement('div');
-        divVacio.className = 'turnos-vacio';
+        divVacio.className = 'entidades-vacio';
         const h3 = document.createElement('h3'); h3.textContent = 'No hay entidades disponibles';
         const p = document.createElement('p'); p.textContent = 'No se han encontrado entidades.';
         divVacio.append(h3, p);
@@ -107,16 +160,20 @@ function renderizarEntidades(entidades) {
 
 function abrirPopupEntidad() {
     const popup = document.getElementById("popupEntidad");
-    popup.classList.add("abierto");
-    popup.style.display = "flex";
-    popup.setAttribute("aria-hidden", "false");
+    if (popup) {
+        popup.classList.add("abierto");
+        popup.style.display = "flex";
+        popup.setAttribute("aria-hidden", "false");
+    }
 }
 
 function abrirInfoEntidad(idEntidad) {
     const entidad = entidadesCache.find(item => item.id_entidad == idEntidad);
     const contenido = document.getElementById("popupEntidadContenido");
 
+    if (!contenido) return;
     contenido.textContent = ''; // Limpiamos seguro
+
     if (!entidad) {
         const divError = document.createElement('div');
         divError.className = 'popup-voluntario-error';
@@ -160,9 +217,11 @@ function abrirInfoEntidad(idEntidad) {
 
 function cerrarInfoEntidad() {
     const popup = document.getElementById("popupEntidad");
-    popup.classList.remove("abierto");
-    popup.style.display = "none";
-    popup.setAttribute("aria-hidden", "true");
+    if (popup) {
+        popup.classList.remove("abierto");
+        popup.style.display = "none";
+        popup.setAttribute("aria-hidden", "true");
+    }
 }
 
 window.abrirInfoEntidad = abrirInfoEntidad;
@@ -173,4 +232,14 @@ document.addEventListener("DOMContentLoaded", function () {
     document.addEventListener("keydown", event => {
         if (event.key === "Escape") cerrarInfoEntidad();
     });
+
+    // Control de visibilidad para el botón de creación ("Nuevo")
+    const perfil = sessionStorage.getItem('perfil');
+    const btnNuevo = document.getElementById('btn-nuevo');
+    if (btnNuevo) {
+        const canCreate = perfil === 'admin' || perfil === 'coordinador' || perfil === 'manager';
+        if (!canCreate) {
+            btnNuevo.style.display = 'none'; // Ocultamos el botón si no tiene permisos
+        }
+    }
 });

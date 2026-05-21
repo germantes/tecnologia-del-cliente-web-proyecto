@@ -56,14 +56,14 @@ async function handleLoginSubmit(e) {
   const btnText = submitBtn.querySelector("span");
   const spinner = submitBtn.querySelector(".btn-spinner");
 
-  const username = document.getElementById("username").value.trim();
+  const email = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value;
 
   // Reset error state
   errorEl.hidden = true;
 
   // Validate inputs
-  if (!username || !password) {
+  if (!email || !password) {
     showError(errorEl, "Por favor, introduzca su usuario y contraseña");
     return;
   }
@@ -72,7 +72,8 @@ async function handleLoginSubmit(e) {
   setLoadingState(submitBtn, btnText, spinner, true);
 
   try {
-    const data = await login(username, password);
+    const data = await login(email, password);
+
     storeSessionData(data);
     redirectToDashboard(data.user.puesto);
   } catch (err) {

@@ -9,170 +9,47 @@
     <link rel="stylesheet" href="/css/turnos.css">
     <link rel="stylesheet" href="/css/template.css">
     <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/entidades.css">
     <script src="/api/config.js"></script>
-    <style>
-        .turnos-main {
-            max-width: 1400px;
-        }
 
-        .turnos-grid {
-            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-            gap: 40px;
-        }
-
-        .titulo-turno {
-            word-wrap: break-word;
-            word-break: break-word;
-            white-space: normal;
-            min-height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .fila-voluntario {
-            grid-template-columns: 1fr 1fr;
-            padding: 10px 16px;
-        }
-
-        .fila-voluntario span:last-child {
-            text-align: right;
-            white-space: normal;
-            word-wrap: break-word;
-        }
-
-        .popup-voluntario {
-            position: fixed !important;
-            inset: 0 !important;
-            z-index: 9999 !important;
-            display: none;
-            align-items: center !important;
-            justify-content: center !important;
-            padding: 24px !important;
-            box-sizing: border-box !important;
-        }
-
-        .popup-voluntario.abierto {
-            display: flex !important;
-        }
-
-        .popup-voluntario-overlay {
-            position: absolute !important;
-            inset: 0 !important;
-            background-color: rgba(244, 251, 254, 0.72) !important;
-        }
-
-        .popup-voluntario-panel {
-            position: relative !important;
-            z-index: 1 !important;
-            width: min(390px, calc(100vw - 40px)) !important;
-            background-color: #ffffff !important;
-            border: 7px solid var(--twilight-indigo) !important;
-            border-radius: 8px !important;
-            box-shadow: 0 16px 36px rgba(50, 50, 102, 0.35) !important;
-            overflow: hidden !important;
-            box-sizing: border-box !important;
-        }
-
-        .popup-voluntario-header {
-            min-height: 42px !important;
-            padding: 7px 10px 7px 14px !important;
-            display: grid !important;
-            grid-template-columns: 1fr auto !important;
-            align-items: center !important;
-            gap: 10px !important;
-            background-color: var(--twilight-indigo) !important;
-            box-sizing: border-box !important;
-        }
-
-        .popup-voluntario-header h2 {
-            margin: 0 !important;
-            color: #ffffff !important;
-            font-family: var(--font-main) !important;
-            font-size: 0.95rem !important;
-            font-weight: 800 !important;
-            line-height: 1.1 !important;
-        }
-
-        .popup-voluntario-cerrar {
-            width: 24px !important;
-            height: 24px !important;
-            border: 2px solid #ffffff !important;
-            border-radius: 50% !important;
-            background-color: transparent !important;
-            color: #ffffff !important;
-            padding: 0 !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            font-size: 1.05rem !important;
-            font-weight: 800 !important;
-            line-height: 1 !important;
-            cursor: pointer !important;
-        }
-
-        .popup-voluntario-tabla {
-            width: 100% !important;
-            border-collapse: collapse !important;
-        }
-
-        .popup-voluntario-tabla th,
-        .popup-voluntario-tabla td {
-            padding: 8px 12px !important;
-            border-top: 3px solid rgba(50, 50, 102, 0.72) !important;
-            color: var(--twilight-indigo) !important;
-            font-family: var(--font-main) !important;
-            font-size: 0.78rem !important;
-            line-height: 1.2 !important;
-            text-align: left !important;
-            box-sizing: border-box !important;
-        }
-
-        .popup-voluntario-tabla th {
-            width: 125px !important;
-            background-color: rgba(88, 185, 218, 0.12) !important;
-            font-weight: 800 !important;
-        }
-
-        .popup-voluntario-tabla td {
-            font-weight: 700 !important;
-            overflow-wrap: anywhere !important;
-        }
-    </style>
 </head>
 
 <body>
-    <header class="app-header">
-        <div class="header-content">
-            <h1 class="header-title">Lista de Entidades</h1>
-            <nav class="header-nav">
-                <a href="/" class="nav-link">Inicio</a>
-            </nav>
+
+    <header class="entidades-header">
+        <h1>Lista de Entidades</h1>
+        <div>
+            <a href="/edit.html?type=entidades" id="btn-nuevo" class="btn btn-primary">+ Nueva Entidad</a>
         </div>
     </header>
 
-    <header class="turnos-header">
-        <h1>Lista de Entidades</h1>
-    </header>
+    <main class="entidades-main">
 
-    <main class="turnos-main">
-        <div class="turnos-grid" id="entidadesGrid">
-            <div class="turnos-vacio">
+        <div id="filtros-entidades-container" class="filtros-container">
+            <input type="text" id="buscadorEntidades" class="filtro-input" placeholder="Buscar por nombre o CP...">
+            <select id="filtroVinculado" class="filtro-select">
+                <option value="">Vinculación (Todas)</option>
+                <option value="true">Vinculadas</option>
+                <option value="false">No vinculadas</option>
+            </select>
+        </div>
+        <div class="entidades-grid" id="entidadesGrid">
+            <div class="entidades-vacio">
                 <h3>Cargando entidades...</h3>
             </div>
         </div>
     </main>
 
-    <div class="popup-voluntario" id="popupEntidad" aria-hidden="true" style="display: none;">
-        <div class="popup-voluntario-overlay" onclick="cerrarInfoEntidad();"></div>
-        <div class="popup-voluntario-panel" role="dialog" aria-modal="true" aria-labelledby="popupEntidadTitulo">
-            <div class="popup-voluntario-header">
+    <div class="popup-entidad" id="popupEntidad" aria-hidden="true" style="display: none;">
+        <div class="popup-entidad-overlay" onclick="cerrarInfoEntidad();"></div>
+        <div class="popup-entidad-panel" role="dialog" aria-modal="true" aria-labelledby="popupEntidadTitulo">
+            <div class="popup-entidad-header">
                 <h2 id="popupEntidadTitulo">Información entidad</h2>
-                <button type="button" class="popup-voluntario-cerrar" aria-label="Cerrar"
+                <button type="button" class="popup-entidad-cerrar" aria-label="Cerrar"
                     onclick="cerrarInfoEntidad();">×</button>
             </div>
             <div id="popupEntidadContenido">
-                <table class="popup-voluntario-tabla">
+                <table class="popup-entidad-tabla">
                     <tbody>
                         <tr>
                             <th>Nombre</th>
@@ -199,6 +76,7 @@
             </div>
         </div>
     </div>
+
     <script src="/js/api.js"></script>
     <script src="/js/entidades.js"></script>
 </body>

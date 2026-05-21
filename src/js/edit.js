@@ -13,31 +13,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     const backBtn = document.getElementById('back-btn');
     if (backBtn) {
         // Si existe un esquema para este 'type' (ej: entidades), volvemos a entidades.html. Si no, a index.html.
-        backBtn.href = (typeof SCHEMAS !== 'undefined' && SCHEMAS[type]) ? `${type}.html` : 'index.html';
+        backBtn.href = (typeof SCHEMAS !== 'undefined' && SCHEMAS[type]) ? `/html/${type}.html` : '/index.html';
     }
 
     const perfil = sessionStorage.getItem('perfil');
-    const canAccess = perfil === 'admin' || perfil === 'coordinador';
+    const isAdmin = perfil === 'admin';
+    const isManager = perfil === 'coordinador' || perfil === 'manager';
+    const canAccess = isAdmin || isManager;
     const allowedResources = new Set(['usuarios', 'entidades', 'campanias', 'tiendas', 'turnos', 'schedule', 'voluntarios']);
 
-    if (!canAccess || !type || !id || !allowedResources.has(type)) {
+    // Al quitar la verificación de "!id", permitimos usar este script para la Creación.
+    if (!canAccess || !type || !allowedResources.has(type)) {
         formFields.textContent = '';
         const p = document.createElement('p');
         p.style.color = 'var(--color-danger)';
-        p.textContent = 'Error: acceso no autorizado, recurso no válido o falta el ID.';
+        p.textContent = 'Error: acceso no autorizado o recurso no válido.';
         formFields.appendChild(p);
         return;
     }
 
-    editTitle.textContent = `Editar ${type} #${id}`;
+    editTitle.textContent = id ? `Editar ${type} #${id}` : `Nuevo ${type}`;
 
     let originalData = {};
 
     try {
-        originalData = await getRecord(type, id);
+        if (id) {
+            originalData = await getRecord(type, id);
+        }
 
         formFields.textContent = '';
-        const coordinatorEditable = perfil === 'coordinador';
+        const coordinatorEditable = isManager;
         const volunteerContactFields = new Set(['nombre', 'email', 'telefono']);
 
         // Leemos el esquema (si no existe, usamos un generador por defecto basado en los datos)
@@ -55,7 +60,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             const fieldDiv = document.createElement('div');
             fieldDiv.className = 'field';
 
-            const isReadOnly = field.readonly || (coordinatorEditable && type === 'voluntarios' && !volunteerContactFields.has(field.key));
+            let isReadOnly = field.readonly || (coordinatorEditable && type === 'voluntarios' && !volunteerContactFields.has(field.key));
+
+            // Si estamos creando (no hay id previo), permitimos editar el ID aunque el esquema diga readonly
+            if (!id && (field.key.startsWith('id_') || field.key === 'id')) {
+                isReadOnly = false;
+            }
 
             const label = document.createElement('label');
             label.htmlFor = field.key;
@@ -102,6 +112,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const input = document.createElement('input');
                 input.type = inputType; input.id = field.key; input.name = field.key; input.value = String(value);
                 if (isReadOnly) { input.readOnly = true; input.style.background = 'var(--color-surface-2)'; }
+                // Al crear, mostrar un texto de ayuda en el placeholder del campo ID
+                if (!id && (field.key.startsWith('id_') || field.key === 'id')) {
+                    input.placeholder = 'Dejar vacío para auto-generar';
+                }
                 if (field.required && !isReadOnly) input.required = true;
                 fieldDiv.appendChild(input);
             }
@@ -110,6 +124,54 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         saveBtn.disabled = false;
 
+        // Agregar botón de eliminar si es admin y estamos editando un registro existente
+        if (isAdmin && id) {
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'btn btn-danger';
+            deleteBtn.textContent = 'Eliminar';
+            deleteBtn.style.marginLeft = '10px';
+            deleteBtn.addEventListener('click', async () => {
+                if (confirm(`¿Estás seguro de que deseas eliminar este registro de ${type}?`)) {
+                    try {
+                        // Validación preventiva dinámica basada en los esquemas (SCHEMAS)
+                        if (typeof SCHEMAS !== 'undefined' && SCHEMAS[type]) {
+                            // 1. Identificamos la clave primaria del tipo actual (ej. 'id_entidad' para 'entidades')
+                            const pkField = SCHEMAS[type].find(f => f.key.startsWith('id_') || f.key === 'id')?.key;
+
+                            if (pkField) {
+                                // 2. Buscamos qué otros esquemas usan esta clave como clave foránea
+                                for (const [otherType, otherSchema] of Object.entries(SCHEMAS)) {
+                                    if (otherType === type) continue;
+
+                                    const isDependent = otherSchema.some(f => f.key === pkField);
+                                    if (isDependent) {
+                                        const fnName = `get${otherType.charAt(0).toUpperCase()}${otherType.slice(1)}`;
+                                        const camelCasePk = pkField.replace(/_([a-z])/g, g => g[1].toUpperCase()); // Convierte 'id_entidad' a 'idEntidad'
+
+                                        // Llamamos a la API usando la función específica (ej. getVoluntarios) o el fallback
+                                        const getRecordsFn = typeof window[fnName] === 'function' ? window[fnName] : (params) => getRecords(otherType, params);
+                                        const dependientes = await getRecordsFn({ [camelCasePk]: id }).catch(() => []);
+
+                                        if (dependientes && dependientes.length > 0) {
+                                            alert(`No se puede eliminar. Hay ${dependientes.length} registro(s) en '${otherType}' que dependen de este elemento. Reasígnelos o elimínelos primero.`);
+                                            return; // Detenemos la eliminación
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        await deleteRecord(type, id);
+                        // Si sabemos de qué tipo es (ej: entidades), volvemos a su lista. Si no, al inicio.
+                        window.location.href = (typeof SCHEMAS !== 'undefined' && SCHEMAS[type]) ? `/${type}.html` : '/index.html';
+                    } catch (err) {
+                        alert('Error al eliminar: ' + err.message);
+                    }
+                }
+            });
+            saveBtn.parentNode.appendChild(deleteBtn);
+        }
     } catch (err) {
         formFields.textContent = '';
         const p = document.createElement('p');
@@ -135,8 +197,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         for (const [key, val] of formData.entries()) {
             let parsedVal = val;
-            if (val === '') parsedVal = null; // Convierte campos vacíos a null para que Supabase no dé error de tipo
-            else if (val === 'true') parsedVal = true;
+            if (val === '') {
+                // Al crear, omitimos los campos ID vacíos para evitar errores de llave primaria
+                if (!id && (key.startsWith('id_') || key === 'id')) continue;
+                parsedVal = null; // Convierte campos vacíos a null para que Supabase no dé error de tipo
+            } else if (val === 'true') parsedVal = true;
             else if (val === 'false') parsedVal = false;
             else if (typeof originalData[key] === 'number') parsedVal = Number(val);
 
@@ -144,7 +209,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         try {
-            await updateRecord(type, id, updatedData);
+            if (id) {
+                await updateRecord(type, id, updatedData);
+            } else {
+                await createRecord(type, updatedData);
+            }
 
             alertContainer.textContent = '';
             const successAlert = document.createElement('div');
