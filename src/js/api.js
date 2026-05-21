@@ -87,7 +87,14 @@ async function getRecords(resource, queryParams = {}) {
     headers: authHeaders()
   });
 
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch (e) {
+    // Si la respuesta no es JSON, probablemente es un error del servidor (HTML)
+    throw new Error(`El servidor devolvió HTML en lugar de JSON. Estado: ${response.status}. Verifica que el servidor esté corriendo y la URL es correcta.`);
+  }
+  
   if (!response.ok) throw new Error(data.message || `Error al cargar ${resource}`);
   return data;
 }

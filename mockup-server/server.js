@@ -530,6 +530,26 @@ app.get('/tienda_editar', requireAuth, async (req, res) => {
   } catch (error) { sendError(res, error, 'Error preparando edición de tienda'); }
 });
 
+// Endpoint para obtener códigos postales con sus relaciones
+app.get('/cp', requireAuth, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('cp')
+      .select(`
+        cp,
+        localidad,
+        distrito(nombre_distrito),
+        zona:id_zona(zona_geografica)
+      `);
+    
+    if (error) throw error;
+    res.json(data || []);
+  } catch (error) {
+    console.error('Error obteniendo códigos postales:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Endpoints relacionados con los turnos
 // ─────────────────────────────────────────────────────────────────────────────
