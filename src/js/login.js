@@ -2,9 +2,11 @@
 
 // Configuration
 const REDIRECT_MAP = {
-  admin: "/html/inicio.html",
-  manager: "/html/inicio.html",
-  worker: "/html/inicio.html"
+  ADMINISTRADOR: "/html/inicio.html",
+  COORDINADOR: "/html/inicio.html",
+  CAPITAN: "/html/inicio.html",
+  "RESPONSABLE-ENTIDAD": "/html/inicio.html",
+  "RESPONSABLE-TIENDA": "/html/inicio.html"
 };
 
 // Check if user is already logged in

@@ -11,6 +11,16 @@ async function iniciarPaginaEditarObservaciones() {
     rellenarCamposOcultosObservaciones();
     prepararEventosEditarObservaciones();
 
+    var puedeEditarObservaciones = puedeEditarObservacionesTurnos();
+
+    if (!puedeEditarObservaciones) {
+        window.location.href = "/turno_observaciones?idTienda="
+            + encodeURIComponent(datosEditarObservaciones.idTienda)
+            + "&idCampania=" + encodeURIComponent(datosEditarObservaciones.idCampania)
+            + "&idTurno=" + encodeURIComponent(datosEditarObservaciones.idTurno);
+        return;
+    }
+
     if (!datosEditarObservaciones.idTienda || !datosEditarObservaciones.idCampania || !datosEditarObservaciones.idTurno) {
         mostrarMensajeEditarObservaciones("Faltan parámetros para editar las observaciones.");
         return;

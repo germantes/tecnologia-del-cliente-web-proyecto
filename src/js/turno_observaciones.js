@@ -7,6 +7,7 @@ var datosObservaciones = {
 document.addEventListener("DOMContentLoaded", iniciarPaginaObservaciones);
 
 async function iniciarPaginaObservaciones() {
+    puedeVerTurnos();
     leerParametrosObservaciones();
     prepararEnlacesObservaciones();
 
@@ -27,10 +28,18 @@ function leerParametrosObservaciones() {
 }
 
 function prepararEnlacesObservaciones() {
-    document.getElementById("enlaceEditarObservaciones").href = "/turno_observaciones_editar?idTienda="
-        + encodeURIComponent(datosObservaciones.idTienda)
-        + "&idCampania=" + encodeURIComponent(datosObservaciones.idCampania)
-        + "&idTurno=" + encodeURIComponent(datosObservaciones.idTurno);
+    var enlaceEditar = document.getElementById("enlaceEditarObservaciones");
+    var puedeEditarObservaciones = puedeEditarObservacionesTurnos();
+
+    if (puedeEditarObservaciones) {
+        enlaceEditar.href = "/turno_observaciones_editar?idTienda="
+            + encodeURIComponent(datosObservaciones.idTienda)
+            + "&idCampania=" + encodeURIComponent(datosObservaciones.idCampania)
+            + "&idTurno=" + encodeURIComponent(datosObservaciones.idTurno);
+        enlaceEditar.hidden = false;
+    } else {
+        enlaceEditar.hidden = true;
+    }
 
     document.getElementById("enlaceCerrarObservaciones").href = "/tienda_turnos?idTienda="
         + encodeURIComponent(datosObservaciones.idTienda)
