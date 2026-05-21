@@ -1,5 +1,9 @@
+function obtenerApiBaseVoluntarios() {
+    return window.API_URL || "https://cliente-backend.onrender.com";
+}
+
 async function fetchVoluntariosDeEntidad(idEntidad, busqueda) {
-    var apiBase = window.API_URL || "http://localhost:3000";
+    var apiBase = obtenerApiBaseVoluntarios();
     var url = apiBase + "/api/voluntarios_entidad"
         + "?idEntidad=" + encodeURIComponent(idEntidad);
 
@@ -18,21 +22,21 @@ async function fetchVoluntariosDeEntidad(idEntidad, busqueda) {
 }
 
 async function fetchTurnoPorId(idTurno) {
-    var apiBase = window.API_URL || "http://localhost:3000";
+    var apiBase = obtenerApiBaseVoluntarios();
     var url = apiBase + "/api/turnos/" + encodeURIComponent(idTurno);
 
     return fetchJsonTurno(url);
 }
 
 async function fetchTiendaPorId(idTienda) {
-    var apiBase = window.API_URL || "http://localhost:3000";
+    var apiBase = obtenerApiBaseVoluntarios();
     var url = apiBase + "/api/tiendas/" + encodeURIComponent(idTienda);
 
     return fetchJsonTurno(url);
 }
 
 async function guardarVoluntariosTurno(idTienda, idCampania, idTurno, idsVoluntarios) {
-    var apiBase = window.API_URL || "http://localhost:3000";
+    var apiBase = obtenerApiBaseVoluntarios();
     var url = apiBase + "/api/turno_guardar_voluntarios";
 
     var respuesta = await fetch(url, {
