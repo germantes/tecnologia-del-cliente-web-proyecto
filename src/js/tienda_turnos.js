@@ -27,6 +27,7 @@ async function iniciarPaginaTurnos() {
         }
 
         pintarCabecera(datos);
+        configurarBotonAnadirTurno(idTienda, idCampania);
         pintarTurnos(datos);
     } catch (error) {
         mostrarError(error.message);
@@ -283,6 +284,35 @@ function nombreVoluntario(voluntario) {
     }
 
     return partes.join(" ");
+}
+
+function configurarBotonAnadirTurno(idTienda, idCampania) {
+    var contenedor = document.getElementById("turnosAcciones");
+    var botonExistente = document.getElementById("botonAnadirTurno");
+    var esAdministrador = obtenerPerfilTurnos() === ROL_ADMINISTRADOR;
+
+    if (!contenedor) {
+        return;
+    }
+
+    if (!esAdministrador) {
+        contenedor.hidden = true;
+        return;
+    }
+
+    if (botonExistente) {
+        botonExistente.remove();
+    }
+
+    var boton = document.createElement("a");
+    boton.className = "turnos-btn turnos-btn--add";
+    boton.id = "botonAnadirTurno";
+    boton.textContent = "Modificar Turnos";
+    boton.href = "/turnos_modificar?idTienda=" + encodeURIComponent(idTienda)
+        + "&idCampania=" + encodeURIComponent(idCampania);
+    contenedor.appendChild(boton);
+
+    contenedor.hidden = false;
 }
 
 function configurarPopupVoluntario() {

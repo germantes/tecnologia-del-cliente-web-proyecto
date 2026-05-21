@@ -143,6 +143,18 @@ h4 {
     box-sizing: border-box;
 }
 
+.turnos-acciones {
+    display: flex;
+    justify-content: center;
+    margin: 26px 0 10px;
+    padding: 0 24px;
+}
+
+.turnos-btn--add {
+    background-color: var(--sky-surge);
+    min-width: 220px;
+}
+
 .turnos-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(260px, 1fr));
