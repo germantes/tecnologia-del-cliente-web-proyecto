@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Observaciones del turno</title>
+    <title>Editar observaciones del turno</title>
 
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/footer.css">
@@ -21,7 +21,7 @@
             <header class="info-turnos-header">
                 <div class="info-turnos-tienda">
                     <h1 id="nombreTienda">Nombre Tienda</h1>
-                    <h2>Observaciones</h2>
+                    <h2>Editar observaciones</h2>
                 </div>
 
                 <div class="info-turnos-datos">
@@ -31,19 +31,25 @@
             </header>
 
             <main class="info-turnos-content">
-                <section id="observacionesPanel" class="observaciones-panel">
-                    <p class="observaciones-vacio">Cargando observaciones...</p>
-                </section>
+                <form id="formObservaciones" class="observaciones-formulario" action="/api/turno_observaciones_guardar" method="post">
+                    <input type="hidden" id="campoIdTienda" name="idTienda">
+                    <input type="hidden" id="campoIdCampania" name="idCampania">
+                    <input type="hidden" id="campoIdTurno" name="idTurno">
 
-                <div class="observaciones-acciones">
-                    <a id="enlaceEditarObservaciones" class="btn-observaciones-accion turnos-btn" href="#">
-                        Editar
-                    </a>
+                    <textarea id="campoObservaciones" name="observaciones" rows="10"></textarea>
 
-                    <a id="enlaceCerrarObservaciones" class="btn-observaciones-accion turnos-btn" href="#">
-                        Cerrar
-                    </a>
-                </div>
+                    <p id="mensajeEstado" class="observaciones-vacio"></p>
+
+                    <div class="observaciones-acciones">
+                        <button class="btn-observaciones-accion turnos-btn" type="submit">
+                            Guardar
+                        </button>
+
+                        <a id="enlaceCancelarObservaciones" class="btn-observaciones-accion turnos-btn" href="#">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
             </main>
         </div>
     </div>
@@ -52,6 +58,6 @@
 
     <script src="/componentes/include-html.js"></script>
     <script src="/js/turno_observaciones_api.js"></script>
-    <script src="/js/turno_observaciones.js"></script>
+    <script src="/js/turno_observaciones_editar.js"></script>
 </body>
 </html>

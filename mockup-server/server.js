@@ -1018,6 +1018,14 @@ app.get('/turno_editar', (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'turno_editar.html'));
 });
 
+app.get('/turno_observaciones', (req, res) => {
+  res.sendFile(path.join(srcPath, 'html', 'turno_observaciones.html'));
+});
+
+app.get('/turno_observaciones_editar', (req, res) => {
+  res.sendFile(path.join(srcPath, 'html', 'turno_observaciones_editar.html'));
+});
+
 app.all([
   '/voluntarios',
   '/voluntarios/:id',
@@ -1028,8 +1036,6 @@ app.all([
   '/turno_filtrar',
   '/turno_guardar_voluntarios',
   '/info_Voluntario',
-  '/turno_observaciones',
-  '/turno_observaciones_editar',
   '/turno_observaciones_guardar'
 ], (req, res) => {
   res.status(404).json({
