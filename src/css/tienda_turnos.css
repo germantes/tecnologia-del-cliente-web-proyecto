@@ -1,8 +1,114 @@
+:root {
+    --twilight-indigo: #323266;
+    --sky-surge: #58b9da;
+    --graphite: #333333;
+    --white: #ffffff;
+    --font-main: 'Poppins', sans-serif;
+    --font-alt: 'Raleway', sans-serif;
+}
+
+html {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-main);
+    background:
+            radial-gradient(
+                    circle at top right,
+                    rgba(88, 185, 218, 0.28),
+                    transparent 34%
+            ),
+            linear-gradient(
+                    135deg,
+                    var(--white) 0%,
+                    #f4fbfe 45%,
+                    rgba(88, 185, 218, 0.22) 100%
+            );
+    background-attachment: fixed;
+}
+
 h4 {
     color: var(--white);
 }
 
-/* Cabecera azul superior */
+.turnos-panel {
+    background-color: var(--white);
+    border: 8px solid var(--twilight-indigo);
+    border-radius: 8px;
+    box-shadow: 0 10px 24px rgba(50, 50, 102, 0.18);
+    box-sizing: border-box;
+}
+
+.turnos-btn {
+    min-width: 170px;
+    min-height: 52px;
+    padding: 8px 26px;
+    border: none;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--sky-surge);
+    color: var(--white);
+    font-family: var(--font-main);
+    font-size: 1.45rem;
+    font-weight: 800;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(88, 185, 218, 0.35);
+    box-sizing: border-box;
+    transition:
+            background-color 0.2s ease,
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+}
+
+.turnos-btn:hover {
+    background-color: var(--twilight-indigo);
+    color: var(--white);
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(50, 50, 102, 0.28);
+}
+
+.turnos-btn--small {
+    min-width: 142px;
+    min-height: 34px;
+    padding: 7px 18px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 10px rgba(88, 185, 218, 0.35);
+}
+
+.turnos-empty {
+    padding: 24px;
+    border: 5px solid var(--twilight-indigo);
+    color: var(--twilight-indigo);
+    background-color: var(--white);
+    font-weight: 800;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.turnos-empty h3 {
+    margin: 0 0 10px;
+    color: var(--twilight-indigo);
+    font-family: var(--font-main);
+    font-size: 1.7rem;
+    font-weight: 800;
+}
+
+.turnos-empty p {
+    margin: 0;
+    color: var(--graphite);
+    font-weight: 600;
+}
+
 .turnos-header {
     width: 100%;
     background-color: var(--twilight-indigo);
@@ -30,7 +136,6 @@ h4 {
     font-size: 2.85rem;
 }
 
-/* Contenedor general */
 .turnos-main {
     max-width: 1120px;
     margin: 62px auto 60px;
@@ -38,7 +143,6 @@ h4 {
     box-sizing: border-box;
 }
 
-/* Cuadrícula de días */
 .turnos-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(260px, 1fr));
@@ -47,7 +151,6 @@ h4 {
     align-items: start;
 }
 
-/* Cada bloque de día */
 .dia-card {
     width: 100%;
 }
@@ -68,7 +171,6 @@ h4 {
     color: var(--sky-surge);
 }
 
-/* Tarjeta principal */
 .turno-card {
     width: 100%;
     border-radius: 7px;
@@ -85,7 +187,6 @@ h4 {
     border-color: var(--sky-surge);
 }
 
-/* Bloques mañana/tarde */
 .bloque-turno {
     background-color: var(--white);
 }
@@ -102,7 +203,6 @@ h4 {
     text-align: center;
 }
 
-/* Filas de entidades */
 .fila-voluntario {
     min-height: 34px;
     padding: 0 16px 0 58px;
@@ -134,7 +234,6 @@ h4 {
     color: var(--twilight-indigo);
 }
 
-/* Fila vacía */
 .sin-voluntarios {
     display: flex;
     justify-content: center;
@@ -143,7 +242,6 @@ h4 {
     font-weight: 700;
 }
 
-/* Botones del turno */
 .acciones-turno,
 .boton-editar-turno,
 .boton-observaciones-turno {
@@ -167,7 +265,6 @@ h4 {
     min-width: 160px;
 }
 
-/* Estado vacío */
 .turnos-vacio {
     grid-column: 1 / -1;
     max-width: 620px;
@@ -175,7 +272,6 @@ h4 {
     padding: 34px 28px;
 }
 
-/* Responsive */
 @media (max-width: 1000px) {
     .turnos-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -217,24 +313,5 @@ h4 {
 
     .fila-voluntario {
         padding-left: 24px;
-    }
-
-    .popup-voluntario {
-        padding: 16px;
-    }
-
-    .popup-voluntario-header h2 {
-        font-size: 1.35rem;
-    }
-
-    .popup-voluntario-tabla th,
-    .popup-voluntario-tabla td {
-        display: block;
-        width: 100%;
-        padding: 12px 14px;
-    }
-
-    .popup-voluntario-tabla td {
-        border-top: 0;
     }
 }

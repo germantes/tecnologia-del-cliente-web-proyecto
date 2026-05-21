@@ -1,0 +1,415 @@
+:root {
+    --twilight-indigo: #323266;
+    --sky-surge: #58b9da;
+    --white: #ffffff;
+    --font-main: 'Poppins', sans-serif;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: #f4f6f8;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.bancosol-header,
+.bancosol-footer {
+    align-self: stretch;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.mensaje-error {
+    text-align: center;
+    margin-top: 50px;
+    color: var(--twilight-indigo);
+}
+
+.turno-editar-main {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px;
+    flex: 1;
+}
+
+.turno-editar-form {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.total {
+    background-color: var(--white);
+    border: 5px solid var(--twilight-indigo);
+    border-radius: 10px;
+    overflow: hidden; /* Corta las esquinas para la cabecera */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    max-width: 900px;
+    width: 100%;
+}
+
+.total > header {
+    background-color: var(--twilight-indigo);
+    padding: 25px;
+    text-align: center;
+}
+
+.total > header h1 {
+    color: var(--white);
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: bold;
+}
+
+.tablas {
+    display: flex;
+    justify-content: space-around;
+    gap: 30px;
+    padding: 40px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td {
+    border: 3px solid var(--twilight-indigo);
+    padding: 12px 15px;
+    font-size: 0.95rem;
+}
+
+td:first-child, .etiqueta-campo {
+    background-color: var(--twilight-indigo);
+    color: var(--white);
+    font-weight: bold;
+    width: 35%;
+}
+
+td:last-child {
+    background-color: var(--white);
+    text-align: center;
+}
+
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+    width: 100%;
+    max-width: 100%;
+    padding: 10px;
+    border: 2px solid var(--twilight-indigo);
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    box-sizing: border-box;
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    color: var(--twilight-indigo);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+textarea {
+    resize: vertical;
+}
+
+select {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--sky-surge);
+    box-shadow: 0 0 8px rgba(88, 185, 218, 0.4);
+    background-color: var(--white);
+}
+
+.botones {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    padding: 0 40px 40px 40px;
+}
+
+.btn-guardar, .btn-cerrar {
+    background-color: var(--sky-surge);
+    color: var(--white);
+    border: none;
+    padding: 12px 50px;
+    border-radius: 25px;
+    font-family: var(--font-main);
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-guardar:hover, .btn-cerrar:hover {
+    background-color: var(--twilight-indigo);
+}
+
+.turno-editar-contenido {
+    padding: 0 40px 35px;
+}
+
+.buscador-voluntario {
+    display: grid;
+    grid-template-columns: 1fr 180px;
+    margin-bottom: 30px;
+}
+
+.buscador-voluntario input {
+    border-radius: 0;
+    min-height: 50px;
+}
+
+.buscador-voluntario button {
+    border-radius: 0;
+}
+
+.tabla-voluntarios {
+    color: var(--twilight-indigo);
+    font-weight: bold;
+}
+
+.tabla-voluntarios th {
+    background-color: var(--twilight-indigo);
+    color: var(--white);
+    padding: 14px;
+}
+
+.tabla-voluntarios td:first-child,
+.tabla-voluntarios td:last-child {
+    background-color: var(--white);
+    color: var(--twilight-indigo);
+}
+
+.tabla-voluntarios td:first-child {
+    width: 30%;
+    text-align: center;
+}
+
+.tabla-voluntarios td:last-child {
+    text-align: left;
+}
+
+.botones a {
+    text-decoration: none;
+    display: inline-block;
+}
+
+.editar-turno-main {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex: 1;
+    padding: 88px 40px 72px;
+    background: linear-gradient(110deg, #ffffff 0%, #ffffff 58%, #d7f4fb 100%);
+}
+
+.editar-turno-form {
+    width: 100%;
+    max-width: 1320px;
+    margin: 0 auto;
+}
+
+.editar-turno-panel {
+    overflow: hidden;
+    width: 100%;
+    border: 10px solid var(--twilight-indigo);
+    border-radius: 10px;
+    background-color: var(--white);
+    box-shadow: 0 22px 55px rgba(50, 50, 102, 0.24);
+}
+
+.editar-turno-cabecera {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+    padding: 34px 92px 24px;
+    background-color: var(--twilight-indigo);
+    text-align: center;
+}
+
+.editar-turno-cabecera h1,
+.editar-turno-cabecera h2 {
+    margin: 0;
+    color: var(--white);
+    font-weight: 800;
+    line-height: 1.12;
+}
+
+.editar-turno-cabecera h1 {
+    font-size: 2.6rem;
+    text-transform: uppercase;
+}
+
+.editar-turno-cabecera h2 {
+    margin-top: 26px;
+    font-size: 2.45rem;
+}
+
+.editar-turno-contenido {
+    padding: 36px 10% 46px;
+}
+
+.editar-turno-buscador {
+    display: grid;
+    grid-template-columns: 1fr 250px;
+    margin: 0 auto 32px;
+    max-width: 1030px;
+}
+
+.editar-turno-buscador input {
+    min-height: 56px;
+    border: 5px solid var(--twilight-indigo);
+    border-radius: 0;
+    background-color: var(--white);
+    color: var(--twilight-indigo);
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+.editar-turno-buscador input::placeholder {
+    color: #9d9d9d;
+}
+
+.editar-turno-buscador button {
+    border: 0;
+    border-radius: 0;
+    background-color: var(--twilight-indigo);
+    color: var(--white);
+    font-family: var(--font-main);
+    font-size: 1.35rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.editar-turno-tabla {
+    max-width: 1030px;
+    margin: 0 auto;
+    color: var(--twilight-indigo);
+    font-weight: 800;
+}
+
+.editar-turno-tabla th {
+    padding: 18px;
+    background-color: var(--twilight-indigo);
+    color: var(--white);
+    font-size: 1.35rem;
+}
+
+.editar-turno-tabla th:first-child {
+    width: 30%;
+}
+
+.editar-turno-tabla td {
+    height: 58px;
+    border: 5px solid var(--twilight-indigo);
+    background-color: var(--white);
+    color: var(--twilight-indigo);
+    font-size: 1.2rem;
+}
+
+.editar-turno-tabla td:first-child,
+.editar-turno-tabla td:last-child {
+    background-color: var(--white);
+    color: var(--twilight-indigo);
+}
+
+.editar-turno-tabla .celda-participa {
+    text-align: center;
+}
+
+.editar-turno-tabla .celda-nombre {
+    padding-left: 32px;
+    text-align: left;
+}
+
+.editar-turno-tabla input[type="checkbox"] {
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    border: 5px solid var(--twilight-indigo);
+    appearance: none;
+    background-color: var(--white);
+    cursor: pointer;
+}
+
+.editar-turno-tabla input[type="checkbox"]:checked {
+    background-color: var(--twilight-indigo);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 6L9 17L4 12' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 22px 22px;
+}
+
+.editar-turno-acciones {
+    display: flex;
+    justify-content: center;
+    margin-top: 28px;
+}
+
+.editar-turno-acciones .btn-guardar {
+    min-width: 235px;
+    min-height: 62px;
+    border-radius: 8px;
+    box-shadow: 0 10px 18px rgba(88, 185, 218, 0.28);
+    font-size: 2rem;
+}
+
+.editar-turno-volver {
+    display: none;
+}
+
+.editar-turno-contenido .mensaje-error {
+    margin: 18px 0 0;
+}
+
+@media (max-width: 900px) {
+    .editar-turno-main {
+        padding: 36px 14px;
+    }
+
+    .editar-turno-cabecera {
+        grid-template-columns: 1fr;
+        padding: 28px 20px;
+    }
+
+    .editar-turno-cabecera h1 {
+        font-size: 2rem;
+    }
+
+    .editar-turno-cabecera h2 {
+        margin-top: 16px;
+        font-size: 1.7rem;
+    }
+
+    .editar-turno-contenido {
+        padding: 24px 18px 34px;
+    }
+
+    .editar-turno-buscador {
+        grid-template-columns: 1fr;
+    }
+
+    .editar-turno-buscador button {
+        min-height: 50px;
+    }
+
+    .editar-turno-tabla th,
+    .editar-turno-tabla td {
+        font-size: 0.95rem;
+    }
+}

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bancosol - Editar Voluntarios</title>
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="/css/turno_editar.css">
+    <script src="/api/config.js"></script>
+</head>
+<body>
+    <include-html src="/componentes/header.html" active="inicio"></include-html>
+
+    <div class="info-turnos-page">
+        <div class="info-turnos-container turnos-panel">
+            <header class="info-turnos-header">
+                <div class="info-turnos-tienda">
+                    <h2 id="nombreTienda">Nombre tienda</h2>
+                    <h2 id="nombreEntidad">Entidad responsable</h2>
+                </div>
+
+                <div class="info-turnos-datos">
+                    <h2 id="fechaTurno">Fecha</h2>
+                    <h3 id="tituloTurno">Turno</h3>
+                </div>
+            </header>
+
+            <main class="info-turnos-content">
+                <form id="formTurnoVoluntarios" action="/api/turno_guardar_voluntarios" method="POST">
+                    <input type="hidden" id="campoIdTienda" name="idTienda">
+                    <input type="hidden" id="campoIdCampania" name="idCampania">
+                    <input type="hidden" id="campoIdTurno" name="idTurno">
+                    <input type="hidden" id="campoIdEntidad" name="idEntidad">
+
+                    <div class="buscador-turnos">
+                        <input id="busquedaVoluntario" type="text" name="busqueda" placeholder="Buscar voluntario">
+                        <button type="button" id="botonBuscar">Buscar</button>
+                    </div>
+
+                    <table class="lista-voluntarios">
+                        <thead>
+                            <tr>
+                                <th>Participa</th>
+                                <th>Nombre Completo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaVoluntarios">
+                            <tr>
+                                <td colspan="2" class="sin-resultados turnos-empty">Cargando voluntarios...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p id="mensajeEstado" class="mensaje-error"></p>
+
+                    <div class="guardar-wrapper">
+                        <button class="btn-guardar turnos-btn" type="submit">Guardar</button>
+                    </div>
+
+                    <a id="volverTurnos" href="#" hidden>Volver</a>
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <include-html src="/componentes/footer.html"></include-html>
+
+    <script src="/componentes/include-html.js"></script>
+    <script src="/js/tienda_voluntarios_api.js"></script>
+    <script src="/js/turno_editar.js"></script>
+</body>
+</html>

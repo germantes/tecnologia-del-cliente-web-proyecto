@@ -24,18 +24,12 @@ class IncludeHTML extends HTMLElement {
     }
 
     marcarElementoActivo() {
-        const activo = this.getAttribute("active");
-
-        if (!activo) {
-            return;
-        }
-
         const enlaces = this.querySelectorAll("[data-nav]");
 
         enlaces.forEach((enlace) => {
             enlace.classList.toggle(
                 "bancosol-header__nav-item--active",
-                enlace.dataset.nav === activo
+                enlace.dataset.nav === "inicio"
             );
         });
     }
