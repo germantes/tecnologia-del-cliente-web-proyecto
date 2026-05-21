@@ -954,8 +954,8 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
 
     // 2. Consulta Base (Añadimos id_campania a la petición de Supabase)
     let query = supabase
-      .from('tienda')
-      .select(`
+        .from('tienda')
+        .select(`
                 id_tienda, 
                 domicilio,
                 cadena (id_cadena, establecimiento, nombre_particular),
@@ -974,7 +974,7 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
                 )
             `);
 
-    // 3. Filtros previos en Base de Datos según el ROL
+    // 3. Filtros previos en Base de Datos según el ROL EXACTO
     if (puesto === 'ADMINISTRADOR') {
       if (idZona && idZona !== '0') query = query.eq('cp.id_zona', idZona);
     } else if (puesto === 'COORDINADOR') {
@@ -983,8 +983,10 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
         const { data: userCp } = await supabase.from('cp').select('id_zona').eq('cp', usuarioData.id_cp).single();
         if (userCp) query = query.eq('cp.id_zona', userCp.id_zona);
       }
-    } else if (puesto === 'CAPITAN' || puesto === 'RESPONSABLE-TIENDA') {
-      query = query.or(`id_capitan.eq.${id_usuario},id_responsable_tienda.eq.${id_usuario}`, { foreignTable: 'tienda_campania' });
+    } else if (puesto === 'CAPITAN') {
+      query = query.eq('tienda_campania.id_capitan', id_usuario);
+    } else if (puesto === 'RESPONSABLE-TIENDA') {
+      query = query.eq('tienda_campania.id_responsable_tienda', id_usuario);
     }
 
     const { data: tiendas, error } = await query;
@@ -995,18 +997,13 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
       if (!t.cp) return false;
 
       if (puesto === 'ADMINISTRADOR') {
-        // Admin: si ha elegido una campaña, vemos si participa en esa.
         if (idCampania && idCampania > 0) {
           const relacion = t.tienda_campania?.find(tc => tc.id_campania === idCampania);
           if (!relacion) return false;
-
           const participaReal = relacion.participa === true;
-          if (participa && participa !== 'all') {
-            return participa === 'true' ? participaReal : !participaReal;
-          }
+          if (participa && participa !== 'all') return participa === 'true' ? participaReal : !participaReal;
           return true;
         } else {
-          // Admin: Todas las campañas (Si elige participa=true, comprobamos si participa en ALGUNA)
           if (participa && participa !== 'all') {
             const quiereParticipar = participa === 'true';
             return t.tienda_campania?.some(tc => tc.participa === true) === quiereParticipar;
@@ -1014,7 +1011,7 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
           return true;
         }
       } else {
-        // NO ADMIN: Filtro drástico. Solo ven las que participan en la campaña ACTIVA.
+        // COORDINADORES, CAPITANES, RESPONSABLES: Solo ven campaña ACTIVA
         if (!idActiva) return false;
         const relacionActiva = t.tienda_campania?.find(tc => tc.id_campania === idActiva);
         return relacionActiva && relacionActiva.participa === true;
@@ -1036,8 +1033,8 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
     const tiendaId = req.params.id;
 
     const { data: tienda, error } = await supabase
-      .from('tienda')
-      .select(`
+        .from('tienda')
+        .select(`
                 id_tienda, 
                 domicilio,
                 cadena (id_cadena, establecimiento, nombre_particular),
@@ -1057,8 +1054,8 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
                     num_cajas
                 )
             `)
-      .eq('id_tienda', tiendaId)
-      .single(); // Le decimos a Supabase que devuelva 1 solo objeto, no un array
+        .eq('id_tienda', tiendaId)
+        .single(); // Le decimos a Supabase que devuelva 1 solo objeto, no un array
 
     if (error) throw error;
     res.json(tienda);
@@ -1083,6 +1080,26 @@ app.get('/api/zonas_por_campania', requireAuth, async (req, res) => {
     if (!idCampania) {
       return res.status(400).json({ error: 'Falta el parámetro idCampania' });
     }
+
+    const { data, error } = await supabase
+        .from('asignacion_zona')
+        .select(`
+        id_zona,
+        zona:id_zona (
+          id_zona,
+          zona_geografica
+        )
+      `)
+        .eq('id_campania', idCampania);
+
+    if (error) throw error;
+    res.json(data || []);
+  } catch (error) {
+    console.error('Error obteniendo zonas por campaña:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // =========================================================================
 // ENDPOINTS PARA LOS DESPLEGABLES DE EDITAR TIENDA
 // =========================================================================
@@ -1119,8 +1136,8 @@ app.get('/api/usuarios', requireAuth, async (req, res) => {
 app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
   try {
     // Solo los administradores pueden editar (medida de seguridad en el backend)
-    if (req.user.puesto !== 'admin' && req.user.puesto !== 'ADMIN') {
-      return res.status(403).json({ error: 'No tienes permisos para editar tiendas.' });
+    if (req.user.puesto?.toUpperCase() !== 'ADMINISTRADOR') {
+      return res.status(403).json({ error: 'No tienes permisos.' });
     }
 
     const tiendaId = req.params.id;
@@ -1168,25 +1185,6 @@ app.get('/tienda_turnos', (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'tienda_turnos.html'));
 });
 
-    const { data, error } = await supabase
-      .from('asignacion_zona')
-      .select(`
-        id_zona,
-        zona:id_zona (
-          id_zona,
-          zona_geografica
-        )
-      `)
-      .eq('id_campania', idCampania);
-
-    if (error) throw error;
-    res.json(data || []);
-  } catch (error) {
-    console.error('Error obteniendo zonas por campaña:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Endpoint para obtener campañas asignadas a una zona específica
 app.get('/api/campanias_por_zona', requireAuth, async (req, res) => {
   try {
@@ -1196,8 +1194,8 @@ app.get('/api/campanias_por_zona', requireAuth, async (req, res) => {
     }
 
     const { data, error } = await supabase
-      .from('asignacion_zona')
-      .select(`
+        .from('asignacion_zona')
+        .select(`
         id_campania,
         campania:id_campania (
           id_campania,
@@ -1207,7 +1205,7 @@ app.get('/api/campanias_por_zona', requireAuth, async (req, res) => {
           tipo
         )
       `)
-      .eq('id_zona', idZona);
+        .eq('id_zona', idZona);
 
     if (error) throw error;
     res.json(data || []);
@@ -1238,8 +1236,8 @@ app.all([
 // Catch-all para la SPA
 app.get('*', (req, res) => {
   const indexPath = process.env.NODE_ENV === 'development'
-    ? '/src/html/index.html'
-    : path.join(__dirname, '..', 'src', 'index.html');
+      ? '/src/html/index.html'
+      : path.join(__dirname, '..', 'src', 'index.html');
   res.sendFile(indexPath);
 });
 
