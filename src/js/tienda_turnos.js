@@ -27,6 +27,7 @@ async function iniciarPaginaTurnos() {
         }
 
         pintarCabecera(datos);
+        configurarBotonAnadirTurno(idTienda, idCampania);
         pintarTurnos(datos);
     } catch (error) {
         mostrarError(error.message);
@@ -283,6 +284,24 @@ function nombreVoluntario(voluntario) {
     }
 
     return partes.join(" ");
+}
+
+function configurarBotonAnadirTurno(idTienda, idCampania) {
+    var contenedor = document.getElementById("turnosAcciones");
+    var boton = document.getElementById("botonAnadirTurno");
+
+    if (!contenedor || !boton) {
+        return;
+    }
+
+    if (obtenerPerfilTurnos() !== ROL_ADMINISTRADOR) {
+        contenedor.hidden = true;
+        return;
+    }
+
+    boton.href = "/turno_aniadir?idTienda=" + encodeURIComponent(idTienda)
+        + "&idCampania=" + encodeURIComponent(idCampania);
+    contenedor.hidden = false;
 }
 
 function configurarPopupVoluntario() {

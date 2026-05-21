@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BancoSol - Añadir turnos</title>
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/turno_aniadir.css">
+    <script src="../js/config.js"></script>
+</head>
+
+<body>
+    <include-html src="../componentes/header.html" active="tiendas"></include-html>
+
+    <main class="aniadir-main">
+        <section class="aniadir-panel">
+            <header class="aniadir-header">
+                <h1>Modificar Turnos</h1>
+                <p id="nombreCampania">Campaña</p>
+            </header>
+
+            <div class="aniadir-formulario">
+                <div class="aniadir-campos">
+                    <label for="fechaInicio">Fecha inicio</label>
+                    <input type="date" id="fechaInicio">
+                </div>
+                <div class="aniadir-campos">
+                    <label for="fechaFin">Fecha fin</label>
+                    <input type="date" id="fechaFin">
+                </div>
+                <button class="aniadir-btn" id="btnActualizarFechas" type="button">Actualizar Fechas</button>
+            </div>
+
+            <table class="aniadir-tabla">
+                <thead>
+                    <tr>
+                        <th>Día</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaDias">
+                    <tr>
+                        <td colspan="3" class="aniadir-vacio">Cargando turnos...</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="aniadir-volver">
+                <a class="aniadir-btn aniadir-btn--volver" id="btnVolver" href="#">Volver</a>
+            </div>
+        </section>
+    </main>
+
+    <include-html src="../componentes/footer.html"></include-html>
+
+    <script src="../componentes/include-html.js"></script>
+    <script src="../js/permisos_turnos.js"></script>
+    <script src="../js/turno_aniadir.js"></script>
+</body>
+
+</html>

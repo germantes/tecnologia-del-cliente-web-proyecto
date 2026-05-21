@@ -401,6 +401,10 @@ app.get('/voluntarios', requireAuth, (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'voluntarios.html'));
 });
 
+app.get('/turno_aniadir', requireAuth, (req, res) => {
+  res.sendFile(path.join(srcPath, 'html', 'turno_aniadir.html'));
+});
+
 // Rutas para la página de edición y creación (soporta con y sin .html)
 app.get('/edit', requireAuth, (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'edit.html'), (err) => {
@@ -839,6 +843,46 @@ app.delete('/usuarios/:id', requireAuth, requireAdmin, async (req, res) => {
 
 app.post('/campanias', requireAuth, async (req, res) => {
   try { res.json((await insertRows('campania', [req.body]))[0]); } catch (e) { sendError(res, e, 'Error creando campaña'); }
+});
+app.put('/campanias/:id', requireAuth, async (req, res) => {
+  try {
+    const campania = await findById('campania', req.params.id, ['idCampania', 'id_campania', 'id']);
+    if (!campania) return res.status(404).json({ success: false, message: 'Campaña no encontrada.' });
+
+    const nuevaInicio = req.body.fecha_inicio || req.body.fechaInicio || campania.fecha_inicio || '';
+    const nuevaFin = req.body.fecha_fin || req.body.fechaFin || campania.fecha_fin || '';
+
+    if (nuevaInicio && nuevaFin) {
+      const inicio = new Date(nuevaInicio);
+      const fin = new Date(nuevaFin);
+      inicio.setHours(0, 0, 0, 0);
+      fin.setHours(23, 59, 59, 999);
+
+      if (isNaN(inicio.getTime()) || isNaN(fin.getTime()) || inicio > fin) {
+        return res.status(400).json({ success: false, message: 'Las fechas de campaña no son válidas.' });
+      }
+
+      const turnos = await fetchAll('turno');
+      const hayTurnoFuera = turnos.some((turno) => {
+        const idCampaniaTurno = getField(turno, 'id_campania', 'idCampania');
+        if (!sameNumberOrString(idCampaniaTurno, req.params.id)) return false;
+        const fechaTurno = new Date(getField(turno, 'fecha'));
+        if (isNaN(fechaTurno.getTime())) return false;
+        fechaTurno.setHours(12, 0, 0, 0);
+        return fechaTurno < inicio || fechaTurno > fin;
+      });
+
+      if (hayTurnoFuera) {
+        return res.status(400).json({
+          success: false,
+          message: 'No se puede cambiar el intervalo porque hay turnos fuera de las fechas seleccionadas.'
+        });
+      }
+    }
+
+    const [updated] = await updateRows('campania', 'id_campania', req.params.id, req.body);
+    res.json(updated || null);
+  } catch (e) { sendError(res, e, 'Error actualizando campaña'); }
 });
 app.post('/tiendas', requireAuth, async (req, res) => {
   try { res.json((await insertRows('tienda', [req.body]))[0]); } catch (e) { sendError(res, e, 'Error creando tienda'); }
