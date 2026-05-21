@@ -6,6 +6,7 @@ var SELECTOR_INFO_VOLUNTARIO = ".js-voluntario-info";
 var SELECTOR_CERRAR_POPUP = "[data-cerrar-popup]";
 
 async function iniciarPaginaTurnos() {
+    puedeVerTurnos();
     configurarPopupVoluntario();
 
     var parametros = new URLSearchParams(window.location.search);
@@ -175,15 +176,19 @@ function crearAccionesTurno(turno, idTienda, idCampania) {
     var tipoTurno = turno.turno || "";
     var idTurno = turno.id_turno || "";
     var idEntidad = turno.id_entidad || "";
+    var puedeEditarVoluntarios = puedeEditarVoluntariosTurnos();
 
-    var enlaceEditar = document.createElement("a");
-    enlaceEditar.className = "turnos-btn turnos-btn--small";
-    enlaceEditar.href = "/turno_editar?idTienda=" + encodeURIComponent(idTienda)
-        + "&idCampania=" + encodeURIComponent(idCampania)
-        + "&idTurno=" + encodeURIComponent(idTurno)
-        + "&turno=" + encodeURIComponent(tipoTurno)
-        + "&idEntidad=" + encodeURIComponent(idEntidad);
-    enlaceEditar.textContent = "Editar";
+    if (puedeEditarVoluntarios) {
+        var enlaceEditar = document.createElement("a");
+        enlaceEditar.className = "turnos-btn turnos-btn--small";
+        enlaceEditar.href = "/turno_editar?idTienda=" + encodeURIComponent(idTienda)
+            + "&idCampania=" + encodeURIComponent(idCampania)
+            + "&idTurno=" + encodeURIComponent(idTurno)
+            + "&turno=" + encodeURIComponent(tipoTurno)
+            + "&idEntidad=" + encodeURIComponent(idEntidad);
+        enlaceEditar.textContent = "Editar";
+        acciones.appendChild(enlaceEditar);
+    }
 
     var enlaceObservaciones = document.createElement("a");
     enlaceObservaciones.className = "turnos-btn turnos-btn--small";
@@ -192,7 +197,6 @@ function crearAccionesTurno(turno, idTienda, idCampania) {
         + "&idTurno=" + encodeURIComponent(turno.id_turno || "");
     enlaceObservaciones.textContent = "Observaciones";
 
-    acciones.appendChild(enlaceEditar);
     acciones.appendChild(enlaceObservaciones);
 
     return acciones;

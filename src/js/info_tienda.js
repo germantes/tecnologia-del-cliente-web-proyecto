@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             responsable = campania.id_responsable_tienda || "N/A";
         }
 
-        const puedeEditar = (perfil.toUpperCase() === 'ADMIN' || perfil.toUpperCase() === 'MANAGER');
+        const puedeEditar = (perfil === 'ADMINISTRADOR' || perfil === 'COORDINADOR');
 
         // Construir la vista EXACTAMENTE igual que el JSP para que el CSS la reconozca
         contenedor.innerHTML = `

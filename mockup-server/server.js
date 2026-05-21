@@ -78,27 +78,10 @@ function contains(row, text, fields) {
   return fields.some((field) => str(getField(row, field)).toLowerCase().includes(q));
 }
 
-function mapRol(rolSupabase) {
-  const value = str(rolSupabase).trim().toUpperCase();
-  const mapa = {
-    ADMINISTRADOR: 'admin',
-    ADMIN: 'admin',
-    COORDINADOR: 'manager',
-    MANAGER: 'manager',
-    'RESPONSABLE-ENTIDAD': 'worker',
-    RESPONSABLE_ENTIDAD: 'worker',
-    RESPONSABLETIENDA: 'worker',
-    RESPONSABLE_TIENDA: 'worker',
-    CAPITAN: 'worker',
-    WORKER: 'worker'
-  };
-  return mapa[value] || 'worker';
-}
-
 function requireAuth(req, res, next) {
   // --- BYPASS TEMPORAL DE AUTENTICACIÓN ---
   // Simulamos un usuario admin para que no fallen los endpoints que usan req.user
-  req.user = { id: 1, puesto: 'admin', nombreUsuario: 'admin', nombre: 'Admin Temporal' };
+  req.user = { id: 1, puesto: 'ADMINISTRADOR', nombreUsuario: 'admin', nombre: 'Admin Temporal' };
   return next();
 
   /*
@@ -118,7 +101,7 @@ function requireAdmin(req, res, next) {
   // --- BYPASS TEMPORAL DE ADMIN ---
   return next();
   /*
-  if (req.user?.puesto !== 'admin') {
+  if (req.user?.puesto !== 'ADMINISTRADOR') {
     return res.status(403).json({ success: false, message: 'Acceso denegado. Solo administradores.' });
   }
   next();
@@ -365,7 +348,7 @@ app.post('/auth/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Usuario o contraseña incorrectos.' });
     }
 
-    const puesto = mapRol(getField(usuario, 'rol', 'puesto'));
+    const puesto = getField(usuario, 'rol', 'puesto');
     res.json({
       success: true,
       user: {
@@ -547,7 +530,7 @@ app.get('/tienda_editar', requireAuth, async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Endpoints equivalentes a TurnoController
+// Endpoints relacionados con los turnos
 // ─────────────────────────────────────────────────────────────────────────────
 app.get('/api/tienda_turnos', requireAuth, async (req, res) => {
   try {
@@ -909,7 +892,7 @@ app.get('/api/schedule/:id', requireAuth, async (req, res) => {
 app.get('/api/tiendas', requireAuth, async (req, res) => {
   try {
     const id_usuario = req.user.id;
-    const puesto = req.user.puesto.toUpperCase();
+    const puesto = req.user.puesto;
     const { idZona, participa, idCampania: queryIdCampania } = req.query;
     const idCampania = queryIdCampania ? parseInt(queryIdCampania) : null;
 
@@ -951,15 +934,15 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
             `);
 
     // 3. Filtros previos en Base de Datos según el ROL
-    if (puesto === 'ADMIN') {
+    if (puesto === 'ADMINISTRADOR') {
       if (idZona && idZona !== '0') query = query.eq('cp.id_zona', idZona);
-    } else if (puesto === 'MANAGER') {
+    } else if (puesto === 'COORDINADOR') {
       const { data: usuarioData } = await supabase.from('usuario').select('id_cp').eq('id_usuario', id_usuario).single();
       if (usuarioData && usuarioData.id_cp) {
         const { data: userCp } = await supabase.from('cp').select('id_zona').eq('cp', usuarioData.id_cp).single();
         if (userCp) query = query.eq('cp.id_zona', userCp.id_zona);
       }
-    } else if (puesto === 'WORKER') {
+    } else if (puesto === 'CAPITAN' || puesto === 'RESPONSABLE-TIENDA') {
       query = query.or(`id_capitan.eq.${id_usuario},id_responsable_tienda.eq.${id_usuario}`, { foreignTable: 'tienda_campania' });
     }
 
@@ -970,7 +953,7 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
     const tiendasFiltradas = tiendas.filter(t => {
       if (!t.cp) return false;
 
-      if (puesto === 'ADMIN') {
+      if (puesto === 'ADMINISTRADOR') {
         // Admin: si ha elegido una campaña, vemos si participa en esa.
         if (idCampania && idCampania > 0) {
           const relacion = t.tienda_campania?.find(tc => tc.id_campania === idCampania);

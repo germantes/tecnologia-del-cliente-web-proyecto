@@ -15,6 +15,15 @@ async function iniciarPaginaEditarTurno() {
     rellenarCamposOcultos();
     prepararEventos();
 
+    var puedeEditarVoluntarios = puedeEditarVoluntariosTurnos();
+
+    if (!puedeEditarVoluntarios) {
+        window.location.href = "/tienda_turnos?idTienda="
+            + encodeURIComponent(datosPagina.idTienda)
+            + "&idCampania=" + encodeURIComponent(datosPagina.idCampania);
+        return;
+    }
+
     if (!datosPagina.idTienda || !datosPagina.idCampania || !datosPagina.idTurno) {
         mostrarMensaje("Faltan parámetros para editar el turno.");
         pintarMensajeTabla("No se pueden cargar voluntarios porque faltan parámetros.");
@@ -345,7 +354,10 @@ function obtenerNombreTienda(cadena) {
 }
 
 async function fetchJson(ruta, opciones) {
-    var respuesta = await fetch(crearUrlApi(ruta), opciones || {});
+    opciones = opciones || {};
+    opciones.headers = crearHeadersAutorizacionTurnos(opciones.headers || {});
+
+    var respuesta = await fetch(crearUrlApi(ruta), opciones);
     var texto = await respuesta.text();
     var datos = {};
 

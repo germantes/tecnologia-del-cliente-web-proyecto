@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    const usuarioRol = perfil.toUpperCase();
+    const usuarioRol = perfil;
     const API_BASE = window.API_URL || 'http://localhost:3000';
 
     const tiendasContainer = document.getElementById('tiendasContainer');
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await cargarCampanias();
 
     // 2. Configurar Interfaz según el Rol
-    if (usuarioRol === 'ADMIN') {
+    if (usuarioRol === 'ADMINISTRADOR') {
         adminFilters.style.display = 'flex';
         await cargarFiltrosZona();
         const btnAplicar = document.getElementById('btnAplicar');
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
 
                 // Si es Admin, rellenamos el desplegable
-                if (usuarioRol === 'ADMIN' && selectCampania) {
+                if (usuarioRol === 'ADMINISTRADOR' && selectCampania) {
                     campaniasGlobal.forEach(c => {
                         const opt = document.createElement('option');
                         opt.value = c.id_campania;
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             let url = '/api/tiendas';
             let idCampaniaBuscada = null;
 
-            if (usuarioRol === 'ADMIN') {
+            if (usuarioRol === 'ADMINISTRADOR') {
                 const zonaId = selectZona.value;
                 const participa = selectParticipa.value;
                 const campaniaId = selectCampania.value;
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <p><strong>Participa: </strong>${participaTexto}</p>
                     
                     <div class="botones-card">
-                        ${usuarioRol === 'ADMIN' ? `<button class="btn-editar" onclick="window.location.href='edit.html?type=tiendas&id=${tienda.id_tienda}'">editar</button>` : ''}
+                        ${usuarioRol === 'ADMINISTRADOR' ? `<button class="btn-editar" onclick="window.location.href='edit.html?type=tiendas&id=${tienda.id_tienda}'">editar</button>` : ''}
                         ${participaTexto === 'Sí' && idCampaniaPintar ? `<button class="btn-turnos" onclick="window.location.href='/tienda_turnos?idTienda=${tienda.id_tienda}&idCampania=${idCampaniaPintar}'">turnos</button>` : ''}
                         <button class="btn-info" onclick="window.location.href='info_tienda.html?id=${tienda.id_tienda}'">+ info</button>
                     </div>

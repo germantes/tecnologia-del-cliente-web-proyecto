@@ -5,9 +5,7 @@ async function fetchTurnosTienda(idTienda, idCampania) {
         + "&idCampania=" + encodeURIComponent(idCampania);
 
     var respuesta = await fetch(url, {
-        headers: {
-            "Authorization": "Bearer " + (sessionStorage.getItem("token") || "")
-        }
+        headers: crearHeadersAutorizacionTurnos()
     });
 
     var datos = await respuesta.json();
@@ -24,9 +22,7 @@ async function fetchInfoVoluntario(idVoluntario) {
     var url = apiBase + "/api/info_voluntario?idVoluntario=" + encodeURIComponent(idVoluntario);
 
     var respuesta = await fetch(url, {
-        headers: {
-            "Authorization": "Bearer " + (sessionStorage.getItem("token") || "")
-        }
+        headers: crearHeadersAutorizacionTurnos()
     });
 
     var datos = await respuesta.json();
@@ -52,9 +48,7 @@ async function fetchEntidadPorId(idEntidad) {
     var url = apiBase + "/entidades/" + encodeURIComponent(idEntidad);
 
     var respuesta = await fetch(url, {
-        headers: {
-            "Authorization": "Bearer " + (sessionStorage.getItem("token") || "")
-        }
+        headers: crearHeadersAutorizacionTurnos()
     });
 
     var datos = await respuesta.json();

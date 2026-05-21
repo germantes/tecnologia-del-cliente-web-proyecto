@@ -35,11 +35,19 @@
     filter: brightness(0) invert(1);
 }
 
-.bancosol-header__profile {
+.bancosol-header__actions {
     grid-column: 3;
     grid-row: 1;
     justify-self: end;
     align-self: center;
+    margin-right: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.bancosol-header__profile {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -56,7 +64,6 @@
     text-decoration: none;
     cursor: pointer;
     box-sizing: border-box;
-    margin-right: 24px;
 }
 
 .bancosol-header__profile:hover {
@@ -68,6 +75,39 @@
 .bancosol-header__profile-icon {
     width: 18px;
     height: 18px;
+}
+
+.bancosol-header__logout {
+    width: 142px;
+    height: 34px;
+    padding: 7px 12px;
+    border: 2px solid #58b9da;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background-color: transparent;
+    color: #ffffff;
+    font: 700 0.82rem 'Poppins', sans-serif;
+    line-height: 1;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition:
+            background-color 0.2s ease,
+            color 0.2s ease;
+}
+
+.bancosol-header__logout:hover,
+.bancosol-header__logout:focus {
+    background-color: #58b9da;
+    color: #ffffff;
+}
+
+.bancosol-header__logout-icon {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 auto;
 }
 
 .bancosol-header__nav {
@@ -116,7 +156,7 @@
     }
 
     .bancosol-header__logo-link,
-    .bancosol-header__profile,
+    .bancosol-header__actions,
     .bancosol-header__nav {
         grid-column: 1;
     }
@@ -127,7 +167,7 @@
         justify-self: center;
     }
 
-    .bancosol-header__profile {
+    .bancosol-header__actions {
         grid-row: 2;
         justify-self: center;
         margin-top: 8px;
