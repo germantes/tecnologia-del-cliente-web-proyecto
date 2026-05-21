@@ -558,7 +558,7 @@ app.get('/cp', requireAuth, async (req, res) => {
         distrito(nombre_distrito),
         zona:id_zona(id_zona, zona_geografica)
       `);
-    
+
     if (error) throw error;
     res.json(data || []);
   } catch (error) {
@@ -852,17 +852,23 @@ app.put('/entidades/:id', requireAuth, async (req, res) => {
 app.delete('/entidades/:id', requireAuth, async (req, res) => {
   try { res.json(await deleteRows('entidad', 'id_entidad', req.params.id)); } catch (e) { sendError(res, e, 'Error eliminando entidad'); }
 });
-app.post('/voluntarios', requireAuth, async (req, res) => {
+app.post(['/voluntarios', '/api/voluntarios'], requireAuth, async (req, res) => {
   try { res.json((await insertRows('voluntario', [req.body]))[0]); } catch (e) { sendError(res, e, 'Error creando voluntario'); }
 });
-app.put('/voluntarios/:id', requireAuth, async (req, res) => {
+app.put(['/voluntarios/:id', '/api/voluntarios/:id'], requireAuth, async (req, res) => {
   try { res.json((await updateRows('voluntario', 'id_voluntario', req.params.id, req.body))[0]); } catch (e) { sendError(res, e, 'Error actualizando voluntario'); }
 });
-app.delete('/voluntarios/:id', requireAuth, async (req, res) => {
+app.delete(['/voluntarios/:id', '/api/voluntarios/:id'], requireAuth, async (req, res) => {
   try { res.json(await deleteRows('voluntario', 'id_voluntario', req.params.id)); } catch (e) { sendError(res, e, 'Error eliminando voluntario'); }
 });
-app.post('/turnos', requireAuth, async (req, res) => {
+app.post(['/turnos', '/api/turnos'], requireAuth, async (req, res) => {
   try { res.json((await insertRows('turno', [req.body]))[0]); } catch (e) { sendError(res, e, 'Error creando turno'); }
+});
+app.put(['/turnos/:id', '/api/turnos/:id'], requireAuth, async (req, res) => {
+  try { res.json((await updateRows('turno', 'id_turno', req.params.id, req.body))[0]); } catch (e) { sendError(res, e, 'Error actualizando turno'); }
+});
+app.delete(['/turnos/:id', '/api/turnos/:id'], requireAuth, async (req, res) => {
+  try { res.json(await deleteRows('turno', 'id_turno', req.params.id)); } catch (e) { sendError(res, e, 'Error eliminando turno'); }
 });
 app.post('/api/schedule', requireAuth, async (req, res) => {
   try { res.json((await insertRows('turno', [req.body]))[0]); } catch (e) { sendError(res, e, 'Error creando schedule'); }
