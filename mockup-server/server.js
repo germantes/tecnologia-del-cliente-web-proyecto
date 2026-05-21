@@ -538,8 +538,9 @@ app.get('/cp', requireAuth, async (req, res) => {
       .select(`
         cp,
         localidad,
+        id_zona,
         distrito(nombre_distrito),
-        zona:id_zona(zona_geografica)
+        zona:id_zona(id_zona, zona_geografica)
       `);
     
     if (error) throw error;
@@ -1051,6 +1052,63 @@ app.get('/api/zonas', requireAuth, async (req, res) => {
   const { data, error } = await supabase.from('zona').select('*').order('zona_geografica');
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
+});
+
+// Endpoint para obtener zonas asignadas a una campaña específica
+app.get('/api/zonas_por_campania', requireAuth, async (req, res) => {
+  try {
+    const idCampania = req.query.idCampania;
+    if (!idCampania) {
+      return res.status(400).json({ error: 'Falta el parámetro idCampania' });
+    }
+
+    const { data, error } = await supabase
+      .from('asignacion_zona')
+      .select(`
+        id_zona,
+        zona:id_zona (
+          id_zona,
+          zona_geografica
+        )
+      `)
+      .eq('id_campania', idCampania);
+
+    if (error) throw error;
+    res.json(data || []);
+  } catch (error) {
+    console.error('Error obteniendo zonas por campaña:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Endpoint para obtener campañas asignadas a una zona específica
+app.get('/api/campanias_por_zona', requireAuth, async (req, res) => {
+  try {
+    const idZona = req.query.idZona;
+    if (!idZona) {
+      return res.status(400).json({ error: 'Falta el parámetro idZona' });
+    }
+
+    const { data, error } = await supabase
+      .from('asignacion_zona')
+      .select(`
+        id_campania,
+        campania:id_campania (
+          id_campania,
+          nombre,
+          fecha_inicio,
+          fecha_fin,
+          tipo
+        )
+      `)
+      .eq('id_zona', idZona);
+
+    if (error) throw error;
+    res.json(data || []);
+  } catch (error) {
+    console.error('Error obteniendo campañas por zona:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.get('/tienda_turnos', (req, res) => {

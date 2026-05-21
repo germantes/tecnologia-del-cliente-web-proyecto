@@ -5,8 +5,9 @@ let allCampaigns = [];
 // Cargar campañas al iniciar
 async function loadCampaigns() {
   try {
-    const data = await getCampanias();
-    allCampaigns = data.data || data;
+    const campaigns = await getCampanias();
+    allCampaigns = campaigns.data || campaigns;
+    
     renderCampaigns(allCampaigns);
     populateYearFilter();
   } catch (error) {
@@ -87,6 +88,33 @@ function populateYearFilter() {
   });
 
   yearSelect.value = currentValue;
+}
+
+// Llenar el select de zonas dinámicamente
+function populateZoneFilter() {
+  const zones = new Set();
+  allZones.forEach(zone => {
+    const zonaGeografica = zone.zona?.zona_geografica;
+    if (zonaGeografica) zones.add(zonaGeografica);
+  });
+
+  const zoneSelect = document.getElementById('filterZone');
+  if (!zoneSelect) return;
+  
+  const currentValue = zoneSelect.value;
+  
+  // Limpiar opciones excepto la primera
+  zoneSelect.innerHTML = '<option value="">Todas las zonas</option>';
+  
+  // Agregar zonas ordenadas
+  Array.from(zones).sort().forEach(zone => {
+    const option = document.createElement('option');
+    option.value = zone;
+    option.textContent = zone;
+    zoneSelect.appendChild(option);
+  });
+
+  zoneSelect.value = currentValue;
 }
 
 // Filtrar campañas

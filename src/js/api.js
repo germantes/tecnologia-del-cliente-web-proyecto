@@ -113,6 +113,8 @@ async function getVoluntarios(params = {}) { return getRecords('api/voluntarios'
 async function getSchedule(params = {}) { return getRecords('api/schedule', params); }
 async function getMe() { return getRecord('me'); }
 async function getZones(params = {}) { return getRecords('cp', params); }
+async function getZonesByCompany(idCampania) { return getRecords('api/zonas_por_campania', { idCampania }); }
+async function getCampaignsByZone(idZona) { return getRecords('api/campanias_por_zona', { idZona }); }
 
 async function postUsuario(datos) { return createRecord('usuarios', datos); }
 async function putUsuario(id, datos) { return updateRecord('usuarios', id, datos); }
