@@ -191,7 +191,16 @@ async function fetchCpPermisosTurnos(cpUsuario) {
 }
 
 async function fetchEntidadesResponsableTurnos(idUsuario) {
-    return await fetchJsonPermisosTurnos("/api/entidades?id_usuario_contacto=" + encodeURIComponent(idUsuario));
+    var entidades = await fetchJsonPermisosTurnos("/api/entidades?id_usuario_contacto=" + encodeURIComponent(idUsuario));
+    var resultado = [];
+
+    for (var i = 0; i < entidades.length; i++) {
+        if (sonIgualesTurnos(entidades[i].id_usuario_contacto, idUsuario)) {
+            resultado.push(entidades[i]);
+        }
+    }
+
+    return resultado;
 }
 
 async function fetchDatosTiendaPermisosTurnos(idTienda, idCampania) {
