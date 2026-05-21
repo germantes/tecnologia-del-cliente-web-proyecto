@@ -17,7 +17,7 @@ async function iniciarPaginaEditarObservaciones() {
     );
 
     if (!puedeEditarObservaciones) {
-        window.location.href = "/turno_observaciones?idTienda="
+        window.location.href = "/html/turno_observaciones.html?idTienda="
             + encodeURIComponent(datosEditarObservaciones.idTienda)
             + "&idCampania=" + encodeURIComponent(datosEditarObservaciones.idCampania)
             + "&idTurno=" + encodeURIComponent(datosEditarObservaciones.idTurno);
@@ -49,7 +49,7 @@ function rellenarCamposOcultosObservaciones() {
 function prepararEventosEditarObservaciones() {
     document.getElementById("formObservaciones").addEventListener("submit", guardarFormularioObservaciones);
 
-    document.getElementById("enlaceCancelarObservaciones").href = "/turno_observaciones?idTienda="
+    document.getElementById("enlaceCancelarObservaciones").href = "/html/turno_observaciones.html?idTienda="
         + encodeURIComponent(datosEditarObservaciones.idTienda)
         + "&idCampania=" + encodeURIComponent(datosEditarObservaciones.idCampania)
         + "&idTurno=" + encodeURIComponent(datosEditarObservaciones.idTurno);
@@ -82,7 +82,7 @@ async function guardarFormularioObservaciones(evento) {
             document.getElementById("campoObservaciones").value
         );
 
-        window.location.href = "/turno_observaciones?idTienda="
+        window.location.href = "/html/turno_observaciones.html?idTienda="
             + encodeURIComponent(datosEditarObservaciones.idTienda)
             + "&idCampania=" + encodeURIComponent(datosEditarObservaciones.idCampania)
             + "&idTurno=" + encodeURIComponent(datosEditarObservaciones.idTurno);

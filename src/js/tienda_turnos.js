@@ -189,7 +189,7 @@ function crearAccionesTurno(turno, datos) {
     if (puedeEditarVoluntarios) {
         var enlaceEditar = document.createElement("a");
         enlaceEditar.className = "turnos-btn turnos-btn--small";
-        enlaceEditar.href = "/turno_editar?idTienda=" + encodeURIComponent(idTienda)
+        enlaceEditar.href = "/html/turno_editar.html?idTienda=" + encodeURIComponent(idTienda)
             + "&idCampania=" + encodeURIComponent(idCampania)
             + "&idTurno=" + encodeURIComponent(idTurno)
             + "&turno=" + encodeURIComponent(tipoTurno)
@@ -200,7 +200,7 @@ function crearAccionesTurno(turno, datos) {
 
     var enlaceObservaciones = document.createElement("a");
     enlaceObservaciones.className = "turnos-btn turnos-btn--small";
-    enlaceObservaciones.href = "/turno_observaciones?idTienda=" + encodeURIComponent(idTienda)
+    enlaceObservaciones.href = "/html/turno_observaciones.html?idTienda=" + encodeURIComponent(idTienda)
         + "&idCampania=" + encodeURIComponent(idCampania)
         + "&idTurno=" + encodeURIComponent(turno.id_turno || "");
     enlaceObservaciones.textContent = "Observaciones";

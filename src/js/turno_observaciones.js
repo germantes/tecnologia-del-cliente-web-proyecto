@@ -35,7 +35,7 @@ async function prepararEnlacesObservaciones() {
     );
 
     if (puedeEditarObservaciones) {
-        enlaceEditar.href = "/turno_observaciones_editar?idTienda="
+        enlaceEditar.href = "/html/turno_observaciones_editar.html?idTienda="
             + encodeURIComponent(datosObservaciones.idTienda)
             + "&idCampania=" + encodeURIComponent(datosObservaciones.idCampania)
             + "&idTurno=" + encodeURIComponent(datosObservaciones.idTurno);
@@ -44,7 +44,7 @@ async function prepararEnlacesObservaciones() {
         enlaceEditar.hidden = true;
     }
 
-    document.getElementById("enlaceCerrarObservaciones").href = "/tienda_turnos?idTienda="
+    document.getElementById("enlaceCerrarObservaciones").href = "/html/tienda_turnos.html?idTienda="
         + encodeURIComponent(datosObservaciones.idTienda)
         + "&idCampania=" + encodeURIComponent(datosObservaciones.idCampania);
 }

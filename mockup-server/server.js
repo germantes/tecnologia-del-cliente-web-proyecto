@@ -1048,22 +1048,6 @@ app.get('/api/zonas', requireAuth, async (req, res) => {
   res.json(data);
 });
 
-app.get('/tienda_turnos', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'tienda_turnos.html'));
-});
-
-app.get('/turno_editar', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'turno_editar.html'));
-});
-
-app.get('/turno_observaciones', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'turno_observaciones.html'));
-});
-
-app.get('/turno_observaciones_editar', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'turno_observaciones_editar.html'));
-});
-
 app.all([
   '/voluntarios',
   '/voluntarios/:id',
