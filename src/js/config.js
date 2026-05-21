@@ -1,0 +1,1 @@
+window.API_URL = "https://cliente-backend.onrender.com"

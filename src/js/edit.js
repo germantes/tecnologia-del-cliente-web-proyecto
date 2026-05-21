@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const isAdmin = perfil === 'admin';
     const isManager = perfil === 'coordinador' || perfil === 'manager';
     const canAccess = isAdmin || isManager;
-    const allowedResources = new Set(['usuarios', 'entidades', 'campanias', 'tiendas', 'turnos', 'schedule', 'voluntarios']);
+    const allowedResources = new Set(['usuarios', 'entidades', 'campanias', 'tiendas', 'turnos', 'voluntarios']);
 
     // Al quitar la verificación de "!id", permitimos usar este script para la Creación.
     if (!canAccess || !type || !allowedResources.has(type)) {
@@ -55,17 +55,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             try { usuariosDisponibles = await getUsuarios(); } catch (e) { console.warn('No se pudieron cargar usuarios'); }
         }
 
+        let entidadesDisponibles = [];
+        if (schema.some(field => field.type === 'select_entidad')) {
+            try { entidadesDisponibles = await getEntidades(); } catch (e) { console.warn('No se pudieron cargar entidades'); }
+        }
+
         for (const field of schema) {
             const value = originalData[field.key] !== undefined ? originalData[field.key] : '';
             const fieldDiv = document.createElement('div');
             fieldDiv.className = 'field';
 
             let isReadOnly = field.readonly || (coordinatorEditable && type === 'voluntarios' && !volunteerContactFields.has(field.key));
-
-            // Si estamos creando (no hay id previo), permitimos editar el ID aunque el esquema diga readonly
-            if (!id && (field.key.startsWith('id_') || field.key === 'id')) {
-                isReadOnly = false;
-            }
 
             const label = document.createElement('label');
             label.htmlFor = field.key;
@@ -107,6 +107,27 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
                 fieldDiv.appendChild(select);
 
+            } else if (field.type === 'select_entidad') {
+                const select = document.createElement('select');
+                select.id = field.key; select.name = field.key;
+                if (isReadOnly) { select.disabled = true; select.style.background = 'var(--color-surface-2)'; }
+                if (field.required && !isReadOnly) select.required = true;
+
+                const defaultOpt = document.createElement('option');
+                defaultOpt.value = ''; defaultOpt.textContent = 'Seleccione una entidad...';
+                if (!value) defaultOpt.selected = true;
+                select.appendChild(defaultOpt);
+
+                entidadesDisponibles.forEach(e => {
+                    const eid = e.id_entidad || e.idEntidad || e.id;
+                    const enombre = e.nombre || e.nombre_completo || 'Sin nombre';
+                    const option = document.createElement('option');
+                    option.value = eid; option.textContent = enombre;
+                    if (String(eid) === String(value)) option.selected = true;
+                    select.appendChild(option);
+                });
+                fieldDiv.appendChild(select);
+
             } else {
                 const inputType = field.type || (typeof value === 'number' && value !== '' ? 'number' : 'text');
                 const input = document.createElement('input');
@@ -114,7 +135,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (isReadOnly) { input.readOnly = true; input.style.background = 'var(--color-surface-2)'; }
                 // Al crear, mostrar un texto de ayuda en el placeholder del campo ID
                 if (!id && (field.key.startsWith('id_') || field.key === 'id')) {
-                    input.placeholder = 'Dejar vacío para auto-generar';
+                    input.placeholder = 'Autogenerado';
                 }
                 if (field.required && !isReadOnly) input.required = true;
                 fieldDiv.appendChild(input);

@@ -7,6 +7,8 @@
     <title>Lista de entidades</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/turnos.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/footer.css">
     <link rel="stylesheet" href="/css/template.css">
     <link rel="stylesheet" href="/css/common.css">
     <link rel="stylesheet" href="/css/entidades.css">
@@ -14,16 +16,17 @@
 
 </head>
 
-<body>
+<body class="page-app">
 
-    <header class="entidades-header">
-        <h1>Lista de Entidades</h1>
-        <div>
+    <include-html src="/componentes/header.html" active="entidades"></include-html>
+
+    <main class="main">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Lista de Entidades</h1>
+            </div>
             <a href="/edit.html?type=entidades" id="btn-nuevo" class="btn btn-primary">+ Nueva Entidad</a>
         </div>
-    </header>
-
-    <main class="entidades-main">
 
         <div id="filtros-entidades-container" class="filtros-container">
             <input type="text" id="buscadorEntidades" class="filtro-input" placeholder="Buscar por nombre o CP...">
@@ -38,46 +41,48 @@
                 <h3>Cargando entidades...</h3>
             </div>
         </div>
-    </main>
 
-    <div class="popup-entidad" id="popupEntidad" aria-hidden="true" style="display: none;">
-        <div class="popup-entidad-overlay" onclick="cerrarInfoEntidad();"></div>
-        <div class="popup-entidad-panel" role="dialog" aria-modal="true" aria-labelledby="popupEntidadTitulo">
-            <div class="popup-entidad-header">
-                <h2 id="popupEntidadTitulo">Información entidad</h2>
-                <button type="button" class="popup-entidad-cerrar" aria-label="Cerrar"
-                    onclick="cerrarInfoEntidad();">×</button>
-            </div>
-            <div id="popupEntidadContenido">
-                <table class="popup-entidad-tabla">
-                    <tbody>
-                        <tr>
-                            <th>Nombre</th>
-                            <td>Cargando...</td>
-                        </tr>
-                        <tr>
-                            <th>Código Bancosol</th>
-                            <td>Cargando...</td>
-                        </tr>
-                        <tr>
-                            <th>Vinculado Bancosol</th>
-                            <td>Cargando...</td>
-                        </tr>
-                        <tr>
-                            <th>Domicilio</th>
-                            <td>Cargando...</td>
-                        </tr>
-                        <tr>
-                            <th>CP</th>
-                            <td>Cargando...</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div class="popup-entidad" id="popupEntidad" aria-hidden="true" style="display: none;">
+            <div class="popup-entidad-overlay" onclick="cerrarInfoEntidad();"></div>
+            <div class="popup-entidad-panel" role="dialog" aria-modal="true" aria-labelledby="popupEntidadTitulo">
+                <div class="popup-entidad-header">
+                    <h2 id="popupEntidadTitulo">Información entidad</h2>
+                    <button type="button" class="popup-entidad-cerrar" aria-label="Cerrar"
+                        onclick="cerrarInfoEntidad();">×</button>
+                </div>
+                <div id="popupEntidadContenido">
+                    <table class="popup-entidad-tabla">
+                        <tbody>
+                            <tr>
+                                <th>Nombre</th>
+                                <td>Cargando...</td>
+                            </tr>
+                            <tr>
+                                <th>Código Bancosol</th>
+                                <td>Cargando...</td>
+                            </tr>
+                            <tr>
+                                <th>Vinculado Bancosol</th>
+                                <td>Cargando...</td>
+                            </tr>
+                            <tr>
+                                <th>Domicilio</th>
+                                <td>Cargando...</td>
+                            </tr>
+                            <tr>
+                                <th>CP</th>
+                                <td>Cargando...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 
+    <include-html src="/componentes/footer.html" active="entidades"></include-html>
     <script src="/js/api.js"></script>
+    <script src="/componentes/include-html.js"></script>
     <script src="/js/entidades.js"></script>
 </body>
 
