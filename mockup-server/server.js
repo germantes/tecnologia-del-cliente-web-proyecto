@@ -271,6 +271,17 @@ function sendError(res, error, label = 'Error del servidor') {
   res.status(500).json({ success: false, message: label, detail: error.message });
 }
 
+async function construirUsuarioSesion(usuario) {
+  const idUsuario = getField(usuario, 'idUsuario', 'id_usuario', 'id');
+
+  return {
+    id: idUsuario,
+    nombre: getField(usuario, 'nombreCompleto', 'nombre_completo', 'nombre', 'email'),
+    puesto: getField(usuario, 'rol', 'puesto'),
+    nombreUsuario: getField(usuario, 'nombreUsuario', 'nombre_usuario', 'nombre_completo', 'nombreCompleto', 'email')
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Config estática/front
 // ─────────────────────────────────────────────────────────────────────────────
@@ -348,16 +359,12 @@ app.post('/auth/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Usuario o contraseña incorrectos.' });
     }
 
-    const puesto = getField(usuario, 'rol', 'puesto');
+    const usuarioSesion = await construirUsuarioSesion(usuario);
+
     res.json({
       success: true,
       token: 'mock-token-' + getField(usuario, 'idUsuario', 'id_usuario', 'id'),
-      user: {
-        id: getField(usuario, 'idUsuario', 'id_usuario', 'id'),
-        nombre: getField(usuario, 'nombreCompleto', 'nombre_completo', 'nombre', 'email'),
-        puesto,
-        nombreUsuario: getField(usuario, 'nombreUsuario', 'nombre_usuario', 'nombre_completo', 'nombreCompleto', 'email')
-      }
+      user: usuarioSesion
     });
   } catch (error) {
     sendError(res, error, 'Error en login contra Supabase');
@@ -407,13 +414,22 @@ app.get('/edit.html', requireAuth, (req, res) => {
 });
 
 // ─── RUTAS DE API (DATOS JSON PURAMENTE) ──────────────────────────────────────
+app.get('/api/cp', requireAuth, async (req, res) => {
+  try {
+    const rows = applyGenericFilters(await fetchAll('cp'), req.query);
+    res.json(rows);
+  } catch (error) { sendError(res, error, 'Error obteniendo códigos postales'); }
+});
+
 app.get('/api/entidades', requireAuth, async (req, res) => {
   try {
     let rows = await fetchAll('entidad');
-    const { idEntidad, vinculadoBancosol, busqueda, q } = req.query;
+    const { idEntidad, idUsuarioContacto, id_usuario_contacto, vinculadoBancosol, busqueda, q } = req.query;
+    const usuarioContacto = idUsuarioContacto || id_usuario_contacto;
 
     rows = rows.filter((row) => {
       if (idEntidad && !sameNumberOrString(getIdEntidad(row), idEntidad)) return false;
+      if (usuarioContacto && !sameNumberOrString(row.id_usuario_contacto, usuarioContacto)) return false;
       if (vinculadoBancosol !== undefined && str(row.vinculado_bancosol) !== str(vinculadoBancosol)) return false;
       return contains(row, busqueda || q, ['codigo_bancosol', 'nombre', 'domicilio', 'cp']);
     });
@@ -1109,22 +1125,6 @@ app.get('/api/campanias_por_zona', requireAuth, async (req, res) => {
     console.error('Error obteniendo campañas por zona:', error);
     res.status(500).json({ error: error.message });
   }
-});
-
-app.get('/tienda_turnos', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'tienda_turnos.html'));
-});
-
-app.get('/turno_editar', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'turno_editar.html'));
-});
-
-app.get('/turno_observaciones', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'turno_observaciones.html'));
-});
-
-app.get('/turno_observaciones_editar', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'turno_observaciones_editar.html'));
 });
 
 app.all([

@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     
                     <div class="botones-card">
                         ${usuarioRol === 'ADMINISTRADOR' ? `<button class="btn-editar" onclick="window.location.href='edit.html?type=tiendas&id=${tienda.id_tienda}'">editar</button>` : ''}
-                        ${participaTexto === 'Sí' && idCampaniaPintar ? `<button class="btn-turnos" onclick="window.location.href='/tienda_turnos?idTienda=${tienda.id_tienda}&idCampania=${idCampaniaPintar}'">turnos</button>` : ''}
+                        ${participaTexto === 'Sí' && idCampaniaPintar ? `<button class="btn-turnos" onclick="window.location.href='/html/tienda_turnos.html?idTienda=${tienda.id_tienda}&idCampania=${idCampaniaPintar}'">turnos</button>` : ''}
                         <button class="btn-info" onclick="window.location.href='info_tienda.html?id=${tienda.id_tienda}'">+ info</button>
                     </div>
                 `;

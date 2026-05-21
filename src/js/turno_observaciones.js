@@ -9,13 +9,13 @@ document.addEventListener("DOMContentLoaded", iniciarPaginaObservaciones);
 async function iniciarPaginaObservaciones() {
     puedeVerTurnos();
     leerParametrosObservaciones();
-    prepararEnlacesObservaciones();
 
     if (!datosObservaciones.idTienda || !datosObservaciones.idCampania || !datosObservaciones.idTurno) {
         pintarMensajeObservaciones("Faltan parámetros para cargar las observaciones.");
         return;
     }
 
+    await prepararEnlacesObservaciones();
     await cargarObservaciones();
 }
 
@@ -27,12 +27,15 @@ function leerParametrosObservaciones() {
     datosObservaciones.idTurno = parametros.get("idTurno") || "";
 }
 
-function prepararEnlacesObservaciones() {
+async function prepararEnlacesObservaciones() {
     var enlaceEditar = document.getElementById("enlaceEditarObservaciones");
-    var puedeEditarObservaciones = puedeEditarObservacionesTurnos();
+    var puedeEditarObservaciones = await puedeEditarObservacionesPaginaTurnos(
+        datosObservaciones.idTienda,
+        datosObservaciones.idCampania
+    );
 
     if (puedeEditarObservaciones) {
-        enlaceEditar.href = "/turno_observaciones_editar?idTienda="
+        enlaceEditar.href = "/html/turno_observaciones_editar.html?idTienda="
             + encodeURIComponent(datosObservaciones.idTienda)
             + "&idCampania=" + encodeURIComponent(datosObservaciones.idCampania)
             + "&idTurno=" + encodeURIComponent(datosObservaciones.idTurno);
@@ -41,7 +44,7 @@ function prepararEnlacesObservaciones() {
         enlaceEditar.hidden = true;
     }
 
-    document.getElementById("enlaceCerrarObservaciones").href = "/tienda_turnos?idTienda="
+    document.getElementById("enlaceCerrarObservaciones").href = "/html/tienda_turnos.html?idTienda="
         + encodeURIComponent(datosObservaciones.idTienda)
         + "&idCampania=" + encodeURIComponent(datosObservaciones.idCampania);
 }

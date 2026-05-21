@@ -15,10 +15,13 @@ async function iniciarPaginaEditarTurno() {
     rellenarCamposOcultos();
     prepararEventos();
 
-    var puedeEditarVoluntarios = puedeEditarVoluntariosTurnos();
+    var puedeEditarVoluntarios = await puedeEditarVoluntariosPaginaTurnos(
+        datosPagina.idTienda,
+        datosPagina.idCampania
+    );
 
     if (!puedeEditarVoluntarios) {
-        window.location.href = "/tienda_turnos?idTienda="
+        window.location.href = "/html/tienda_turnos.html?idTienda="
             + encodeURIComponent(datosPagina.idTienda)
             + "&idCampania=" + encodeURIComponent(datosPagina.idCampania);
         return;
@@ -45,7 +48,7 @@ function leerParametrosUrl() {
 }
 
 function prepararEventos() {
-    document.getElementById("volverTurnos").href = "/tienda_turnos?idTienda="
+    document.getElementById("volverTurnos").href = "/html/tienda_turnos.html?idTienda="
         + encodeURIComponent(datosPagina.idTienda)
         + "&idCampania=" + encodeURIComponent(datosPagina.idCampania);
 
@@ -118,7 +121,7 @@ async function guardarFormulario(evento) {
     try {
         await guardarVoluntariosSeleccionados();
 
-        window.location.href = "/tienda_turnos?idTienda="
+        window.location.href = "/html/tienda_turnos.html?idTienda="
             + encodeURIComponent(datosPagina.idTienda)
             + "&idCampania=" + encodeURIComponent(datosPagina.idCampania);
     } catch (error) {
