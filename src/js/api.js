@@ -9,7 +9,7 @@ function getToken() {
   const token = sessionStorage.getItem('token');
   if (!token) {
     // Si no hay token en sessionStorage, redirigimos al login y evitamos hacer el fetch
-    window.location.href = '/index.html';
+    window.location.href = '/html/index.html';
     throw new Error('Sesión expirada o no iniciada. Redirigiendo al login...');
   }
   return token;
@@ -28,7 +28,8 @@ function apiResource(resource) {
   const apiResources = {
     voluntarios: 'api/voluntarios',
     turnos: 'api/turnos',
-    schedule: 'api/schedule'
+    schedule: 'api/schedule',
+    cp: 'cp'
   };
 
   return apiResources[resource] || resource;
@@ -86,7 +87,14 @@ async function getRecords(resource, queryParams = {}) {
     headers: authHeaders()
   });
 
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch (e) {
+    // Si la respuesta no es JSON, probablemente es un error del servidor (HTML)
+    throw new Error(`El servidor devolvió HTML en lugar de JSON. Estado: ${response.status}. Verifica que el servidor esté corriendo y la URL es correcta.`);
+  }
+  
   if (!response.ok) throw new Error(data.message || `Error al cargar ${resource}`);
   return data;
 }
@@ -104,6 +112,9 @@ async function getTurnos(params = {}) { return getRecords('api/turnos', params);
 async function getVoluntarios(params = {}) { return getRecords('api/voluntarios', params); }
 async function getSchedule(params = {}) { return getRecords('api/schedule', params); }
 async function getMe() { return getRecord('me'); }
+async function getZones(params = {}) { return getRecords('cp', params); }
+async function getZonesByCompany(idCampania) { return getRecords('api/zonas_por_campania', { idCampania }); }
+async function getCampaignsByZone(idZona) { return getRecords('api/campanias_por_zona', { idZona }); }
 
 async function postUsuario(datos) { return createRecord('usuarios', datos); }
 async function putUsuario(id, datos) { return updateRecord('usuarios', id, datos); }

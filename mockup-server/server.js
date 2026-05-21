@@ -78,27 +78,10 @@ function contains(row, text, fields) {
   return fields.some((field) => str(getField(row, field)).toLowerCase().includes(q));
 }
 
-function mapRol(rolSupabase) {
-  const value = str(rolSupabase).trim().toUpperCase();
-  const mapa = {
-    ADMINISTRADOR: 'admin',
-    ADMIN: 'admin',
-    COORDINADOR: 'manager',
-    MANAGER: 'manager',
-    'RESPONSABLE-ENTIDAD': 'worker',
-    RESPONSABLE_ENTIDAD: 'worker',
-    RESPONSABLETIENDA: 'worker',
-    RESPONSABLE_TIENDA: 'worker',
-    CAPITAN: 'worker',
-    WORKER: 'worker'
-  };
-  return mapa[value] || 'worker';
-}
-
 function requireAuth(req, res, next) {
   // --- BYPASS TEMPORAL DE AUTENTICACIÓN ---
   // Simulamos un usuario admin para que no fallen los endpoints que usan req.user
-  req.user = { id: 1, puesto: 'admin', nombreUsuario: 'admin', nombre: 'Admin Temporal' };
+  req.user = { id: 1, puesto: 'ADMINISTRADOR', nombreUsuario: 'admin', nombre: 'Admin Temporal' };
   return next();
 
   /*
@@ -118,7 +101,7 @@ function requireAdmin(req, res, next) {
   // --- BYPASS TEMPORAL DE ADMIN ---
   return next();
   /*
-  if (req.user?.puesto !== 'admin') {
+  if (req.user?.puesto !== 'ADMINISTRADOR') {
     return res.status(403).json({ success: false, message: 'Acceso denegado. Solo administradores.' });
   }
   next();
@@ -288,6 +271,17 @@ function sendError(res, error, label = 'Error del servidor') {
   res.status(500).json({ success: false, message: label, detail: error.message });
 }
 
+async function construirUsuarioSesion(usuario) {
+  const idUsuario = getField(usuario, 'idUsuario', 'id_usuario', 'id');
+
+  return {
+    id: idUsuario,
+    nombre: getField(usuario, 'nombreCompleto', 'nombre_completo', 'nombre', 'email'),
+    puesto: getField(usuario, 'rol', 'puesto'),
+    nombreUsuario: getField(usuario, 'nombreUsuario', 'nombre_usuario', 'nombre_completo', 'nombreCompleto', 'email')
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Config estática/front
 // ─────────────────────────────────────────────────────────────────────────────
@@ -365,15 +359,12 @@ app.post('/auth/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Usuario o contraseña incorrectos.' });
     }
 
-    const puesto = mapRol(getField(usuario, 'rol', 'puesto'));
+    const usuarioSesion = await construirUsuarioSesion(usuario);
+
     res.json({
       success: true,
-      user: {
-        id: getField(usuario, 'idUsuario', 'id_usuario', 'id'),
-        nombre: getField(usuario, 'nombreCompleto', 'nombre_completo', 'nombre', 'email'),
-        puesto,
-        nombreUsuario: getField(usuario, 'nombreUsuario', 'nombre_usuario', 'nombre_completo', 'nombreCompleto', 'email')
-      }
+      token: 'mock-token-' + getField(usuario, 'idUsuario', 'id_usuario', 'id'),
+      user: usuarioSesion
     });
   } catch (error) {
     sendError(res, error, 'Error en login contra Supabase');
@@ -426,13 +417,22 @@ app.get('/edit.html', requireAuth, (req, res) => {
 });
 
 // ─── RUTAS DE API (DATOS JSON PURAMENTE) ──────────────────────────────────────
+app.get('/api/cp', requireAuth, async (req, res) => {
+  try {
+    const rows = applyGenericFilters(await fetchAll('cp'), req.query);
+    res.json(rows);
+  } catch (error) { sendError(res, error, 'Error obteniendo códigos postales'); }
+});
+
 app.get('/api/entidades', requireAuth, async (req, res) => {
   try {
     let rows = await fetchAll('entidad');
-    const { idEntidad, vinculadoBancosol, busqueda, q } = req.query;
+    const { idEntidad, idUsuarioContacto, id_usuario_contacto, vinculadoBancosol, busqueda, q } = req.query;
+    const usuarioContacto = idUsuarioContacto || id_usuario_contacto;
 
     rows = rows.filter((row) => {
       if (idEntidad && !sameNumberOrString(getIdEntidad(row), idEntidad)) return false;
+      if (usuarioContacto && !sameNumberOrString(row.id_usuario_contacto, usuarioContacto)) return false;
       if (vinculadoBancosol !== undefined && str(row.vinculado_bancosol) !== str(vinculadoBancosol)) return false;
       return contains(row, busqueda || q, ['codigo_bancosol', 'nombre', 'domicilio', 'cp']);
     });
@@ -549,8 +549,29 @@ app.get('/tienda_editar', requireAuth, async (req, res) => {
   } catch (error) { sendError(res, error, 'Error preparando edición de tienda'); }
 });
 
+// Endpoint para obtener códigos postales con sus relaciones
+app.get('/cp', requireAuth, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('cp')
+      .select(`
+        cp,
+        localidad,
+        id_zona,
+        distrito(nombre_distrito),
+        zona:id_zona(id_zona, zona_geografica)
+      `);
+
+    if (error) throw error;
+    res.json(data || []);
+  } catch (error) {
+    console.error('Error obteniendo códigos postales:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
-// Endpoints equivalentes a TurnoController
+// Endpoints relacionados con los turnos
 // ─────────────────────────────────────────────────────────────────────────────
 app.get('/api/tienda_turnos', requireAuth, async (req, res) => {
   try {
@@ -912,7 +933,7 @@ app.get('/api/schedule/:id', requireAuth, async (req, res) => {
 app.get('/api/tiendas', requireAuth, async (req, res) => {
   try {
     const id_usuario = req.user.id;
-    const puesto = req.user.puesto.toUpperCase();
+    const puesto = req.user.puesto;
     const { idZona, participa, idCampania: queryIdCampania } = req.query;
     const idCampania = queryIdCampania ? parseInt(queryIdCampania) : null;
 
@@ -954,15 +975,15 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
             `);
 
     // 3. Filtros previos en Base de Datos según el ROL
-    if (puesto === 'ADMIN') {
+    if (puesto === 'ADMINISTRADOR') {
       if (idZona && idZona !== '0') query = query.eq('cp.id_zona', idZona);
-    } else if (puesto === 'MANAGER') {
+    } else if (puesto === 'COORDINADOR') {
       const { data: usuarioData } = await supabase.from('usuario').select('id_cp').eq('id_usuario', id_usuario).single();
       if (usuarioData && usuarioData.id_cp) {
         const { data: userCp } = await supabase.from('cp').select('id_zona').eq('cp', usuarioData.id_cp).single();
         if (userCp) query = query.eq('cp.id_zona', userCp.id_zona);
       }
-    } else if (puesto === 'WORKER') {
+    } else if (puesto === 'CAPITAN' || puesto === 'RESPONSABLE-TIENDA') {
       query = query.or(`id_capitan.eq.${id_usuario},id_responsable_tienda.eq.${id_usuario}`, { foreignTable: 'tienda_campania' });
     }
 
@@ -973,7 +994,7 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
     const tiendasFiltradas = tiendas.filter(t => {
       if (!t.cp) return false;
 
-      if (puesto === 'ADMIN') {
+      if (puesto === 'ADMINISTRADOR') {
         // Admin: si ha elegido una campaña, vemos si participa en esa.
         if (idCampania && idCampania > 0) {
           const relacion = t.tienda_campania?.find(tc => tc.id_campania === idCampania);
@@ -1055,6 +1076,13 @@ app.get('/api/zonas', requireAuth, async (req, res) => {
   res.json(data);
 });
 
+// Endpoint para obtener zonas asignadas a una campaña específica
+app.get('/api/zonas_por_campania', requireAuth, async (req, res) => {
+  try {
+    const idCampania = req.query.idCampania;
+    if (!idCampania) {
+      return res.status(400).json({ error: 'Falta el parámetro idCampania' });
+    }
 // =========================================================================
 // ENDPOINTS PARA LOS DESPLEGABLES DE EDITAR TIENDA
 // =========================================================================
@@ -1140,16 +1168,53 @@ app.get('/tienda_turnos', (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'tienda_turnos.html'));
 });
 
-app.get('/turno_editar', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'turno_editar.html'));
+    const { data, error } = await supabase
+      .from('asignacion_zona')
+      .select(`
+        id_zona,
+        zona:id_zona (
+          id_zona,
+          zona_geografica
+        )
+      `)
+      .eq('id_campania', idCampania);
+
+    if (error) throw error;
+    res.json(data || []);
+  } catch (error) {
+    console.error('Error obteniendo zonas por campaña:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
-app.get('/turno_observaciones', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'turno_observaciones.html'));
-});
+// Endpoint para obtener campañas asignadas a una zona específica
+app.get('/api/campanias_por_zona', requireAuth, async (req, res) => {
+  try {
+    const idZona = req.query.idZona;
+    if (!idZona) {
+      return res.status(400).json({ error: 'Falta el parámetro idZona' });
+    }
 
-app.get('/turno_observaciones_editar', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'turno_observaciones_editar.html'));
+    const { data, error } = await supabase
+      .from('asignacion_zona')
+      .select(`
+        id_campania,
+        campania:id_campania (
+          id_campania,
+          nombre,
+          fecha_inicio,
+          fecha_fin,
+          tipo
+        )
+      `)
+      .eq('id_zona', idZona);
+
+    if (error) throw error;
+    res.json(data || []);
+  } catch (error) {
+    console.error('Error obteniendo campañas por zona:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.all([

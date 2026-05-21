@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BancoSol - Zonas</title>
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/card-display.css" />
+    <script src="/api/config.js"></script>
+  </head>
+  <body>
+    <include-html
+      src="../componentes/header.html"
+      active="zonas"
+    ></include-html>
+
+    <main>
+      <h1>Zonas</h1>
+      <form class="filter-form">
+        <div class="filter-group">
+          <label for="filterSearch">Buscar:</label>
+          <input
+            type="text"
+            id="filterSearch"
+            placeholder="Buscar por localidad o CP..."
+          />
+        </div>
+
+        <div class="filter-group">
+          <label for="filterCampaign">Campaña:</label>
+          <select id="filterCampaign">
+            <option value="">Todas las campañas</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filterZone">Zona:</label>
+          <select id="filterZone">
+            <option value="">Todas las zonas</option>
+          </select>
+        </div>
+
+        <div class="filter-buttons">
+          <button type="reset">Limpiar</button>
+          <button type="button" id="exportBtn">Exportar</button>
+        </div>
+      </form>
+      <div class="grid" id="container"></div>
+    </main>
+
+    <include-html src="/componentes/footer.html"></include-html>
+
+    <script src="/js/api.js"></script>
+    <script src="/componentes/include-html.js"></script>
+    <script src="/js/export.js"></script>
+    <script src="/js/zones.js"></script>
+  </body>
+</html>

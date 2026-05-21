@@ -15,6 +15,18 @@ async function iniciarPaginaEditarTurno() {
     rellenarCamposOcultos();
     prepararEventos();
 
+    var puedeEditarVoluntarios = await puedeEditarVoluntariosPaginaTurnos(
+        datosPagina.idTienda,
+        datosPagina.idCampania
+    );
+
+    if (!puedeEditarVoluntarios) {
+        window.location.href = "/html/tienda_turnos.html?idTienda="
+            + encodeURIComponent(datosPagina.idTienda)
+            + "&idCampania=" + encodeURIComponent(datosPagina.idCampania);
+        return;
+    }
+
     if (!datosPagina.idTienda || !datosPagina.idCampania || !datosPagina.idTurno) {
         mostrarMensaje("Faltan parámetros para editar el turno.");
         pintarMensajeTabla("No se pueden cargar voluntarios porque faltan parámetros.");
@@ -36,7 +48,7 @@ function leerParametrosUrl() {
 }
 
 function prepararEventos() {
-    document.getElementById("volverTurnos").href = "/tienda_turnos?idTienda="
+    document.getElementById("volverTurnos").href = "/html/tienda_turnos.html?idTienda="
         + encodeURIComponent(datosPagina.idTienda)
         + "&idCampania=" + encodeURIComponent(datosPagina.idCampania);
 
@@ -109,7 +121,7 @@ async function guardarFormulario(evento) {
     try {
         await guardarVoluntariosSeleccionados();
 
-        window.location.href = "/tienda_turnos?idTienda="
+        window.location.href = "/html/tienda_turnos.html?idTienda="
             + encodeURIComponent(datosPagina.idTienda)
             + "&idCampania=" + encodeURIComponent(datosPagina.idCampania);
     } catch (error) {
@@ -345,7 +357,10 @@ function obtenerNombreTienda(cadena) {
 }
 
 async function fetchJson(ruta, opciones) {
-    var respuesta = await fetch(crearUrlApi(ruta), opciones || {});
+    opciones = opciones || {};
+    opciones.headers = crearHeadersAutorizacionTurnos(opciones.headers || {});
+
+    var respuesta = await fetch(crearUrlApi(ruta), opciones);
     var texto = await respuesta.text();
     var datos = {};
 

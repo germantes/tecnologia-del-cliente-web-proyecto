@@ -160,7 +160,7 @@ function renderizarVoluntarios(voluntarios) {
     botonesDiv.className = 'boton-editar-turno';
 
     const btnInfo = document.createElement('a');
-    btnInfo.className = 'link-info js-voluntario-info';
+    btnInfo.className = 'btn btn-outline js-voluntario-info';
     btnInfo.href = '#';
     btnInfo.textContent = '+info';
     // Ya no hace falta buscar los enlaces después, le ponemos el evento directamente:
@@ -170,7 +170,7 @@ function renderizarVoluntarios(voluntarios) {
     });
 
     const btnEditar = document.createElement('a');
-    btnEditar.className = 'boton';
+    btnEditar.className = 'btn btn-primary';
     btnEditar.href = `/edit.html?type=voluntarios&id=${idVoluntario}`;
     btnEditar.textContent = 'Editar';
 

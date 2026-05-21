@@ -28,7 +28,10 @@ async function guardarObservacionesTurno(idTienda, idCampania, idTurno, observac
 }
 
 async function fetchJsonObservaciones(ruta, opciones) {
-    var respuesta = await fetch(crearUrlObservaciones(ruta), opciones || {});
+    opciones = opciones || {};
+    opciones.headers = crearHeadersAutorizacionTurnos(opciones.headers || {});
+
+    var respuesta = await fetch(crearUrlObservaciones(ruta), opciones);
     var texto = await respuesta.text();
     var datos = {};
 

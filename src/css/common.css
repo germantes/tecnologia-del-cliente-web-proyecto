@@ -45,6 +45,11 @@ body {
     min-height: 100vh;
 }
 
+/* Evitar que la etiqueta include-html rompa el grid o los anchos */
+include-html {
+    display: contents;
+}
+
 /* === Layout página === */
 .page-app {
     display: grid;

@@ -7,14 +7,15 @@ var datosObservaciones = {
 document.addEventListener("DOMContentLoaded", iniciarPaginaObservaciones);
 
 async function iniciarPaginaObservaciones() {
+    puedeVerTurnos();
     leerParametrosObservaciones();
-    prepararEnlacesObservaciones();
 
     if (!datosObservaciones.idTienda || !datosObservaciones.idCampania || !datosObservaciones.idTurno) {
         pintarMensajeObservaciones("Faltan parámetros para cargar las observaciones.");
         return;
     }
 
+    await prepararEnlacesObservaciones();
     await cargarObservaciones();
 }
 
@@ -26,13 +27,24 @@ function leerParametrosObservaciones() {
     datosObservaciones.idTurno = parametros.get("idTurno") || "";
 }
 
-function prepararEnlacesObservaciones() {
-    document.getElementById("enlaceEditarObservaciones").href = "/turno_observaciones_editar?idTienda="
-        + encodeURIComponent(datosObservaciones.idTienda)
-        + "&idCampania=" + encodeURIComponent(datosObservaciones.idCampania)
-        + "&idTurno=" + encodeURIComponent(datosObservaciones.idTurno);
+async function prepararEnlacesObservaciones() {
+    var enlaceEditar = document.getElementById("enlaceEditarObservaciones");
+    var puedeEditarObservaciones = await puedeEditarObservacionesPaginaTurnos(
+        datosObservaciones.idTienda,
+        datosObservaciones.idCampania
+    );
 
-    document.getElementById("enlaceCerrarObservaciones").href = "/tienda_turnos?idTienda="
+    if (puedeEditarObservaciones) {
+        enlaceEditar.href = "/html/turno_observaciones_editar.html?idTienda="
+            + encodeURIComponent(datosObservaciones.idTienda)
+            + "&idCampania=" + encodeURIComponent(datosObservaciones.idCampania)
+            + "&idTurno=" + encodeURIComponent(datosObservaciones.idTurno);
+        enlaceEditar.hidden = false;
+    } else {
+        enlaceEditar.hidden = true;
+    }
+
+    document.getElementById("enlaceCerrarObservaciones").href = "/html/tienda_turnos.html?idTienda="
         + encodeURIComponent(datosObservaciones.idTienda)
         + "&idCampania=" + encodeURIComponent(datosObservaciones.idCampania);
 }

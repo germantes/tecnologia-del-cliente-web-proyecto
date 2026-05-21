@@ -6,6 +6,7 @@ var SELECTOR_INFO_VOLUNTARIO = ".js-voluntario-info";
 var SELECTOR_CERRAR_POPUP = "[data-cerrar-popup]";
 
 async function iniciarPaginaTurnos() {
+    puedeVerTurnos();
     configurarPopupVoluntario();
 
     var parametros = new URLSearchParams(window.location.search);
@@ -19,6 +20,12 @@ async function iniciarPaginaTurnos() {
 
     try {
         var datos = await fetchTurnosTienda(idTienda, idCampania);
+
+        if (!await puedeVerTiendaTurnos(datos)) {
+            mostrarError("No tienes permiso para ver los turnos de esta tienda.");
+            return;
+        }
+
         pintarCabecera(datos);
         pintarTurnos(datos);
     } catch (error) {
@@ -63,7 +70,7 @@ function pintarTurnos(datos) {
     for (var i = 0; i < fechas.length; i++) {
         var fecha = fechas[i];
         var turnosDeLaFecha = obtenerTurnosDeFecha(turnos, fecha);
-        var tarjetaDia = crearTarjetaDia(fecha, turnosDeLaFecha, datos.idTienda, datos.idCampania);
+        var tarjetaDia = crearTarjetaDia(fecha, turnosDeLaFecha, datos);
         contenedor.appendChild(tarjetaDia);
     }
 }
@@ -95,7 +102,7 @@ function obtenerTurnosDeFecha(turnos, fecha) {
     return resultado;
 }
 
-function crearTarjetaDia(fecha, turnosDeLaFecha, idTienda, idCampania) {
+function crearTarjetaDia(fecha, turnosDeLaFecha, datos) {
     var tarjeta = document.createElement("div");
     tarjeta.className = "dia-card";
 
@@ -108,7 +115,7 @@ function crearTarjetaDia(fecha, turnosDeLaFecha, idTienda, idCampania) {
     tarjetaTurnos.className = "turno-card turnos-panel";
 
     for (var i = 0; i < turnosDeLaFecha.length; i++) {
-        var bloque = crearBloqueTurno(turnosDeLaFecha[i], idTienda, idCampania);
+        var bloque = crearBloqueTurno(turnosDeLaFecha[i], datos);
         tarjetaTurnos.appendChild(bloque);
     }
 
@@ -116,7 +123,7 @@ function crearTarjetaDia(fecha, turnosDeLaFecha, idTienda, idCampania) {
     return tarjeta;
 }
 
-function crearBloqueTurno(turno, idTienda, idCampania) {
+function crearBloqueTurno(turno, datos) {
     var bloque = document.createElement("div");
     bloque.className = "bloque-turno";
 
@@ -135,7 +142,7 @@ function crearBloqueTurno(turno, idTienda, idCampania) {
         }
     }
 
-    bloque.appendChild(crearAccionesTurno(turno, idTienda, idCampania));
+    bloque.appendChild(crearAccionesTurno(turno, datos));
     return bloque;
 }
 
@@ -168,31 +175,36 @@ function crearFilaSinVoluntarios() {
     return fila;
 }
 
-function crearAccionesTurno(turno, idTienda, idCampania) {
+function crearAccionesTurno(turno, datos) {
     var acciones = document.createElement("div");
     acciones.className = "acciones-turno";
 
     var tipoTurno = turno.turno || "";
     var idTurno = turno.id_turno || "";
     var idEntidad = turno.id_entidad || "";
+    var idTienda = datos.idTienda;
+    var idCampania = datos.idCampania;
+    var puedeEditarVoluntarios = puedeEditarVoluntariosEnTiendaTurnos(datos);
 
-    var enlaceEditar = document.createElement("a");
-    enlaceEditar.className = "turnos-btn turnos-btn--small";
-    enlaceEditar.href = "/turno_editar?idTienda=" + encodeURIComponent(idTienda)
-        + "&idCampania=" + encodeURIComponent(idCampania)
-        + "&idTurno=" + encodeURIComponent(idTurno)
-        + "&turno=" + encodeURIComponent(tipoTurno)
-        + "&idEntidad=" + encodeURIComponent(idEntidad);
-    enlaceEditar.textContent = "Editar";
+    if (puedeEditarVoluntarios) {
+        var enlaceEditar = document.createElement("a");
+        enlaceEditar.className = "turnos-btn turnos-btn--small";
+        enlaceEditar.href = "/html/turno_editar.html?idTienda=" + encodeURIComponent(idTienda)
+            + "&idCampania=" + encodeURIComponent(idCampania)
+            + "&idTurno=" + encodeURIComponent(idTurno)
+            + "&turno=" + encodeURIComponent(tipoTurno)
+            + "&idEntidad=" + encodeURIComponent(idEntidad);
+        enlaceEditar.textContent = "Editar";
+        acciones.appendChild(enlaceEditar);
+    }
 
     var enlaceObservaciones = document.createElement("a");
     enlaceObservaciones.className = "turnos-btn turnos-btn--small";
-    enlaceObservaciones.href = "/turno_observaciones?idTienda=" + encodeURIComponent(idTienda)
+    enlaceObservaciones.href = "/html/turno_observaciones.html?idTienda=" + encodeURIComponent(idTienda)
         + "&idCampania=" + encodeURIComponent(idCampania)
         + "&idTurno=" + encodeURIComponent(turno.id_turno || "");
     enlaceObservaciones.textContent = "Observaciones";
 
-    acciones.appendChild(enlaceEditar);
     acciones.appendChild(enlaceObservaciones);
 
     return acciones;

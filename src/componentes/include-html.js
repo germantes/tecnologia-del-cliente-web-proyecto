@@ -17,6 +17,7 @@ class IncludeHTML extends HTMLElement {
             this.innerHTML = await response.text();
             this.marcarElementoActivo();
             this.rellenarAnioActual();
+            this.prepararCerrarSesion();
         } catch (error) {
             console.error(error);
             this.innerHTML = "<p>Error al cargar el componente.</p>";
@@ -40,6 +41,21 @@ class IncludeHTML extends HTMLElement {
 
         elementosAnio.forEach((elemento) => {
             elemento.textContent = anioActual;
+        });
+    }
+
+    prepararCerrarSesion() {
+        const botonCerrarSesion = this.querySelector("[data-logout]");
+
+        if (!botonCerrarSesion) {
+            return;
+        }
+
+        botonCerrarSesion.addEventListener("click", () => {
+            sessionStorage.removeItem("token");
+            sessionStorage.removeItem("perfil");
+            sessionStorage.removeItem("usuario");
+            window.location.href = "/index.html";
         });
     }
 }

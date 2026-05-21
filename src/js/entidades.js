@@ -159,7 +159,7 @@ function renderizarEntidades(entidades) {
         botonesDiv.className = 'boton-editar-turno';
 
         const btnInfo = document.createElement('a');
-        btnInfo.className = 'link-info js-entidad-info';
+        btnInfo.className = 'btn btn-outline js-entidad-info';
         btnInfo.href = '#';
         btnInfo.textContent = '+info';
         btnInfo.addEventListener('click', (e) => {
@@ -168,7 +168,7 @@ function renderizarEntidades(entidades) {
         });
 
         const btnEditar = document.createElement('a');
-        btnEditar.className = 'boton';
+        btnEditar.className = 'btn btn-primary';
         btnEditar.href = `/edit.html?type=entidades&id=${idEntidad}`;
         btnEditar.textContent = 'Editar';
 

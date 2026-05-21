@@ -1,13 +1,15 @@
+function obtenerApiBaseTurnos() {
+    return window.API_URL || "https://cliente-backend.onrender.com";
+}
+
 async function fetchTurnosTienda(idTienda, idCampania) {
-    var apiBase = window.API_URL || "http://localhost:3000";
+    var apiBase = obtenerApiBaseTurnos();
     var url = apiBase + "/api/tienda_turnos"
         + "?idTienda=" + encodeURIComponent(idTienda)
         + "&idCampania=" + encodeURIComponent(idCampania);
 
     var respuesta = await fetch(url, {
-        headers: {
-            "Authorization": "Bearer " + (sessionStorage.getItem("token") || "")
-        }
+        headers: crearHeadersAutorizacionTurnos()
     });
 
     var datos = await respuesta.json();
@@ -20,13 +22,11 @@ async function fetchTurnosTienda(idTienda, idCampania) {
 }
 
 async function fetchInfoVoluntario(idVoluntario) {
-    var apiBase = window.API_URL || "http://localhost:3000";
+    var apiBase = obtenerApiBaseTurnos();
     var url = apiBase + "/api/info_voluntario?idVoluntario=" + encodeURIComponent(idVoluntario);
 
     var respuesta = await fetch(url, {
-        headers: {
-            "Authorization": "Bearer " + (sessionStorage.getItem("token") || "")
-        }
+        headers: crearHeadersAutorizacionTurnos()
     });
 
     var datos = await respuesta.json();
@@ -48,13 +48,11 @@ async function fetchInfoVoluntario(idVoluntario) {
 }
 
 async function fetchEntidadPorId(idEntidad) {
-    var apiBase = window.API_URL || "http://localhost:3000";
+    var apiBase = obtenerApiBaseTurnos();
     var url = apiBase + "/entidades/" + encodeURIComponent(idEntidad);
 
     var respuesta = await fetch(url, {
-        headers: {
-            "Authorization": "Bearer " + (sessionStorage.getItem("token") || "")
-        }
+        headers: crearHeadersAutorizacionTurnos()
     });
 
     var datos = await respuesta.json();

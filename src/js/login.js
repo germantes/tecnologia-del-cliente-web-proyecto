@@ -1,17 +1,10 @@
 // login.js - Login page functionality
 
-// Configuration
-const REDIRECT_MAP = {
-  admin: "/html/inicio.html",
-  manager: "/html/inicio.html",
-  worker: "/html/inicio.html"
-};
-
 // Check if user is already logged in
 function checkExistingSession() {
-  const role = sessionStorage.getItem("perfil");
-  if (role && REDIRECT_MAP[role]) {
-    window.location.href = REDIRECT_MAP[role];
+  // Si ya hay token en sesión, vamos directos al inicio sin comprobar roles
+  if (sessionStorage.getItem("token")) {
+    window.location.href = "/html/inicio.html";
   }
 }
 
@@ -91,7 +84,7 @@ function storeSessionData(data) {
 
 // Redirect to appropriate dashboard
 function redirectToDashboard(role) {
-  window.location.href = REDIRECT_MAP[role];
+  window.location.href = "/html/inicio.html";
 }
 
 // Display error message
