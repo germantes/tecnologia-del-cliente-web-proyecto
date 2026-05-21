@@ -58,6 +58,8 @@ a:hover {
   border-radius: 20px;
   background-color: var(--white);
   border: 10px solid var(--twilight-indigo);
+  margin-top: 40px;
+  margin-bottom: 40px;
 }
 
 .login-brand {
@@ -195,4 +197,14 @@ a:hover {
     to {
         transform: rotate(360deg);
     }
+}
+
+/* Remove unnecessary elements from the header*/
+.pagina-login .bancosol-header__actions,
+.pagina-login .bancosol-header__nav {
+    display: none;
+}
+
+.pagina-login .bancosol-header__logo-link {
+    pointer-events: none; 
 }

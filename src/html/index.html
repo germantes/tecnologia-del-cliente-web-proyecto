@@ -9,7 +9,9 @@
   <script src="../js/config.js"></script>
 </head>
 
-<body>
+<body class="pagina-login">
+  <include-html src="../componentes/header.html" active="inicio"></include-html>
+
   <div class="login-container">
     <div class="login-card">
       <div class="login-brand">
@@ -44,6 +46,10 @@
       </form>
     </div>
   </div>
+
+  <include-html src="../componentes/footer.html"></include-html>
+
+  <script src="../componentes/include-html.js"></script>
 
   <script src="../js/api.js"></script>
   <script src="../js/login.js"></script>
