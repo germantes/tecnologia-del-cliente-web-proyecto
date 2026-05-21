@@ -268,3 +268,18 @@ function crearHeadersAutorizacionTurnos(headers) {
 
     return resultado;
 }
+
+function obtenerRolTokenTurnos() {
+    var token = sessionStorage.getItem("token");
+
+    if (!token) {
+        return "";
+    }
+
+    try {
+        var payload = JSON.parse(atob(token));
+        return String(payload.puesto || "").toUpperCase();
+    } catch (error) {
+        return "";
+    }
+}

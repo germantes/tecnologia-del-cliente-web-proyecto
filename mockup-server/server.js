@@ -401,19 +401,8 @@ app.get('/voluntarios', requireAuth, (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'voluntarios.html'));
 });
 
-// Rutas para las demás páginas del frontend
-const paginasFrontend = [
-  'inicio', 'tiendas', 'tienda_turnos', 'info_tienda',
-  'turno_editar', 'turno_observaciones', 'turno_observaciones_editar',
-  'zonas', 'campanias'
-];
-
-paginasFrontend.forEach(pagina => {
-  app.get([`/${pagina}`, `/${pagina}.html`, `/html/${pagina}.html`], requireAuth, (req, res) => {
-    res.sendFile(path.join(srcPath, 'html', `${pagina}.html`), (err) => {
-      if (err) res.sendFile(path.join(srcPath, `${pagina}.html`)); // Fallback si está en raíz
-    });
-  });
+app.get('/turnos_modificar', requireAuth, (req, res) => {
+  res.sendFile(path.join(srcPath, 'html', 'turnos_modificar.html'));
 });
 
 // Rutas para la página de edición y creación (soporta con y sin .html)
@@ -791,6 +780,37 @@ app.post('/api/turno_guardar_voluntarios', requireAuth, async (req, res) => {
   } catch (error) { sendError(res, error, 'Error guardando voluntarios de turno'); }
 });
 
+app.post('/api/turno_borrar_dia', requireAuth, async (req, res) => {
+  try {
+    const params = { ...req.query, ...req.body };
+    const idTienda = params.idTienda;
+    const idCampania = params.idCampania;
+    const fecha = params.fecha;
+
+    if (!idTienda || !idCampania || !fecha) {
+      return res.status(400).json({ success: false, message: 'Faltan parámetros para borrar turnos.' });
+    }
+
+    const turnos = filterTurnos(await fetchAll('turno'), {
+      idTienda,
+      idCampania,
+      fecha
+    });
+
+    if (!turnos.length) {
+      return res.json({ success: true, deleted: 0 });
+    }
+
+    for (const turno of turnos) {
+      const idTurno = getIdTurno(turno);
+      await deleteTurnoVoluntarios(idTurno);
+      await deleteRows('turno', 'id_turno', idTurno);
+    }
+
+    res.json({ success: true, deleted: turnos.length });
+  } catch (error) { sendError(res, error, 'Error borrando turnos del día'); }
+});
+
 app.get('/api/info_voluntario', requireAuth, async (req, res) => {
   try {
     const voluntario = await findById('voluntario', req.query.idVoluntario, ['id_voluntario']);
@@ -848,6 +868,46 @@ app.delete('/usuarios/:id', requireAuth, requireAdmin, async (req, res) => {
 
 app.post('/campanias', requireAuth, async (req, res) => {
   try { res.json((await insertRows('campania', [req.body]))[0]); } catch (e) { sendError(res, e, 'Error creando campaña'); }
+});
+app.put('/campanias/:id', requireAuth, async (req, res) => {
+  try {
+    const campania = await findById('campania', req.params.id, ['idCampania', 'id_campania', 'id']);
+    if (!campania) return res.status(404).json({ success: false, message: 'Campaña no encontrada.' });
+
+    const nuevaInicio = req.body.fecha_inicio || req.body.fechaInicio || campania.fecha_inicio || '';
+    const nuevaFin = req.body.fecha_fin || req.body.fechaFin || campania.fecha_fin || '';
+
+    if (nuevaInicio && nuevaFin) {
+      const inicio = new Date(nuevaInicio);
+      const fin = new Date(nuevaFin);
+      inicio.setHours(0, 0, 0, 0);
+      fin.setHours(23, 59, 59, 999);
+
+      if (isNaN(inicio.getTime()) || isNaN(fin.getTime()) || inicio > fin) {
+        return res.status(400).json({ success: false, message: 'Las fechas de campaña no son válidas.' });
+      }
+
+      const turnos = await fetchAll('turno');
+      const hayTurnoFuera = turnos.some((turno) => {
+        const idCampaniaTurno = getField(turno, 'id_campania', 'idCampania');
+        if (!sameNumberOrString(idCampaniaTurno, req.params.id)) return false;
+        const fechaTurno = new Date(getField(turno, 'fecha'));
+        if (isNaN(fechaTurno.getTime())) return false;
+        fechaTurno.setHours(12, 0, 0, 0);
+        return fechaTurno < inicio || fechaTurno > fin;
+      });
+
+      if (hayTurnoFuera) {
+        return res.status(400).json({
+          success: false,
+          message: 'No se puede cambiar el intervalo porque hay turnos fuera de las fechas seleccionadas.'
+        });
+      }
+    }
+
+    const [updated] = await updateRows('campania', 'id_campania', req.params.id, req.body);
+    res.json(updated || null);
+  } catch (e) { sendError(res, e, 'Error actualizando campaña'); }
 });
 app.post('/tiendas', requireAuth, async (req, res) => {
   try { res.json((await insertRows('tienda', [req.body]))[0]); } catch (e) { sendError(res, e, 'Error creando tienda'); }
