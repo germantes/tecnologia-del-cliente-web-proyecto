@@ -1,6 +1,13 @@
 document.addEventListener("DOMContentLoaded", iniciarPaginaTurnos);
 
+var CLASE_POPUP_ABIERTO = "abierto";
+var CLASE_BODY_POPUP = "popup-abierto";
+var SELECTOR_INFO_VOLUNTARIO = ".js-voluntario-info";
+var SELECTOR_CERRAR_POPUP = "[data-cerrar-popup]";
+
 async function iniciarPaginaTurnos() {
+    configurarPopupVoluntario();
+
     var parametros = new URLSearchParams(window.location.search);
     var idTienda = parametros.get("idTienda");
     var idCampania = parametros.get("idCampania");
@@ -143,6 +150,7 @@ function crearFilaVoluntario(voluntario) {
     enlace.className = "link-info js-voluntario-info";
     enlace.href = "/api/info_voluntario?idVoluntario=" + encodeURIComponent(voluntario.id_voluntario || "");
     enlace.textContent = "+info";
+    enlace.dataset.idVoluntario = voluntario.id_voluntario || "";
 
     fila.appendChild(nombre);
     fila.appendChild(enlace);
@@ -263,4 +271,193 @@ function nombreVoluntario(voluntario) {
     }
 
     return partes.join(" ");
+}
+
+function configurarPopupVoluntario() {
+    var contenedor = document.querySelector("#turnosGrid");
+    var popup = document.querySelector("#popupVoluntario");
+
+    if (!contenedor || !popup) {
+        return;
+    }
+
+    contenedor.addEventListener("click", manejarClickInfoVoluntario);
+    popup.addEventListener("click", manejarCierrePopup);
+    document.addEventListener("keydown", manejarTeclaPopup);
+}
+
+function manejarClickInfoVoluntario(evento) {
+    var enlace = evento.target.closest(SELECTOR_INFO_VOLUNTARIO);
+
+    if (!enlace) {
+        return;
+    }
+
+    evento.preventDefault();
+
+    var idVoluntario = enlace.dataset.idVoluntario || obtenerIdVoluntarioDesdeHref(enlace.getAttribute("href"));
+
+    abrirPopupVoluntario();
+    mostrarPopupCargando();
+
+    if (!idVoluntario) {
+        mostrarPopupError("No se pudo identificar al voluntario.");
+        return;
+    }
+
+    cargarInfoVoluntario(idVoluntario);
+}
+
+function manejarCierrePopup(evento) {
+    if (!evento.target.matches(SELECTOR_CERRAR_POPUP)) {
+        return;
+    }
+
+    cerrarPopupVoluntario();
+}
+
+function manejarTeclaPopup(evento) {
+    if (evento.key !== "Escape") {
+        return;
+    }
+
+    if (popupEstaAbierto()) {
+        cerrarPopupVoluntario();
+    }
+}
+
+function popupEstaAbierto() {
+    var popup = document.querySelector("#popupVoluntario");
+
+    return popup ? popup.classList.contains(CLASE_POPUP_ABIERTO) : false;
+}
+
+function abrirPopupVoluntario() {
+    var popup = document.querySelector("#popupVoluntario");
+
+    if (!popup) {
+        return;
+    }
+
+    popup.classList.add(CLASE_POPUP_ABIERTO);
+    popup.setAttribute("aria-hidden", "false");
+    document.body.classList.add(CLASE_BODY_POPUP);
+}
+
+function cerrarPopupVoluntario() {
+    var popup = document.querySelector("#popupVoluntario");
+
+    if (!popup) {
+        return;
+    }
+
+    popup.classList.remove(CLASE_POPUP_ABIERTO);
+    popup.setAttribute("aria-hidden", "true");
+    document.body.classList.remove(CLASE_BODY_POPUP);
+}
+
+async function cargarInfoVoluntario(idVoluntario) {
+    try {
+        var datos = await fetchInfoVoluntario(idVoluntario);
+        pintarPopupVoluntario(datos);
+    } catch (error) {
+        mostrarPopupError(error.message);
+    }
+}
+
+function pintarPopupVoluntario(datos) {
+    var tabla = document.querySelector("#popupVoluntarioTabla");
+    var error = document.querySelector("#popupVoluntarioError");
+
+    if (!tabla || !error) {
+        return;
+    }
+
+    var info = normalizarInfoVoluntario(datos);
+
+    tabla.textContent = "";
+    error.hidden = true;
+
+    tabla.appendChild(crearFilaPopup("Nombre", info.nombre));
+    tabla.appendChild(crearFilaPopup("Apellido 1", info.apellido1));
+    tabla.appendChild(crearFilaPopup("Apellido 2", info.apellido2));
+    tabla.appendChild(crearFilaPopup("Email", info.email));
+    tabla.appendChild(crearFilaPopup("Entidad asociada", info.entidad));
+}
+
+function mostrarPopupCargando() {
+    var tabla = document.querySelector("#popupVoluntarioTabla");
+    var error = document.querySelector("#popupVoluntarioError");
+
+    if (!tabla || !error) {
+        return;
+    }
+
+    tabla.textContent = "";
+    error.hidden = true;
+    tabla.appendChild(crearFilaPopup("Estado", "Cargando..."));
+}
+
+function mostrarPopupError(mensaje) {
+    var tabla = document.querySelector("#popupVoluntarioTabla");
+    var error = document.querySelector("#popupVoluntarioError");
+
+    if (!tabla || !error) {
+        return;
+    }
+
+    tabla.textContent = "";
+    error.textContent = mensaje;
+    error.hidden = false;
+}
+
+function crearFilaPopup(etiqueta, valor) {
+    var fila = document.createElement("tr");
+    var celdaEtiqueta = document.createElement("th");
+    var celdaValor = document.createElement("td");
+
+    celdaEtiqueta.textContent = etiqueta;
+    celdaValor.textContent = valor;
+
+    fila.appendChild(celdaEtiqueta);
+    fila.appendChild(celdaValor);
+
+    return fila;
+}
+
+function normalizarInfoVoluntario(datos) {
+    var voluntario = datos.voluntario || datos.info || datos;
+    var entidad = datos.entidad || voluntario.entidad || {};
+
+    return {
+        nombre: textoSeguro(voluntario.nombre),
+        apellido1: textoSeguro(voluntario.apellido_1),
+        apellido2: textoSeguro(voluntario.apellido_2),
+        email: textoSeguro(voluntario.email || voluntario.correo),
+        entidad: textoSeguro(entidad.nombre || entidad.nombre_entidad || voluntario.entidad_asociada)
+    };
+}
+
+function textoSeguro(valor) {
+    if (valor === null || valor === undefined || valor === "") {
+        return "-";
+    }
+
+    return String(valor);
+}
+
+function obtenerIdVoluntarioDesdeHref(href) {
+    if (!href) {
+        return "";
+    }
+
+    var partes = href.split("?");
+
+    if (partes.length < 2) {
+        return "";
+    }
+
+    var parametros = new URLSearchParams(partes[1]);
+
+    return parametros.get("idVoluntario") || "";
 }

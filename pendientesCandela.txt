@@ -1,6 +1,0 @@
-PENDIENTE: 
-- crear endpoints de la api para api/tienda_turnos?idTienda=id_Tienda&idCampania=id_Campania
-- crear endpoints de la api para api/turno_editar?idTienda=id_Tienda&idCampania=id_Campania&fecha=fecha&turno=turno
-- crear endpoints de los turnos html en /html/tienda_turnos
-- crear endpoints de turno_editar html en /html/tienda_editar
-- crear endpoints de observaciones html en /html/tienda_observaciones
