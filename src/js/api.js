@@ -28,7 +28,8 @@ function apiResource(resource) {
   const apiResources = {
     voluntarios: 'api/voluntarios',
     turnos: 'api/turnos',
-    schedule: 'api/schedule'
+    schedule: 'api/schedule',
+    cp: 'cp'
   };
 
   return apiResources[resource] || resource;
@@ -104,6 +105,7 @@ async function getTurnos(params = {}) { return getRecords('api/turnos', params);
 async function getVoluntarios(params = {}) { return getRecords('api/voluntarios', params); }
 async function getSchedule(params = {}) { return getRecords('api/schedule', params); }
 async function getMe() { return getRecord('me'); }
+async function getZones(params = {}) { return getRecords('cp', params); }
 
 async function postUsuario(datos) { return createRecord('usuarios', datos); }
 async function putUsuario(id, datos) { return updateRecord('usuarios', id, datos); }
