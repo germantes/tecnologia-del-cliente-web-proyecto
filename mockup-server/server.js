@@ -426,11 +426,14 @@ app.get('/usuarios', requireAuth, async (req, res) => {
   } catch (error) { sendError(res, error, 'Error obteniendo usuarios'); }
 });
 
-app.get('/campanias', requireAuth, async (req, res) => {
+// Obtener todas las campañas con el prefijo /api/ para la SPA
+app.get('/api/campanias', requireAuth, async (req, res) => {
   try {
     const rows = applyGenericFilters(await fetchAll('campania'), req.query);
     res.json(rows);
-  } catch (error) { sendError(res, error, 'Error obteniendo campañas'); }
+  } catch (error) {
+    sendError(res, error, 'Error obteniendo campañas desde /api');
+  }
 });
 
 // ─── RUTAS PARA SERVIR PÁGINAS HTML (FRONTEND) ───────────────────────────────
@@ -863,17 +866,20 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
                     cp, 
                     localidad, 
                     municipio,
+                    distrito (distrito, nombre_distrito),
                     zona (id_zona, zona_geografica)
                 ),
                 tienda_campania (
+                    id_campania, 
                     participa, 
                     id_capitan, 
                     id_coordinador, 
-                    id_responsable_tienda
+                    id_responsable_tienda,
+                    num_cajas
                 )
             `)
         .eq('id_tienda', tiendaId)
-        .single(); // Le decimos a Supabase que devuelva 1 solo objeto, no un array
+        .single();
 
     if (error) throw error;
     res.json(tienda);
@@ -889,6 +895,87 @@ app.get('/api/zonas', requireAuth, async (req, res) => {
   const { data, error } = await supabase.from('zona').select('*').order('zona_geografica');
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
+});
+
+// =========================================================================
+// ENDPOINTS PARA LOS DESPLEGABLES DE EDITAR TIENDA
+// =========================================================================
+app.get('/api/cps', requireAuth, async (req, res) => {
+  try {
+    const cps = await fetchAll('cp');
+    res.json(cps);
+  } catch (error) {
+    sendError(res, error, 'Error obteniendo CPs');
+  }
+});
+
+app.get('/api/cadenas', requireAuth, async (req, res) => {
+  try {
+    const cadenas = await fetchAll('cadena');
+    res.json(cadenas);
+  } catch (error) {
+    sendError(res, error, 'Error obteniendo cadenas');
+  }
+});
+
+app.get('/api/usuarios', requireAuth, async (req, res) => {
+  try {
+    const usuarios = await fetchAll('usuario');
+    res.json(usuarios);
+  } catch (error) {
+    sendError(res, error, 'Error obteniendo usuarios');
+  }
+});
+
+// =========================================================================
+// ENDPOINT: GUARDAR/EDITAR TIENDA (Equivalente a doGuardarTienda en Java)
+// =========================================================================
+app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
+  try {
+    // Solo los administradores pueden editar (medida de seguridad en el backend)
+    if (req.user.puesto !== 'admin' && req.user.puesto !== 'ADMIN') {
+      return res.status(403).json({ error: 'No tienes permisos para editar tiendas.' });
+    }
+
+    const tiendaId = req.params.id;
+    const {
+      domicilio, idCp, idCadena,
+      idResponsable, idCoordinador, idCapitan,
+      numCajas, participa
+    } = req.body;
+
+    // 1. Actualizamos la tabla principal: tienda
+    const { error: errorTienda } = await supabase
+        .from('tienda')
+        .update({
+          domicilio: domicilio || null,
+          cp: idCp || null,
+          id_cadena: idCadena ? parseInt(idCadena) : null
+        })
+        .eq('id_tienda', tiendaId);
+
+    if (errorTienda) throw errorTienda;
+
+    // 2. Actualizamos la relación: tienda_campania (Responsables, Cajas y Participación)
+    const { error: errorCampania } = await supabase
+        .from('tienda_campania')
+        .update({
+          id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
+          id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
+          id_capitan: idCapitan ? parseInt(idCapitan) : null,
+          num_cajas: parseInt(numCajas) || 0,
+          participa: participa === true || participa === 'true'
+        })
+        .eq('id_tienda', tiendaId);
+
+    if (errorCampania) throw errorCampania;
+
+    res.json({ success: true, message: 'Tienda actualizada correctamente' });
+
+  } catch (error) {
+    console.error("Error al guardar la tienda:", error);
+    res.status(500).json({ error: 'Error al actualizar los datos en la base de datos' });
+  }
 });
 
 // Catch-all para la SPA

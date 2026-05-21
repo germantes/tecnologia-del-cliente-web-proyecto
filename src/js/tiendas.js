@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function cargarCampanias() {
         try {
             // AQUÍ ESTABA EL ERROR: Era /campanias, no /api/campanias
-            const res = await fetch(`${API_BASE}/campanias`, { headers: { 'Authorization': `Bearer ${token}` }});
+            const res = await fetch(`${API_BASE}/api/campanias`, { headers: { 'Authorization': `Bearer ${token}` }});
             if(res.ok) {
                 campaniasGlobal = await res.json();
                 const hoy = new Date();
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <p><strong>Participa: </strong>${participaTexto}</p>
                     
                     <div class="botones-card">
-                        ${usuarioRol === 'ADMIN' ? `<button class="btn-editar" onclick="window.location.href='edit.html?type=tiendas&id=${tienda.id_tienda}'">editar</button>` : ''}
+                        ${usuarioRol === 'ADMIN' ? `<button class="btn-editar" type="button" onclick="window.location.href='editar_tienda.html?id=${tienda.id_tienda}'">editar</button>` : ''}
                         ${participaTexto === 'Sí' && idCampaniaPintar ? `<button class="btn-turnos" onclick="window.location.href='tienda_turnos.html?id=${tienda.id_tienda}&idCampania=${idCampaniaPintar}'">turnos</button>` : ''}
                         <button class="btn-info" onclick="window.location.href='info_tienda.html?id=${tienda.id_tienda}'">+ info</button>
                     </div>
