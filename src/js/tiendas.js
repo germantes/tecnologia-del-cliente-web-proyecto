@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const perfil = sessionStorage.getItem('perfil');
     const token = sessionStorage.getItem('token');
 
-    // Redirigimos al inicio si no hay sesión activa
     if (!perfil || !token) {
         window.location.href = 'index.html';
         return;
@@ -21,16 +20,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     let campaniasGlobal = [];
     let idCampaniaActiva = null;
 
-    // Inicializamos la vista cargando campañas y luego las tiendas
     await cargarCampanias();
     configurarInterfazPorRol();
     await cargarTiendas();
 
-    // Adapta los filtros y el título según los permisos del usuario
     async function configurarInterfazPorRol() {
         if (usuarioRol === 'ADMINISTRADOR') {
             adminFilters.style.display = 'flex';
             await cargarFiltrosZona();
+
+            // Función para comprobar si se debe bloquear el filtro "Participa"
+            const verificarFiltroParticipa = () => {
+                const valorCampania = selectCampania.value;
+                // Bloqueamos si no hay valor, es una cadena vacía, es "0" o es "all"
+                if (!valorCampania || valorCampania === "" || valorCampania === "0" || valorCampania === "all") {
+                    selectParticipa.disabled = true;
+                    selectParticipa.value = "all"; // Lo reseteamos por seguridad
+                } else {
+                    selectParticipa.disabled = false;
+                }
+            };
+
+            // Escuchamos los cambios en el desplegable de campañas
+            selectCampania.addEventListener('change', verificarFiltroParticipa);
+
+            // Hacemos la comprobación inicial nada más cargar
+            verificarFiltroParticipa();
 
             const btnAplicar = document.getElementById('btnAplicar');
             if (btnAplicar) {
@@ -49,7 +64,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Obtiene las campañas del servidor para determinar cuál está activa
     async function cargarCampanias() {
         try {
             const res = await fetch(`${API_BASE}/api/campanias`, {
@@ -60,7 +74,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 campaniasGlobal = await res.json();
                 const hoy = new Date();
 
-                // Determinamos la campaña activa comparando fechas
                 campaniasGlobal.forEach(c => {
                     if (c.fecha_inicio && c.fecha_fin) {
                         const inicio = new Date(c.fecha_inicio);
@@ -72,8 +85,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 });
 
-                // Rellenamos el desplegable si el usuario tiene permisos
                 if (usuarioRol === 'ADMINISTRADOR' && selectCampania) {
+                    limpiarContenedor(selectCampania);
+                    // Opción por defecto
+                    const optVacia = document.createElement('option');
+                    optVacia.value = "";
+                    optVacia.textContent = "Todas las campañas";
+                    selectCampania.appendChild(optVacia);
+
                     campaniasGlobal.forEach(c => {
                         const opt = document.createElement('option');
                         opt.value = c.id_campania;
@@ -87,7 +106,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Consulta las tiendas al servidor y construye las tarjetas manipulando el DOM
     async function cargarTiendas() {
         mostrarMensajeCarga();
 
@@ -95,22 +113,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             let url = '/api/tiendas';
             let idCampaniaBuscada = null;
 
-            // Añadimos parámetros a la URL si es administrador
             if (usuarioRol === 'ADMINISTRADOR') {
                 const zonaId = selectZona.value;
                 const participa = selectParticipa.value;
                 const campaniaId = selectCampania.value;
                 url += `?idZona=${zonaId}&participa=${participa}&idCampania=${campaniaId}`;
-                idCampaniaBuscada = parseInt(campaniaId);
+                idCampaniaBuscada = campaniaId ? parseInt(campaniaId) : null;
             }
 
             const response = await fetch(`${API_BASE}${url}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
-            if (!response.ok) {
-                throw new Error('Error al obtener los datos del servidor.');
-            }
+            if (!response.ok) throw new Error('Error al obtener los datos del servidor.');
 
             const tiendas = await response.json();
             limpiarContenedor(tiendasContainer);
@@ -120,7 +135,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            // Generamos una tarjeta por cada tienda recuperada
             tiendas.forEach(tienda => {
                 construirTarjetaTienda(tienda, idCampaniaBuscada);
             });
@@ -131,7 +145,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Rellena el desplegable de zonas para el administrador
     async function cargarFiltrosZona() {
         try {
             const response = await fetch(`${API_BASE}/api/zonas`, {
@@ -152,7 +165,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Construye el HTML de una tarjeta de tienda nodo a nodo
     function construirTarjetaTienda(tienda, idCampaniaBuscada) {
         const card = document.createElement('div');
         card.classList.add('tienda-card');
@@ -163,18 +175,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         let participaTexto = "No";
         let idCampaniaPintar = null;
 
-        // Buscamos la relación de la tienda con la campaña solicitada o activa
         if (tienda.tienda_campania && tienda.tienda_campania.length > 0) {
             let relacion = null;
             if (idCampaniaBuscada && idCampaniaBuscada > 0) {
-                relacion = tienda.tienda_campania.find(tc => tc.id_campania === idCampaniaBuscada);
+                relacion = tienda.tienda_campania.find(tc => tc.id_campania === parseInt(idCampaniaBuscada));
             } else if (idCampaniaActiva) {
                 relacion = tienda.tienda_campania.find(tc => tc.id_campania === idCampaniaActiva);
             }
-
-            if (!relacion) {
-                relacion = tienda.tienda_campania[0];
-            }
+            if (!relacion) relacion = tienda.tienda_campania[0];
 
             if (relacion) {
                 participaTexto = relacion.participa ? "Sí" : "No";
@@ -190,27 +198,49 @@ document.addEventListener('DOMContentLoaded', async () => {
         card.appendChild(crearParrafoDato('Cadena: ', establecimiento));
         card.appendChild(crearParrafoDato('Localidad: ', localidad));
         card.appendChild(crearParrafoDato('Domicilio: ', tienda.domicilio || 'N/A'));
-        card.appendChild(crearParrafoDato('Participa: ', participaTexto));
 
-        // Construcción de la botonera
+        const mostrarContextoCampania = (usuarioRol !== 'ADMINISTRADOR') || (idCampaniaBuscada && idCampaniaBuscada > 0);
+
+        if (mostrarContextoCampania) {
+            card.appendChild(crearParrafoDato('Participa: ', participaTexto));
+        }
+
         const divBotones = document.createElement('div');
         divBotones.classList.add('botones-card');
 
+        let contextoURL = idCampaniaBuscada ? `&idCampania=${idCampaniaBuscada}` : '';
+
         if (usuarioRol === 'ADMINISTRADOR') {
-            divBotones.appendChild(crearBoton('editar', 'btn-editar', `editar_tienda.html?id=${tienda.id_tienda}`));
+            divBotones.appendChild(crearBoton('editar', 'btn-editar', `editar_tienda.html?id=${tienda.id_tienda}${contextoURL}`));
         }
 
-        if (participaTexto === 'Sí' && idCampaniaPintar) {
-            divBotones.appendChild(crearBoton('turnos', 'btn-turnos', `tienda_turnos.html?idTienda=${tienda.id_tienda}&idCampania=${idCampaniaPintar}`));
+        // Lógica estricta restaurada para el botón de turnos:
+        let verificarBotonTurnos = false;
+
+        if (usuarioRol === 'ADMINISTRADOR') {
+            // El admin SOLO ve el botón si filtra explícitamente por la campaña activa
+            verificarBotonTurnos = (participaTexto === 'Sí' && idCampaniaBuscada !== null && parseInt(idCampaniaBuscada) === idCampaniaActiva);
+        } else {
+            // Los demás roles siempre operan sobre la campaña activa por defecto
+            verificarBotonTurnos = (participaTexto === 'Sí' && idCampaniaPintar === idCampaniaActiva);
         }
 
-        divBotones.appendChild(crearBoton('+ info', 'btn-info', `info_tienda.html?id=${tienda.id_tienda}`));
+        if (verificarBotonTurnos) {
+            const btnTurnos = document.createElement('button');
+            btnTurnos.textContent = 'turnos';
+            btnTurnos.className = 'btn-turnos';
+            btnTurnos.onclick = () => {
+                window.location.href = `tienda_turnos.html?idTienda=${tienda.id_tienda}&idCampania=${idCampaniaActiva}`;
+            };
+            divBotones.appendChild(btnTurnos);
+        }
+
+        divBotones.appendChild(crearBoton('+ info', 'btn-info', `info_tienda.html?id=${tienda.id_tienda}${contextoURL}`));
 
         card.appendChild(divBotones);
         tiendasContainer.appendChild(card);
     }
 
-    // Funciones de utilidad para manipulación del DOM
     function crearParrafoDato(etiqueta, valor) {
         const p = document.createElement('p');
         const strong = document.createElement('strong');
@@ -224,29 +254,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         const boton = document.createElement('button');
         boton.textContent = texto;
         boton.classList.add(clase);
-        boton.addEventListener('click', () => {
-            window.location.href = url;
-        });
+        boton.addEventListener('click', () => { window.location.href = url; });
         return boton;
     }
 
     function limpiarContenedor(contenedor) {
-        while (contenedor.firstChild) {
-            contenedor.removeChild(contenedor.firstChild);
-        }
+        while (contenedor.firstChild) contenedor.removeChild(contenedor.firstChild);
     }
 
     function mostrarMensajeCarga() {
         limpiarContenedor(tiendasContainer);
-
         const loadingDiv = document.createElement('div');
         loadingDiv.classList.add('loading');
         loadingDiv.style.gridColumn = '1/-1';
         loadingDiv.style.justifyContent = 'center';
-
         const spinner = document.createElement('div');
         spinner.classList.add('spinner');
-
         loadingDiv.appendChild(spinner);
         loadingDiv.appendChild(document.createTextNode(' Cargando tiendas...'));
         tiendasContainer.appendChild(loadingDiv);

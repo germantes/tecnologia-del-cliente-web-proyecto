@@ -5,27 +5,26 @@
     --font-main: 'Poppins', sans-serif;
 }
 
-/* Centramos el contenido en medio de la pantalla sobre el fondo gris */
+/* Dejamos el body limpio para no aplastar el header ni el footer de common.css */
 body {
     font-family: var(--font-main);
     background-color: #f4f6f8;
     margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
-    padding: 20px;
 }
 
-/* El bloque central tipo "Modal/Tarjeta" */
+/* El bloque central tipo "Modal/Tarjeta" (Ajustado al tamaño de turnos) */
 .total {
     background-color: var(--white);
-    border: 5px solid var(--twilight-indigo);
-    border-radius: 10px;
-    overflow: hidden; /* Corta las esquinas para que la cabecera encaje perfecto */
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    max-width: 900px;
-    width: 100%;
+    border: 10px solid var(--twilight-indigo); /* Borde grueso igual que en turnos */
+    border-radius: 9px;
+    overflow: hidden;
+    box-shadow: 0 14px 34px rgba(50, 50, 102, 0.22);
+
+    /* Ampliamos el ancho para que calque el diseño de editar_tienda */
+    width: calc(100% - 40px);
+    max-width: 1180px;
+    margin: 40px auto; /* Lo centra horizontalmente y lo separa de la cabecera */
 }
 
 /* Cabecera integrada en la tarjeta */
@@ -50,28 +49,28 @@ header h1 {
     padding: 40px;
 }
 
-/* Estructura de tablas (Figma style) */
+/* Estructura de tablas */
 table {
     width: 100%;
-    border-collapse: collapse; /* Para que los bordes se peguen */
+    border-collapse: collapse;
 }
 
-/* Bordes gruesos para todas las celdas */
+/* Bordes para todas las celdas */
 td {
     border: 3px solid var(--twilight-indigo);
     padding: 12px 15px;
     font-size: 0.95rem;
 }
 
-/* 1ª Columna: Fondo azul oscuro, letra blanca, negrita */
+/* 1ª Columna: Fondo azul oscuro */
 td:first-child {
     background-color: var(--twilight-indigo);
     color: var(--white);
     font-weight: bold;
-    width: 40%; /* Ajusta el ancho de los títulos */
+    width: 40%;
 }
 
-/* 2ª Columna: Fondo blanco, letra azul oscura, negrita y centrada */
+/* 2ª Columna: Fondo blanco */
 td:last-child {
     background-color: var(--white);
     color: var(--twilight-indigo);
@@ -103,8 +102,7 @@ td:last-child {
     background-color: var(--twilight-indigo);
 }
 
-/* === SOLUCIÓN AL BORDE INFERIOR === */
-/* Esta regla anula el "border-bottom: none" de tu common.css */
+/* Anula el "border-bottom: none" de common.css */
 tbody tr:last-child td {
     border-bottom: 3px solid var(--twilight-indigo) !important;
 }

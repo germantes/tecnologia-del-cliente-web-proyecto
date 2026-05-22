@@ -31,12 +31,15 @@ body {
 
 .total {
     background-color: var(--white);
-    border: 5px solid var(--twilight-indigo);
-    border-radius: 10px;
-    overflow: hidden; /* Corta las esquinas para la cabecera */
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    max-width: 900px;
-    width: 100%;
+    border: 10px solid var(--twilight-indigo); /* Borde idéntico al de turnos (antes 5px) */
+    border-radius: 9px; /* Curvatura exacta de turnos */
+    overflow: hidden;
+    box-shadow: 0 14px 34px rgba(50, 50, 102, 0.22); /* Sombra de turnos */
+
+    /* El truco del ancho aquí: */
+    width: calc(100% - 40px);
+    max-width: 1180px; /* Antes estaba capado a 900px */
+    margin: 40px auto; /* Para centrarlo horizontalmente y separarlo de la cabecera */
 }
 
 header {

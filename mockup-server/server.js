@@ -78,11 +78,35 @@ function contains(row, text, fields) {
   return fields.some((field) => str(getField(row, field)).toLowerCase().includes(q));
 }
 
-function requireAuth(req, res, next) {
-  // --- BYPASS TEMPORAL DE AUTENTICACIÓN ---
-  // Simulamos un usuario admin para que no fallen los endpoints que usan req.user
-  req.user = { id: 1, puesto: 'ADMINISTRADOR', nombreUsuario: 'admin', nombre: 'Admin Temporal' };
-  return next();
+async function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ success: false, message: 'Falta token de autorización' });
+  }
+
+  const token = authHeader.replace('Bearer ', '');
+  if (token.startsWith('mock-token-')) {
+    const userId = token.replace('mock-token-', '');
+    try {
+      const usuarios = await fetchAll('usuario');
+      // Buscamos al usuario exacto
+      const user = usuarios.find(u => sameNumberOrString(getField(u, 'id_usuario', 'idUsuario', 'id'), userId));
+
+      if (user) {
+        req.user = {
+          id: getField(user, 'id_usuario', 'idUsuario', 'id'),
+          // Extraemos su rol nativo para que los filtros funcionen
+          puesto: getField(user, 'rol', 'puesto')?.toUpperCase()
+        };
+        return next();
+      }
+    } catch (e) {
+      console.error("Error validando token simulado", e);
+    }
+  }
+
+  return res.status(401).json({ success: false, message: 'Token inválido o expirado' });
+}
 
   /*
   // Los GET de consulta se dejan públicos para poder probarlos directamente en navegador.
@@ -95,7 +119,6 @@ function requireAuth(req, res, next) {
   req.user = user;
   next();
   */
-}
 
 function requireAdmin(req, res, next) {
   // --- BYPASS TEMPORAL DE ADMIN ---
@@ -396,25 +419,25 @@ app.get('/api/campanias', requireAuth, async (req, res) => {
 });
 
 // ─── RUTAS PARA SERVIR PÁGINAS HTML (FRONTEND) ───────────────────────────────
-app.get('/entidades', requireAuth, (req, res) => {
+app.get('/entidades', (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'entidades.html'));
 });
 
-app.get('/voluntarios', requireAuth, (req, res) => {
+app.get('/voluntarios', (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'voluntarios.html'));
 });
 
-app.get('/turnos_modificar', requireAuth, (req, res) => {
+app.get('/turnos_modificar', (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'turnos_modificar.html'));
 });
 
 // Rutas para la página de edición y creación (soporta con y sin .html)
-app.get('/edit', requireAuth, (req, res) => {
+app.get('/edit', (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'edit.html'), (err) => {
     if (err) res.sendFile(path.join(srcPath, 'edit.html')); // Fallback si el archivo aún no se ha movido a /html
   });
 });
-app.get('/edit.html', requireAuth, (req, res) => {
+app.get('/edit.html', (req, res) => {
   res.sendFile(path.join(srcPath, 'html', 'edit.html'), (err) => {
     if (err) res.sendFile(path.join(srcPath, 'edit.html'));
   });
@@ -1210,7 +1233,6 @@ app.get('/api/usuarios', requireAuth, async (req, res) => {
 // =========================================================================
 app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
   try {
-    // Solo los administradores pueden editar (medida de seguridad en el backend)
     if (req.user.puesto?.toUpperCase() !== 'ADMINISTRADOR') {
       return res.status(403).json({ error: 'No tienes permisos.' });
     }
@@ -1219,7 +1241,7 @@ app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
     const {
       domicilio, idCp, idCadena,
       idResponsable, idCoordinador, idCapitan,
-      numCajas, participa
+      numCajas, participa, idCampania
     } = req.body;
 
     // 1. Actualizamos la tabla principal: tienda
@@ -1234,19 +1256,22 @@ app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
 
     if (errorTienda) throw errorTienda;
 
-    // 2. Actualizamos la relación: tienda_campania (Responsables, Cajas y Participación)
-    const { error: errorCampania } = await supabase
-        .from('tienda_campania')
-        .update({
-          id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
-          id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
-          id_capitan: idCapitan ? parseInt(idCapitan) : null,
-          num_cajas: parseInt(numCajas) || 0,
-          participa: participa === true || participa === 'true'
-        })
-        .eq('id_tienda', tiendaId);
+    // 2. Actualizamos la relación tienda_campania (SOLO SI SE ENVIÓ CONTEXTO DE CAMPAÑA DESDE EL FRONT)
+    if (idCampania) {
+      const { error: errorCampania } = await supabase
+          .from('tienda_campania')
+          .update({
+            id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
+            id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
+            id_capitan: idCapitan ? parseInt(idCapitan) : null,
+            num_cajas: parseInt(numCajas) || 0,
+            participa: participa === true || participa === 'true'
+          })
+          .eq('id_tienda', tiendaId)
+          .eq('id_campania', idCampania);
 
-    if (errorCampania) throw errorCampania;
+      if (errorCampania) throw errorCampania;
+    }
 
     res.json({ success: true, message: 'Tienda actualizada correctamente' });
 
