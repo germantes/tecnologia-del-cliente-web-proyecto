@@ -123,28 +123,71 @@ select:focus {
     background-color: var(--white);
 }
 
-.botones {
+.botones, .botones-card {
     display: flex;
     justify-content: center;
     gap: 50px;
     padding: 0 40px 40px 40px;
 }
 
-.btn-guardar, .btn-cerrar {
+/* Botones principales de los formularios */
+.btn-guardar, .btn-cerrar, .btn-editar, .btn-turnos {
     background-color: var(--sky-surge);
     color: var(--white);
     border: none;
-    padding: 12px 50px;
-    border-radius: 25px;
+    min-width: 170px;
+    min-height: 52px;
+    padding: 8px 26px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-family: var(--font-main);
-    font-size: 1.1rem;
-    font-weight: bold;
+    font-size: 1.45rem;
+    font-weight: 800;
+    line-height: 1;
     cursor: pointer;
-    transition: background-color 0.3s;
+    box-shadow: 0 6px 14px rgba(88, 185, 218, 0.35);
+    box-sizing: border-box;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.btn-guardar:hover, .btn-cerrar:hover {
+.btn-guardar:hover, .btn-cerrar:hover, .btn-editar:hover, .btn-turnos:hover {
     background-color: var(--twilight-indigo);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(50, 50, 102, 0.28);
+}
+
+/* ==========================================================================
+   BOTÓN ELIMINAR (Estilo Turnos + Tamaño unificado)
+   ========================================================================== */
+.btn-eliminar {
+    background-color: #d46262; /* Rojo del botón de eliminar turnos */
+    color: var(--white);
+    border: none;
+    min-width: 170px;
+    min-height: 52px;
+    padding: 8px 26px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-main);
+    font-size: 1.45rem;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(212, 98, 98, 0.35); /* Sombra rojiza */
+    box-sizing: border-box;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-eliminar:hover {
+    background-color: #b04646; /* Rojo oscuro al pasar el ratón */
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(176, 70, 70, 0.28);
 }
 
 tbody tr:last-child td {

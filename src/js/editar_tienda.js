@@ -141,18 +141,57 @@ document.addEventListener('DOMContentLoaded', async () => {
         const divBotones = document.createElement('div');
         divBotones.classList.add('botones');
 
+        // BOTÓN ELIMINAR (Nuevo)
+        const btnEliminar = document.createElement('button');
+        btnEliminar.type = 'button';
+        btnEliminar.classList.add('btn-eliminar');
+        btnEliminar.textContent = 'Eliminar';
+        btnEliminar.addEventListener('click', async () => {
+            // Este es el Pop-up nativo del navegador igual al de la foto
+            const confirmado = window.confirm("¿Estás seguro de eliminar esta tienda por completo?");
+
+            if (confirmado) {
+                btnEliminar.disabled = true;
+                btnEliminar.textContent = "Borrando...";
+
+                try {
+                    const response = await fetch(`${API_BASE}/api/tiendas/${tienda.id_tienda}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (response.ok) {
+                        window.location.href = '/html/tiendas.html';
+                    } else {
+                        const err = await response.json();
+                        alert(`Error al eliminar: ${err.message || err.error || 'Fallo en el servidor'}`);
+                        btnEliminar.disabled = false;
+                        btnEliminar.textContent = "Eliminar";
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert('Error de conexión al intentar eliminar.');
+                    btnEliminar.disabled = false;
+                    btnEliminar.textContent = "Eliminar";
+                }
+            }
+        });
+        divBotones.appendChild(btnEliminar);
+
+        // BOTÓN CANCELAR
         const arrastrarURL = urlIdCampania ? `&idCampania=${urlIdCampania}` : '';
         const btnCancelar = document.createElement('button');
         btnCancelar.type = 'button';
         btnCancelar.classList.add('btn-cerrar');
-        btnCancelar.textContent = 'cancelar';
+        btnCancelar.textContent = 'Cancelar';
         btnCancelar.addEventListener('click', () => { window.location.href = `/html/info_tienda.html?id=${tienda.id_tienda}${arrastrarURL}`; });
         divBotones.appendChild(btnCancelar);
 
+        // BOTÓN GUARDAR
         const btnGuardar = document.createElement('button');
         btnGuardar.type = 'submit';
         btnGuardar.classList.add('btn-guardar');
-        btnGuardar.textContent = 'guardar';
+        btnGuardar.textContent = 'Guardar';
         divBotones.appendChild(btnGuardar);
 
         divTotal.appendChild(divBotones);

@@ -126,19 +126,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const divBotones = document.createElement('div');
         divBotones.classList.add('botones-card');
-        divBotones.appendChild(crearBotonAccion('cerrar', 'btn-cerrar', () => { window.location.href = 'tiendas.html'; }));
+        divBotones.appendChild(crearBotonAccion('Cerrar', 'btn-cerrar', () => { window.location.href = 'tiendas.html'; }));
 
         if (mostrarDatosCampania && participa === 'Sí' && idCampaniaPintar) {
-            const btnTurnos = crearBotonAccion('turnos', 'btn-editar', () => {
+            const btnTurnos = crearBotonAccion('Turnos', 'btn-turnos', () => {
                 window.location.href = `tienda_turnos.html?idTienda=${tienda.id_tienda}&idCampania=${idCampaniaPintar}`;
             });
-            btnTurnos.style.backgroundColor = '#17a2b8';
             divBotones.appendChild(btnTurnos);
         }
 
         if (puedeEditar) {
             const arrastrarCampania = urlIdCampania ? `&idCampania=${urlIdCampania}` : '';
-            divBotones.appendChild(crearBotonAccion('editar', 'btn-editar', () => {
+            divBotones.appendChild(crearBotonAccion('Editar', 'btn-editar', () => {
                 window.location.href = `editar_tienda.html?id=${tienda.id_tienda}${arrastrarCampania}`;
             }));
         }

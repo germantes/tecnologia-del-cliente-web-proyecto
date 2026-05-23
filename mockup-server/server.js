@@ -1164,6 +1164,102 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
   }
 });
 
+// =======================================================================
+// CREAR NUEVA TIENDA (Y asignarla a campaña si participa)
+// =======================================================================
+app.post('/api/tiendas', requireAuth, async (req, res) => {
+  try {
+    const {
+      domicilio, idCp, idCadena,
+      idCampania, participa, numCajas,
+      idResponsable, idCoordinador, idCapitan
+    } = req.body;
+
+    // 1. Crear la tienda física en la tabla 'tienda' usando Supabase
+    const { data: resultTienda, error: errorTienda } = await supabase
+        .from('tienda')
+        .insert([{
+          domicilio: domicilio || null,
+          cp: idCp || null, // Vuestra columna se llama 'cp', no 'id_cp'
+          id_cadena: idCadena ? parseInt(idCadena) : null
+        }])
+        .select(); // .select() obliga a Supabase a devolvernos el ID generado
+
+    if (errorTienda) throw errorTienda;
+
+    // Extraemos el ID de la tienda recién creada
+    const nuevaTiendaId = resultTienda[0].id_tienda;
+
+    // 2. Si el usuario marcó "Participa: Sí", la vinculamos a la campaña actual
+    if (participa && idCampania) {
+      const { error: errorCampania } = await supabase
+          .from('tienda_campania')
+          .insert([{
+            id_tienda: nuevaTiendaId,
+            id_campania: parseInt(idCampania),
+            num_cajas: parseInt(numCajas) || 0,
+            id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
+            id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
+            id_capitan: idCapitan ? parseInt(idCapitan) : null,
+            participa: participa === true || participa === 'true'
+          }]);
+
+      if (errorCampania) throw errorCampania;
+    }
+
+    // 3. Responder al frontend que todo ha ido genial
+    res.status(201).json({
+      success: true,
+      message: 'Tienda creada con éxito',
+      id_tienda: nuevaTiendaId
+    });
+
+  } catch (error) {
+    console.error('Error al crear tienda con Supabase:', error);
+    res.status(500).json({ success: false, message: 'Error interno de Supabase: ' + error.message });
+  }
+});
+
+// =========================================================================
+// ENDPOINT: ELIMINAR TIENDA (Limpieza en cascada)
+// =========================================================================
+app.delete('/api/tiendas/:id', requireAuth, async (req, res) => {
+  try {
+    if (req.user.puesto?.toUpperCase() !== 'ADMINISTRADOR') {
+      return res.status(403).json({ error: 'No tienes permisos para borrar.' });
+    }
+
+    const tiendaId = req.params.id;
+
+    // 1. Buscar todos los turnos que pertenecen a esta tienda
+    const { data: turnos } = await supabase.from('turno').select('id_turno').eq('id_tienda', tiendaId);
+
+    if (turnos && turnos.length > 0) {
+      // 2. Borrar a los voluntarios de esos turnos (usamos tu helper nativo)
+      for (const t of turnos) {
+        await deleteTurnoVoluntarios(t.id_turno);
+      }
+      // 3. Borrar los turnos en sí
+      await supabase.from('turno').delete().eq('id_tienda', tiendaId);
+    }
+
+    // 4. Desvincular la tienda de cualquier campaña
+    await supabase.from('tienda_campania').delete().eq('id_tienda', tiendaId);
+
+    // 5. ¡Ahora sí! Borrar la tienda principal
+    const { error } = await supabase.from('tienda').delete().eq('id_tienda', tiendaId);
+
+    if (error) throw error;
+
+    res.json({ success: true, message: 'Tienda eliminada correctamente' });
+
+  } catch (error) {
+    console.error("Error al eliminar la tienda:", error);
+    // Le decimos que devuelva el mensaje real por si acaso
+    res.status(500).json({ error: 'Fallo SQL al eliminar: ' + error.message });
+  }
+});
+
 // Endpoint auxiliar para rellenar el selector de zonas del Admin (Middleware corregido)
 app.get('/api/zonas', requireAuth, async (req, res) => {
   const { data, error } = await supabase.from('zona').select('*').order('zona_geografica');

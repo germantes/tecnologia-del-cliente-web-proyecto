@@ -27,6 +27,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function configurarInterfazPorRol() {
         if (usuarioRol === 'ADMINISTRADOR') {
             adminFilters.style.display = 'flex';
+
+            document.getElementById('adminAcciones').style.display = 'block';
+            document.getElementById('btnCrearTienda').addEventListener('click', () => {
+                window.location.href = 'crear_tienda.html';
+            });
+
             await cargarFiltrosZona();
 
             // Función para comprobar si se debe bloquear el filtro "Participa"
@@ -135,6 +141,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
+            // NUEVO: Ordenar el array de tiendas de menor a mayor por su id_tienda
+            tiendas.sort((a, b) => a.id_tienda - b.id_tienda);
+
             tiendas.forEach(tienda => {
                 construirTarjetaTienda(tienda, idCampaniaBuscada);
             });
@@ -211,7 +220,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let contextoURL = idCampaniaBuscada ? `&idCampania=${idCampaniaBuscada}` : '';
 
         if (usuarioRol === 'ADMINISTRADOR') {
-            divBotones.appendChild(crearBoton('editar', 'btn-editar', `editar_tienda.html?id=${tienda.id_tienda}${contextoURL}`));
+            divBotones.appendChild(crearBoton('Editar', 'btn-editar', `editar_tienda.html?id=${tienda.id_tienda}${contextoURL}`));
         }
 
         // Lógica estricta restaurada para el botón de turnos:
@@ -227,7 +236,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (verificarBotonTurnos) {
             const btnTurnos = document.createElement('button');
-            btnTurnos.textContent = 'turnos';
+            btnTurnos.textContent = 'Turnos';
             btnTurnos.className = 'btn-turnos';
             btnTurnos.onclick = () => {
                 window.location.href = `tienda_turnos.html?idTienda=${tienda.id_tienda}&idCampania=${idCampaniaActiva}`;
@@ -235,7 +244,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             divBotones.appendChild(btnTurnos);
         }
 
-        divBotones.appendChild(crearBoton('+ info', 'btn-info', `info_tienda.html?id=${tienda.id_tienda}${contextoURL}`));
+        divBotones.appendChild(crearBoton('+Info', 'btn-info', `info_tienda.html?id=${tienda.id_tienda}${contextoURL}`));
 
         card.appendChild(divBotones);
         tiendasContainer.appendChild(card);
