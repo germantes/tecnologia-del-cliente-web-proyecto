@@ -1,0 +1,195 @@
+:root {
+    --twilight-indigo: #323266;
+    --sky-surge: #58b9da;
+    --white: #ffffff;
+    --font-main: 'Poppins', sans-serif;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: #f4f6f8;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.bancosol-header,
+.bancosol-footer {
+    align-self: stretch;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.mensaje-error {
+    text-align: center;
+    margin-top: 50px;
+    color: var(--twilight-indigo);
+}
+
+.total {
+    background-color: var(--white);
+    border: 10px solid var(--twilight-indigo); /* Borde idéntico al de turnos (antes 5px) */
+    border-radius: 9px; /* Curvatura exacta de turnos */
+    overflow: hidden;
+    box-shadow: 0 14px 34px rgba(50, 50, 102, 0.22); /* Sombra de turnos */
+
+    /* El truco del ancho aquí: */
+    width: calc(100% - 40px);
+    max-width: 1180px; /* Antes estaba capado a 900px */
+    margin: 40px auto; /* Para centrarlo horizontalmente y separarlo de la cabecera */
+}
+
+header {
+    background-color: var(--twilight-indigo);
+    padding: 25px;
+    text-align: center;
+}
+
+header h1 {
+    color: var(--white);
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: bold;
+}
+
+.tablas {
+    display: flex;
+    justify-content: space-around;
+    gap: 30px;
+    padding: 40px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td {
+    border: 3px solid var(--twilight-indigo);
+    padding: 12px 15px;
+    font-size: 0.95rem;
+}
+
+td:first-child, .etiqueta-campo {
+    background-color: var(--twilight-indigo);
+    color: var(--white);
+    font-weight: bold;
+    width: 35%;
+}
+
+td:last-child {
+    background-color: var(--white);
+    text-align: center;
+}
+
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+    width: 100%;
+    max-width: 100%;
+    padding: 10px;
+    border: 2px solid var(--twilight-indigo);
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    box-sizing: border-box;
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    color: var(--twilight-indigo);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+textarea {
+    resize: vertical;
+}
+
+select {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--sky-surge);
+    box-shadow: 0 0 8px rgba(88, 185, 218, 0.4);
+    background-color: var(--white);
+}
+
+.botones, .botones-card {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    padding: 0 40px 40px 40px;
+}
+
+/* Botones principales de los formularios */
+.btn-guardar, .btn-cerrar, .btn-editar, .btn-turnos {
+    background-color: var(--sky-surge);
+    color: var(--white);
+    border: none;
+    min-width: 170px;
+    min-height: 52px;
+    padding: 8px 26px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-main);
+    font-size: 1.45rem;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(88, 185, 218, 0.35);
+    box-sizing: border-box;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-guardar:hover, .btn-cerrar:hover, .btn-editar:hover, .btn-turnos:hover {
+    background-color: var(--twilight-indigo);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(50, 50, 102, 0.28);
+}
+
+/* ==========================================================================
+   BOTÓN ELIMINAR (Estilo Turnos + Tamaño unificado)
+   ========================================================================== */
+.btn-eliminar {
+    background-color: #d46262; /* Rojo del botón de eliminar turnos */
+    color: var(--white);
+    border: none;
+    min-width: 170px;
+    min-height: 52px;
+    padding: 8px 26px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-main);
+    font-size: 1.45rem;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(212, 98, 98, 0.35); /* Sombra rojiza */
+    box-sizing: border-box;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-eliminar:hover {
+    background-color: #b04646; /* Rojo oscuro al pasar el ratón */
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(176, 70, 70, 0.28);
+}
+
+tbody tr:last-child td {
+    border-bottom: 3px solid var(--twilight-indigo) !important;
+}

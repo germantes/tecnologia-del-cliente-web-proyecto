@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Registro - BancoSol</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+</head>
+
+<body>
+
+    <main class="main">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title" id="edit-title">Editar</h1>
+                <p class="page-sub">Modifica la información del registro y guarda los cambios.</p>
+            </div>
+            <a href="index.html" id="back-btn" class="btn btn-outline">Volver</a>
+        </div>
+
+        <div id="alert-container"></div>
+
+        <div class="card">
+            <form id="edit-form">
+                <div id="form-fields" class="hint-grid">
+                    <div class="loading"><span class="spinner"></span> Cargando datos...</div>
+                </div>
+                <div style="margin-top: 24px; display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary" id="save-btn" disabled>Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="../js/schemas.js"></script>
+    <script src="../js/edit.js"></script>
+</body>
+
+</html>

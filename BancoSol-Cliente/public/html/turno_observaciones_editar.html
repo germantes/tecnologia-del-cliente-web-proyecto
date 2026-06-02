@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar observaciones del turno</title>
+
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/turno_editar_observaciones.css">
+    <script src="../js/config.js"></script>
+</head>
+
+<body>
+    <include-html src="../componentes/header.html" active="inicio"></include-html>
+
+    <div class="info-turnos-page">
+        <div class="info-turnos-container turnos-panel">
+            <header class="info-turnos-header">
+                <div class="info-turnos-tienda">
+                    <h1 id="nombreTienda">Nombre Tienda</h1>
+                    <h2>Editar observaciones</h2>
+                </div>
+
+                <div class="info-turnos-datos">
+                    <h2 id="fechaTurno">dd/mm/aaaa</h2>
+                    <h3 id="textoTurno">Turno:</h3>
+                </div>
+            </header>
+
+            <main class="info-turnos-content">
+                <form id="formObservaciones" class="observaciones-formulario" action="/api/turno_observaciones_guardar"
+                    method="post">
+                    <input type="hidden" id="campoIdTienda" name="idTienda">
+                    <input type="hidden" id="campoIdCampania" name="idCampania">
+                    <input type="hidden" id="campoIdTurno" name="idTurno">
+
+                    <textarea id="campoObservaciones" name="observaciones" rows="10"></textarea>
+
+                    <p id="mensajeEstado" class="observaciones-vacio"></p>
+
+                    <div class="observaciones-acciones">
+                        <button class="btn-observaciones-accion turnos-btn" type="submit">
+                            Guardar
+                        </button>
+
+                        <a id="enlaceCancelarObservaciones" class="btn-observaciones-accion turnos-btn" href="#">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <include-html src="../componentes/footer.html"></include-html>
+
+    <script src="../componentes/include-html.js"></script>
+    <script src="../js/permisos_turnos.js"></script>
+    <script src="../js/turno_observaciones_api.js"></script>
+    <script src="../js/turno_observaciones_editar.js"></script>
+</body>
+
+</html>

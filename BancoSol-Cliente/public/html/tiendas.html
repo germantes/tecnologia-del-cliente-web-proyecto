@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BancoSol - Tiendas por Zona</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/tiendas.css">
+    <link rel="stylesheet" href="../css/header.css">
+    <link rel="stylesheet" href="../css/footer.css">
+    <script src="../js/config.js"></script>
+</head>
+
+<body class="page-app">
+
+    <include-html src="../componentes/header.html" active="tiendas"></include-html>
+
+    <main class="main">
+        <div class="page-header" style="justify-content: center; text-align: center; margin-bottom: 30px;">
+            <div>
+                <h1 id="tituloVista" class="page-title" style="color: var(--twilight-indigo); font-size: 2.5rem;">
+                    Tiendas por Zona</h1>
+            </div>
+        </div>
+
+        <div id="adminFilters" class="barra-filtro" style="display: none;">
+            <form onsubmit="event.preventDefault();">
+                <label for="selectZona">Zona:</label>
+                <select id="selectZona">
+                    <option value="0">Todas las zonas</option>
+                </select>
+
+                <label for="selectCampania" style="margin-left: 15px;">Campaña:</label>
+                <select id="selectCampania">
+                    <option value="0">Todas</option>
+                </select>
+
+                <label for="selectParticipa" style="margin-left: 15px;">Participa:</label>
+                <select id="selectParticipa">
+                    <option value="all">Todas</option>
+                    <option value="true">Sí</option>
+                    <option value="false">No</option>
+                </select>
+
+                <button type="button" id="btnAplicar" class="btn-aplicar" style="margin-left: 15px;">Aplicar</button>
+            </form>
+        </div>
+
+        <div id="adminAcciones" style="display: none; text-align: center; margin-bottom: 40px;">
+            <button id="btnCrearTienda" class="btn-crear">Crear Tienda</button>
+        </div>
+
+        <div class="tiendas-grid" id="tiendasContainer">
+        </div>
+    </main>
+
+    <include-html src="../componentes/footer.html"></include-html>
+
+    <script src="../js/api.js"></script>
+    <script src="../componentes/include-html.js"></script>
+    <script src="../js/tiendas.js"></script>
+</body>
+
+</html>

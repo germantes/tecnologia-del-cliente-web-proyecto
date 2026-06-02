@@ -93,6 +93,74 @@ Accede a http://localhost:8080
 
 ---
 
+## 🔁 Navegacion entre React y HTML legacy
+
+La regla simple es:
+- React Router solo gestiona rutas React.
+- Para salir de React e ir a HTML legacy usa enlaces <a> normales.
+- Para volver desde HTML a React usa un <a> que apunte a /.
+
+### React -> HTML legacy (recarga completa)
+
+Usa enlaces <a> hacia /html/*.html. Esto hace una navegacion tradicional y carga el HTML legacy.
+
+```jsx
+export default function Home() {
+	return (
+		<nav>
+			<a href="/html/inicio.html">Inicio (legacy)</a>
+			<a href="/html/tiendas.html">Tiendas (legacy)</a>
+		</nav>
+	)
+}
+```
+
+### HTML legacy -> React
+
+En el header legacy, apunta a la raiz de React para volver a la SPA.
+
+```html
+<a href="/">Inicio React</a>
+```
+
+### React -> React (SPA)
+
+Para navegar dentro de React, usa Link de react-router-dom.
+
+```jsx
+import { Link } from "react-router-dom";
+
+function MenuReact() {
+	return (
+		<nav>
+			<Link to="/">Home React</Link>
+			<Link to="/react">Pagina React</Link>
+		</nav>
+	)
+}
+```
+
+### Navegacion programatica en React
+
+Si necesitas navegar despues de una accion (por ejemplo, un submit):
+
+```jsx
+import { useNavigate } from "react-router-dom";
+
+function Login() {
+	const navigate = useNavigate();
+
+	function onSuccess() {
+		navigate("/react");
+	}
+
+	return <button onClick={onSuccess}>Entrar</button>;
+}
+```
+
+Con esto mantienes React vivo en sus rutas internas y haces transiciones limpias
+entre la SPA y las paginas HTML legacy.
+
 ## 👥 Usuarios de Prueba
 
 | Usuario | Contraseña | Rol         | Permisos                           |
