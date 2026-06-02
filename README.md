@@ -93,7 +93,7 @@ Accede a http://localhost:8080
 
 ---
 
-## 🔁 Navegacion entre React y HTML legacy
+## Navegación entre React y HTML legacy
 
 La regla simple es:
 - React Router solo gestiona rutas React.
