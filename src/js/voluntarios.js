@@ -6,7 +6,7 @@ async function cargarVoluntarios() {
   const idCampaniaParam = urlParams.get('idCampania');
   const perfil = sessionStorage.getItem('perfil');
 
-  if (perfil !== 'admin' && !idCampaniaParam) {
+  if (perfil !== 'ADMINISTRADOR' && !idCampaniaParam) {
     const grid = document.getElementById('voluntariosGrid');
     if (grid) {
       grid.textContent = '';
@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const perfil = sessionStorage.getItem('perfil');
   const btnNuevo = document.getElementById('btn-nuevo');
   if (btnNuevo) {
-    const canCreate = perfil === 'admin' || perfil === 'coordinador' || perfil === 'manager';
+    const canCreate = perfil === 'ADMINISTRADOR' || perfil === 'COORDINADOR';
     if (!canCreate) {
       btnNuevo.style.display = 'none'; // Ocultamos el botón si no tiene permisos
     }

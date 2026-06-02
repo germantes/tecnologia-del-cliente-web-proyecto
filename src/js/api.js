@@ -165,10 +165,10 @@ async function inicializarVistaCapitanes() {
   const perfil = sessionStorage.getItem('perfil');
 
   let capitanes;
-  if (perfil === 'admin') {
+  if (perfil === 'ADMINISTRADOR') {
     // ADMIN: Ve todos
     capitanes = await getCapitanes();
-  } else if (perfil === 'coordinador') {
+  } else if (perfil === 'COORDINADOR') {
     // COORDINADOR: Solo los de su zona
     capitanes = await getCapitanes(user.zonaId);
   }

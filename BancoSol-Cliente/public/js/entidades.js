@@ -6,7 +6,7 @@ async function cargarEntidades() {
     const idCampaniaParam = urlParams.get('idCampania');
     const perfil = sessionStorage.getItem('perfil');
 
-    if (perfil !== 'admin' && !idCampaniaParam) {
+    if (perfil !== 'ADMINISTRADOR' && !idCampaniaParam) {
         const grid = document.getElementById('entidadesGrid');
         if (grid) {
             grid.textContent = '';
@@ -257,10 +257,10 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Control de visibilidad para el botón de creación ("Nuevo")
-    const perfil = sessionStorage.getItem('perfil' || "puesto");
+    const perfil = sessionStorage.getItem('perfil');
     const btnNuevo = document.getElementById('btn-nuevo');
     if (btnNuevo) {
-        const canCreate = perfil === 'admin' || perfil === 'coordinador' || perfil === 'manager';
+        const canCreate = perfil === 'ADMINISTRADOR' || perfil === 'COORDINADOR';
         if (!canCreate) {
             btnNuevo.style.display = 'none'; // Ocultamos el botón si no tiene permisos
         }

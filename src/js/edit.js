@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const perfil = sessionStorage.getItem('perfil');
-    const isAdmin = perfil === 'admin';
-    const isManager = perfil === 'coordinador' || perfil === 'manager';
+    const isAdmin = perfil === 'ADMINISTRADOR';
+    const isManager = perfil === 'COORDINADOR';
     const canAccess = isAdmin || isManager;
     const allowedResources = new Set(['usuarios', 'entidades', 'campanias', 'tiendas', 'turnos', 'voluntarios']);
 
