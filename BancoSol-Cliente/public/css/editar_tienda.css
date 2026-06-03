@@ -16,6 +16,28 @@ body {
     overflow-x: hidden;
 }
 
+/* Estilos de carga asíncrona */
+.loading-placeholder {
+    text-align: center;
+    padding: 40px;
+    color: var(--twilight-indigo);
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid var(--twilight-indigo);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 .bancosol-header,
 .bancosol-footer {
     align-self: stretch;
@@ -31,15 +53,14 @@ body {
 
 .total {
     background-color: var(--white);
-    border: 10px solid var(--twilight-indigo); /* Borde idéntico al de turnos (antes 5px) */
-    border-radius: 9px; /* Curvatura exacta de turnos */
+    border: 10px solid var(--twilight-indigo);
+    border-radius: 9px;
     overflow: hidden;
-    box-shadow: 0 14px 34px rgba(50, 50, 102, 0.22); /* Sombra de turnos */
+    box-shadow: 0 14px 34px rgba(50, 50, 102, 0.22);
 
-    /* El truco del ancho aquí: */
     width: calc(100% - 40px);
-    max-width: 1180px; /* Antes estaba capado a 900px */
-    margin: 40px auto; /* Para centrarlo horizontalmente y separarlo de la cabecera */
+    max-width: 1180px;
+    margin: 40px auto;
 }
 
 header {
@@ -130,7 +151,6 @@ select:focus {
     padding: 0 40px 40px 40px;
 }
 
-/* Botones principales de los formularios */
 .btn-guardar, .btn-cerrar, .btn-editar, .btn-turnos {
     background-color: var(--sky-surge);
     color: var(--white);
@@ -159,11 +179,8 @@ select:focus {
     box-shadow: 0 10px 20px rgba(50, 50, 102, 0.28);
 }
 
-/* ==========================================================================
-   BOTÓN ELIMINAR (Estilo Turnos + Tamaño unificado)
-   ========================================================================== */
 .btn-eliminar {
-    background-color: #d46262; /* Rojo del botón de eliminar turnos */
+    background-color: #d46262;
     color: var(--white);
     border: none;
     min-width: 170px;
@@ -178,13 +195,13 @@ select:focus {
     font-weight: 800;
     line-height: 1;
     cursor: pointer;
-    box-shadow: 0 6px 14px rgba(212, 98, 98, 0.35); /* Sombra rojiza */
+    box-shadow: 0 6px 14px rgba(212, 98, 98, 0.35);
     box-sizing: border-box;
     transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-eliminar:hover {
-    background-color: #b04646; /* Rojo oscuro al pasar el ratón */
+    background-color: #b04646;
     color: var(--white);
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(176, 70, 70, 0.28);

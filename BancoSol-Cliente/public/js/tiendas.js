@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const adminFilters = document.getElementById('adminFilters');
     const selectZona = document.getElementById('selectZona');
     const selectCampania = document.getElementById('selectCampania');
-    const selectParticipa = document.getElementById('selectParticipa');
     const tituloVista = document.getElementById('tituloVista');
 
     let campaniasGlobal = [];
@@ -35,28 +34,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             await cargarFiltrosZona();
 
-            // Función para comprobar si se debe bloquear el filtro "Participa"
-            const verificarFiltroParticipa = () => {
-                const valorCampania = selectCampania.value;
-                // Bloqueamos si no hay valor, es una cadena vacía, es "0" o es "all"
-                if (!valorCampania || valorCampania === "" || valorCampania === "0" || valorCampania === "all") {
-                    selectParticipa.disabled = true;
-                    selectParticipa.value = "all"; // Lo reseteamos por seguridad
-                } else {
-                    selectParticipa.disabled = false;
-                }
-            };
-
-            // Escuchamos los cambios en el desplegable de campañas
-            selectCampania.addEventListener('change', verificarFiltroParticipa);
-
-            // Hacemos la comprobación inicial nada más cargar
-            verificarFiltroParticipa();
-
-            const btnAplicar = document.getElementById('btnAplicar');
-            if (btnAplicar) {
-                btnAplicar.addEventListener('click', cargarTiendas);
-            }
+            // Auto-recarga interactiva: Eliminamos el botón Aplicar y usamos eventos change
+            selectCampania.addEventListener('change', cargarTiendas);
+            selectZona.addEventListener('change', cargarTiendas);
 
             tituloVista.textContent = 'Tiendas por Zona';
         } else {
@@ -93,9 +73,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (usuarioRol === 'ADMINISTRADOR' && selectCampania) {
                     limpiarContenedor(selectCampania);
-                    // Opción por defecto
                     const optVacia = document.createElement('option');
-                    optVacia.value = "";
+                    optVacia.value = "0";
                     optVacia.textContent = "Todas las campañas";
                     selectCampania.appendChild(optVacia);
 
@@ -121,10 +100,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (usuarioRol === 'ADMINISTRADOR') {
                 const zonaId = selectZona.value;
-                const participa = selectParticipa.value;
                 const campaniaId = selectCampania.value;
-                url += `?idZona=${zonaId}&participa=${participa}&idCampania=${campaniaId}`;
-                idCampaniaBuscada = campaniaId ? parseInt(campaniaId) : null;
+
+                url += `?idZona=${zonaId}&idCampania=${campaniaId}`;
+                idCampaniaBuscada = (campaniaId && campaniaId !== "0") ? parseInt(campaniaId) : null;
             }
 
             const response = await fetch(`${API_BASE}${url}`, {
@@ -141,7 +120,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            // NUEVO: Ordenar el array de tiendas de menor a mayor por su id_tienda
             tiendas.sort((a, b) => a.id_tienda - b.id_tienda);
 
             tiendas.forEach(tienda => {
@@ -223,14 +201,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             divBotones.appendChild(crearBoton('Editar', 'btn-editar', `editar_tienda.html?id=${tienda.id_tienda}${contextoURL}`));
         }
 
-        // Lógica estricta restaurada para el botón de turnos:
         let verificarBotonTurnos = false;
-
         if (usuarioRol === 'ADMINISTRADOR') {
-            // El admin SOLO ve el botón si filtra explícitamente por la campaña activa
             verificarBotonTurnos = (participaTexto === 'Sí' && idCampaniaBuscada !== null && parseInt(idCampaniaBuscada) === idCampaniaActiva);
         } else {
-            // Los demás roles siempre operan sobre la campaña activa por defecto
             verificarBotonTurnos = (participaTexto === 'Sí' && idCampaniaPintar === idCampaniaActiva);
         }
 

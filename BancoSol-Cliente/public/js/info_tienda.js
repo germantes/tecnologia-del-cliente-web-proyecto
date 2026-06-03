@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const contenedor = document.getElementById('detalleContenedor');
     const params = new URLSearchParams(window.location.search);
     const tiendaId = params.get('id');
-    const urlIdCampania = params.get('idCampania'); // Recuperamos el contexto de campaña
+    const urlIdCampania = params.get('idCampania');
 
     if (!tiendaId) {
         mostrarErrorDOM('Error: No se ha especificado ninguna tienda.');
@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let responsable = "N/A";
         let numCajas = 0;
         let idCampaniaPintar = null;
+        let nombreCampania = "Sin campaña";
 
         if (tienda.tienda_campania && tienda.tienda_campania.length > 0) {
             let campaniaInfo = null;
@@ -79,11 +80,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 coordinador = getNombreUsuario(campaniaInfo.id_coordinador);
                 responsable = getNombreUsuario(campaniaInfo.id_responsable_tienda);
                 numCajas = campaniaInfo.num_cajas || campaniaInfo.numCajas || 0;
+
+                const cmpData = listaCampanias.find(c => c.id_campania == idCampaniaPintar);
+                if (cmpData) nombreCampania = cmpData.nombre;
             }
         }
 
         const puedeEditar = (perfil.toUpperCase() === 'ADMINISTRADOR');
-        // REGLA: Ocultamos datos de campaña si el Admin accede de forma genérica (sin filtrar campaña)
         const mostrarDatosCampania = (perfil.toUpperCase() !== 'ADMINISTRADOR') || urlIdCampania;
 
         const divTotal = document.createElement('div');
@@ -112,13 +115,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         tabla2.classList.add('tabla-2');
         tabla2.appendChild(crearFilaTabla('Cadena', establecimiento));
 
-        // Renderizado condicional
         if (mostrarDatosCampania) {
             tabla2.appendChild(crearFilaTabla('Responsable de Tienda', responsable));
             tabla2.appendChild(crearFilaTabla('Coordinador Asignado', coordinador));
             tabla2.appendChild(crearFilaTabla('Capitán', capitan));
             tabla2.appendChild(crearFilaTabla('Número de cajas', numCajas));
-            tabla2.appendChild(crearFilaTabla('Participa', participa));
+            tabla2.appendChild(crearFilaTabla(`Participa (${nombreCampania})`, participa));
+        } else {
+            const trInfo = document.createElement('tr');
+            const tdInfo = document.createElement('td');
+            tdInfo.colSpan = 2;
+            tdInfo.className = 'celda-aviso';
+            tdInfo.innerHTML = 'Para ver las asignaciones (Responsable, Capitán, Coordinador, ONG) debes <strong>filtrar por una campaña</strong> en la pantalla anterior.';
+            trInfo.appendChild(tdInfo);
+            tabla2.appendChild(trInfo);
         }
 
         divTablas.appendChild(tabla2);
@@ -143,7 +153,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         divTotal.appendChild(divBotones);
-        while (contenedor.firstChild) contenedor.removeChild(contenedor.firstChild);
+        contenedor.innerHTML = '';
         contenedor.appendChild(divTotal);
 
     } catch (error) {
@@ -152,35 +162,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function crearFilaTabla(etiqueta, valor) {
         const tr = document.createElement('tr');
-        const tdEtiqueta = document.createElement('td');
-        tdEtiqueta.textContent = etiqueta;
-        const tdValor = document.createElement('td');
-        tdValor.textContent = valor;
-        tr.appendChild(tdEtiqueta);
-        tr.appendChild(tdValor);
+        const tdEtiqueta = document.createElement('td'); tdEtiqueta.textContent = etiqueta;
+        const tdValor = document.createElement('td'); tdValor.textContent = valor;
+        tr.appendChild(tdEtiqueta); tr.appendChild(tdValor);
         return tr;
     }
 
     function crearBotonAccion(texto, clase, callback) {
-        const boton = document.createElement('button');
-        boton.type = 'button';
-        boton.classList.add(clase);
-        boton.textContent = texto;
+        const boton = document.createElement('button'); boton.type = 'button'; boton.classList.add(clase); boton.textContent = texto;
         boton.addEventListener('click', callback);
         return boton;
     }
 
     function mostrarErrorDOM(mensaje) {
-        while (contenedor.firstChild) contenedor.removeChild(contenedor.firstChild);
-        const divError = document.createElement('div');
-        divError.classList.add('total');
-        divError.style.padding = '40px';
-        divError.style.textAlign = 'center';
-        const pError = document.createElement('p');
-        pError.style.color = 'red';
-        pError.style.fontWeight = 'bold';
-        pError.textContent = mensaje;
-        divError.appendChild(pError);
-        contenedor.appendChild(divError);
+        contenedor.innerHTML = '';
+        const divError = document.createElement('div'); divError.classList.add('total'); divError.style.padding = '40px'; divError.style.textAlign = 'center';
+        const pError = document.createElement('p'); pError.style.color = 'red'; pError.style.fontWeight = 'bold'; pError.textContent = mensaje;
+        divError.appendChild(pError); contenedor.appendChild(divError);
     }
 });
