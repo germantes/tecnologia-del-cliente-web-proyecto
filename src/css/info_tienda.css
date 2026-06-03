@@ -5,7 +5,6 @@
     --font-main: 'Poppins', sans-serif;
 }
 
-/* Dejamos el body limpio para no aplastar el header ni el footer de common.css */
 body {
     font-family: var(--font-main);
     background-color: #f4f6f8;
@@ -13,21 +12,40 @@ body {
     min-height: 100vh;
 }
 
-/* El bloque central tipo "Modal/Tarjeta" (Ajustado al tamaño de turnos) */
+/* Estilos de carga asíncrona */
+.loading-placeholder {
+    text-align: center;
+    padding: 40px;
+    color: var(--twilight-indigo);
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid var(--twilight-indigo);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 .total {
     background-color: var(--white);
-    border: 10px solid var(--twilight-indigo); /* Borde grueso igual que en turnos */
+    border: 10px solid var(--twilight-indigo);
     border-radius: 9px;
     overflow: hidden;
     box-shadow: 0 14px 34px rgba(50, 50, 102, 0.22);
 
-    /* Ampliamos el ancho para que calque el diseño de editar_tienda */
     width: calc(100% - 40px);
     max-width: 1180px;
-    margin: 40px auto; /* Lo centra horizontalmente y lo separa de la cabecera */
+    margin: 40px auto;
 }
 
-/* Cabecera integrada en la tarjeta */
 header {
     background-color: var(--twilight-indigo);
     padding: 25px;
@@ -41,7 +59,6 @@ header h1 {
     font-weight: bold;
 }
 
-/* Las dos tablas alineadas */
 .tablas {
     display: flex;
     justify-content: space-around;
@@ -49,20 +66,17 @@ header h1 {
     padding: 40px;
 }
 
-/* Estructura de tablas */
 table {
     width: 100%;
     border-collapse: collapse;
 }
 
-/* Bordes para todas las celdas */
 td {
     border: 3px solid var(--twilight-indigo);
     padding: 12px 15px;
     font-size: 0.95rem;
 }
 
-/* 1ª Columna: Fondo azul oscuro */
 td:first-child {
     background-color: var(--twilight-indigo);
     color: var(--white);
@@ -70,7 +84,6 @@ td:first-child {
     width: 40%;
 }
 
-/* 2ª Columna: Fondo blanco */
 td:last-child {
     background-color: var(--white);
     color: var(--twilight-indigo);
@@ -78,7 +91,6 @@ td:last-child {
     font-weight: bold;
 }
 
-/* Botones inferiores */
 .botones, .botones-card {
     display: flex;
     justify-content: center;
@@ -86,7 +98,6 @@ td:last-child {
     padding: 0 40px 40px 40px;
 }
 
-/* Botones principales de los formularios */
 .btn-guardar, .btn-cerrar, .btn-editar, .btn-turnos {
     background-color: var(--sky-surge);
     color: var(--white);
@@ -115,7 +126,6 @@ td:last-child {
     box-shadow: 0 10px 20px rgba(50, 50, 102, 0.28);
 }
 
-/* Anula el "border-bottom: none" de common.css */
 tbody tr:last-child td {
     border-bottom: 3px solid var(--twilight-indigo) !important;
 }
