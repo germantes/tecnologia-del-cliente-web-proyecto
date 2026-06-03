@@ -4,3 +4,12 @@ npm-debug.log
 .gitignore
 *.md
 .env
+.env.local
+.env.*.local
+dist
+.vite
+*.log
+.DS_Store
+.idea
+.vscode
+
