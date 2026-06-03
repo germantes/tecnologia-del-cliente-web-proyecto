@@ -18,13 +18,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             fetch(`${API_BASE}/api/campanias`, { headers: { 'Authorization': `Bearer ${token}` } })
         ]);
 
-        const listaCPs = cpsRes.ok ? await cpsRes.json() : [];
+        let listaCPs = cpsRes.ok ? await cpsRes.json() : [];
         const listaCadenas = cadenasRes.ok ? await cadenasRes.json() : [];
         const listaUsuarios = usuariosRes.ok ? await usuariosRes.json() : [];
         const listaCampanias = campaniasRes.ok ? await campaniasRes.json() : [];
 
-        // Determinar campaña activa
+        // ORDENAR CPS
+        listaCPs.sort((c1, c2) => (c1.cp || '').localeCompare(c2.cp || ''));
+
+        // Determinar campaña activa y su nombre
         let idCampaniaActiva = null;
+        let nombreCampaniaActiva = 'Sin campaña';
         const hoy = new Date();
         listaCampanias.forEach(c => {
             if (c.fecha_inicio && c.fecha_fin) {
@@ -33,6 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 fin.setHours(23, 59, 59, 999);
                 if (hoy >= inicio && hoy <= fin) {
                     idCampaniaActiva = c.id_campania;
+                    nombreCampaniaActiva = c.nombre;
                 }
             }
         });
@@ -89,12 +94,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }));
         tabla2.appendChild(crearFilaSelect('Cadena', 'idCadena', opcionesCadena, true));
 
-        // Participa
+        // Participa con Nombre de campaña
         const opcionesParticipa = [
             { valor: 'false', texto: 'No', seleccionado: true },
             { valor: 'true', texto: 'Sí', seleccionado: false }
         ];
-        const filaParticipa = crearFilaSelect('Participa', 'participa', opcionesParticipa, false);
+        const filaParticipa = crearFilaSelect(`Participa (${nombreCampaniaActiva})`, 'participa', opcionesParticipa, false);
         const selectParticipa = filaParticipa.querySelector('select');
         tabla2.appendChild(filaParticipa);
 
@@ -116,7 +121,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         divTablas.appendChild(tabla2);
         divTotal.appendChild(divTablas);
 
-        // BOTONES
         const divBotones = document.createElement('div');
         divBotones.classList.add('botones');
 
@@ -136,41 +140,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         divTotal.appendChild(divBotones);
         form.appendChild(divTotal);
 
-        while (contenedor.firstChild) contenedor.removeChild(contenedor.firstChild);
+        contenedor.innerHTML = '';
         contenedor.appendChild(form);
 
-        // =====================================================================
-        // LÓGICA DINÁMICA DE BLOQUEO Y FILTRADO
-        // =====================================================================
-
+        // Lógica Dinámica en JS
         const getRol = (u) => (u.rol || u.puesto || '').toUpperCase();
 
-        const mapearUsuario = (u) => ({
+        const mapearUsuario = (u, comparadorId) => ({
             valor: u.id_usuario || u.idUsuario,
-            texto: u.rol ? `${u.nombre_completo || u.nombreCompleto} (${u.rol})` : (u.nombre_completo || u.nombreCompleto)
+            texto: u.rol ? `${u.nombre_completo || u.nombreCompleto} (${u.rol})` : (u.nombre_completo || u.nombreCompleto),
+            seleccionado: (u.id_usuario || u.idUsuario) == comparadorId
         });
 
         const actualizarAsignaciones = () => {
             const participa = selectParticipa.value === 'true';
             const cpSeleccionado = selectCp.value;
 
-            // Si no participa o no ha elegido CP, bloqueamos y vaciamos
+            // Guardamos las selecciones previas para no machacarlas
+            const prevResp = selectResp.value;
+            const prevCoord = selectCoord.value;
+            const prevCap = selectCap.value;
+
             if (!participa || !cpSeleccionado) {
                 selectResp.disabled = true;
                 selectCoord.disabled = true;
                 selectCap.disabled = true;
-
                 rellenarOpciones(selectResp, []);
                 rellenarOpciones(selectCoord, []);
                 rellenarOpciones(selectCap, []);
                 return;
             }
 
-            // Descubrimos a qué Zona pertenece el CP elegido
             const cpMatch = listaCPs.find(c => c.cp == cpSeleccionado);
             const idZonaSeleccionada = cpMatch ? (cpMatch.id_zona || cpMatch.idZona) : null;
 
-            // Regla de filtro idéntica a editar_tienda
             const isMismaZona = (u) => {
                 if (!idZonaSeleccionada) return true;
                 const matchU = listaCPs.find(c => c.cp == (u.id_cp || u.idCp) || c.id_cp == (u.id_cp || u.idCp));
@@ -182,26 +185,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             const capitanes = listaUsuarios.filter(u => getRol(u) === 'COORDINADOR' || (getRol(u) === 'CAPITAN' && isMismaZona(u)));
             const responsables = listaUsuarios.filter(u => getRol(u) === 'COORDINADOR' || (getRol(u) === 'CAPITAN' && isMismaZona(u)) || (getRol(u) === 'RESPONSABLE-ENTIDAD' && isMismaZona(u)) || (getRol(u) === 'RESPONSABLE-TIENDA' && isMismaZona(u)));
 
-            // Rellenamos y desbloqueamos
-            rellenarOpciones(selectResp, responsables.map(mapearUsuario));
-            rellenarOpciones(selectCoord, coordinadores.map(mapearUsuario));
-            rellenarOpciones(selectCap, capitanes.map(mapearUsuario));
+            rellenarOpciones(selectResp, responsables.map(u => mapearUsuario(u, prevResp)));
+            rellenarOpciones(selectCoord, coordinadores.map(u => mapearUsuario(u, prevCoord)));
+            rellenarOpciones(selectCap, capitanes.map(u => mapearUsuario(u, prevCap)));
 
             selectResp.disabled = false;
             selectCoord.disabled = false;
             selectCap.disabled = false;
         };
 
-        // Escuchadores de eventos para recalcular al momento
         selectCp.addEventListener('change', actualizarAsignaciones);
         selectParticipa.addEventListener('change', actualizarAsignaciones);
-
-        // Ejecución inicial para asegurar el estado de bloqueo
         actualizarAsignaciones();
-
-        // =====================================================================
-        // ENVÍO DEL FORMULARIO
-        // =====================================================================
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -221,7 +216,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (response.ok) {
                     window.location.href = `/html/tiendas.html`;
                 } else {
-                    alert('Error al crear la tienda. Verifica que los campos sean correctos.');
+                    const errInfo = await response.json();
+                    alert(`Error al crear la tienda: ${errInfo.message || 'Verifica los campos'}`);
                 }
             } catch (error) {
                 console.error('Error de red:', error);
@@ -233,7 +229,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         mostrarErrorGlobal(error.message);
     }
 
-    // Funciones auxiliares UI
     function crearFilaTextarea(etiqueta, name, value) {
         const tr = document.createElement('tr');
         const tdEtiqueta = document.createElement('td');
@@ -258,26 +253,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         const tdInput = document.createElement('td');
         const select = document.createElement('select');
         select.name = name;
-
         rellenarOpciones(select, opciones, incluirOpcionVacia);
-
         tdInput.appendChild(select);
         tr.appendChild(tdEtiqueta);
         tr.appendChild(tdInput);
         return tr;
     }
 
-    // Nueva función auxiliar para vaciar y rellenar un desplegable
     function rellenarOpciones(selectElement, opciones, incluirOpcionVacia = true) {
-        selectElement.innerHTML = ''; // Vaciar
-
+        selectElement.innerHTML = '';
         if (incluirOpcionVacia) {
             const optionVacia = document.createElement('option');
             optionVacia.value = "";
             optionVacia.textContent = "-- Seleccione una opción --";
             selectElement.appendChild(optionVacia);
         }
-
         opciones.forEach(op => {
             const option = document.createElement('option');
             option.value = op.valor;
@@ -305,7 +295,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function mostrarErrorGlobal(mensaje) {
-        while (contenedor.firstChild) contenedor.removeChild(contenedor.firstChild);
+        contenedor.innerHTML = '';
         const tituloError = document.createElement('h2');
         tituloError.classList.add('mensaje-error');
         tituloError.textContent = mensaje;
