@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    const API_BASE = window.API_URL || 'http://localhost:3000';
+    const API_BASE = window.API_URL || "http://localhost:3000";
     const contenedor = document.getElementById('detalleContenedor');
     const params = new URLSearchParams(window.location.search);
     const tiendaId = params.get('id');

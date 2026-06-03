@@ -2,7 +2,7 @@
 // Todas las funciones son asíncronas y devuelven una promesa con los datos
 
 // Usar la URL de la API desde window.API_URL (inyectada por index.html) o la por defecto
-const API_BASE = window.API_URL || 'http://localhost:3000';
+const API_BASE = window.API_URL || "http://localhost:3000";
 
 // Obtiene el token del sessionStorage
 function getToken() {
@@ -106,13 +106,13 @@ async function getRecord(resource, id) {
 // Ahora estas funciones son "alias" de las genéricas
 async function getUsuarios(params = {}) { return getRecords('usuarios', params); }
 async function getEntidades(params = {}) { return getRecords('api/entidades', params); }
-async function getCampanias(params = {}) { return getRecords('campanias', params); }
+async function getCampanias(params = {}) { return getRecords('api/campanias', params); }
 async function getTiendas(params = {}) { return getRecords('tiendas', params); }
 async function getTurnos(params = {}) { return getRecords('api/turnos', params); }
 async function getVoluntarios(params = {}) { return getRecords('api/voluntarios', params); }
 async function getSchedule(params = {}) { return getRecords('api/schedule', params); }
 async function getMe() { return getRecord('me'); }
-async function getZones(params = {}) { return getRecords('cp', params); }
+async function getZones(params = {}) { return getRecords('api/cp', params); }
 async function getZonesByCompany(idCampania) { return getRecords('api/zonas_por_campania', { idCampania }); }
 async function getCampaignsByZone(idZona) { return getRecords('api/campanias_por_zona', { idZona }); }
 

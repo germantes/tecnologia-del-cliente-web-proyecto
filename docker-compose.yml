@@ -15,7 +15,7 @@ services:
       - "3000:3000"
     volumes:
       - ./mockup-server:/app
-      - ./src:/src
+      - ./public:/public
       - /app/node_modules
     command: npm run dev
     restart: unless-stopped
@@ -26,7 +26,7 @@ services:
     working_dir: /app
     environment:
       NODE_ENV: development
-      VITE_API_URL: ${API_URL:-http://localhost:3000}
+      VITE_API_URL: ${API_URL:-http://server:3000}
     ports:
       - "5173:5173"
     volumes:

@@ -315,8 +315,8 @@ app.get('/api/config.js', (req, res) => {
 });
 
 const srcPath = process.env.NODE_ENV === 'development'
-  ? '/src'
-  : path.join(__dirname, '..', 'src');
+  ? '/public'
+  : path.join(__dirname, '..', 'public');
 app.use(express.static(srcPath));
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1432,8 +1432,8 @@ app.all([
 // Catch-all para la SPA
 app.get('*', (req, res) => {
   const indexPath = process.env.NODE_ENV === 'development'
-      ? '/src/html/index.html'
-      : path.join(__dirname, '..', 'src', 'index.html');
+      ? '/public/html/index.html'
+      : path.join(__dirname, '..', 'public', 'html', 'index.html');
   res.sendFile(indexPath);
 });
 

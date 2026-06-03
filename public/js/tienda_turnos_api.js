@@ -1,5 +1,5 @@
 function obtenerApiBaseTurnos() {
-    return window.API_URL || "https://cliente-backend.onrender.com";
+    return window.API_URL || "http://localhost:3000";
 }
 
 async function fetchTurnosTienda(idTienda, idCampania) {

@@ -224,7 +224,7 @@ async function fetchJsonPermisosTurnos(ruta) {
 }
 
 function crearUrlPermisosTurnos(ruta) {
-    var apiUrl = window.API_URL || "";
+    var apiUrl = window.API_URL || "http://localhost:3000";
 
     if (apiUrl.endsWith("/") && ruta.charAt(0) === "/") {
         return apiUrl.substring(0, apiUrl.length - 1) + ruta;

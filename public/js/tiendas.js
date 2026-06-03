@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const usuarioRol = perfil.toUpperCase();
-    const API_BASE = window.API_URL || 'http://localhost:3000';
+    const API_BASE = window.API_URL || "http://localhost:3000";
 
     const tiendasContainer = document.getElementById('tiendasContainer');
     const adminFilters = document.getElementById('adminFilters');

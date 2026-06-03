@@ -9,8 +9,12 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://server:3000',
+        target: 'http://server:3000',
         changeOrigin: true,
+        bypass(req) {
+          // /api/config.js lo sirve Express como estático, no como proxy
+          if (req.url === '/api/config.js') return req.url;
+        },
       },
     },
   },
