@@ -108,17 +108,17 @@ async function requireAuth(req, res, next) {
   return res.status(401).json({ success: false, message: 'Token inválido o expirado' });
 }
 
-  /*
-  // Los GET de consulta se dejan públicos para poder probarlos directamente en navegador.
-  if (req.method === 'GET' && PUBLIC_GET_PATHS.has(req.path)) return next();
+/*
+// Los GET de consulta se dejan públicos para poder probarlos directamente en navegador.
+if (req.method === 'GET' && PUBLIC_GET_PATHS.has(req.path)) return next();
 
-  const user = verifyToken(req.headers.authorization);
-  if (!user) {
-    return res.status(401).json({ success: false, message: 'Acceso no autorizado. Inicia sesión.' });
-  }
-  req.user = user;
-  next();
-  */
+const user = verifyToken(req.headers.authorization);
+if (!user) {
+  return res.status(401).json({ success: false, message: 'Acceso no autorizado. Inicia sesión.' });
+}
+req.user = user;
+next();
+*/
 
 function requireAdmin(req, res, next) {
   // --- BYPASS TEMPORAL DE ADMIN ---
@@ -1052,8 +1052,8 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
 
     // 2. Consulta Base (Añadimos id_campania a la petición de Supabase)
     let query = supabase
-        .from('tienda')
-        .select(`
+      .from('tienda')
+      .select(`
                 id_tienda, 
                 domicilio,
                 cadena (id_cadena, establecimiento, nombre_particular),
@@ -1131,8 +1131,8 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
     const tiendaId = req.params.id;
 
     const { data: tienda, error } = await supabase
-        .from('tienda')
-        .select(`
+      .from('tienda')
+      .select(`
                 id_tienda, 
                 domicilio,
                 cadena (id_cadena, establecimiento, nombre_particular),
@@ -1152,8 +1152,8 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
                     num_cajas
                 )
             `)
-        .eq('id_tienda', tiendaId)
-        .single(); // Le decimos a Supabase que devuelva 1 solo objeto, no un array
+      .eq('id_tienda', tiendaId)
+      .single(); // Le decimos a Supabase que devuelva 1 solo objeto, no un array
 
     if (error) throw error;
     res.json(tienda);
@@ -1170,20 +1170,20 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
 app.post('/api/tiendas', requireAuth, async (req, res) => {
   try {
     const {
-      domicilio, idCp, idCadena,
+      domicilio, idCp, id_cp, id_cadena,
       idCampania, participa, numCajas,
       idResponsable, idCoordinador, idCapitan
     } = req.body;
 
     // 1. Crear la tienda física en la tabla 'tienda' usando Supabase
     const { data: resultTienda, error: errorTienda } = await supabase
-        .from('tienda')
-        .insert([{
-          domicilio: domicilio || null,
-          cp: idCp || null, // Vuestra columna se llama 'cp', no 'id_cp'
-          id_cadena: idCadena ? parseInt(idCadena) : null
-        }])
-        .select(); // .select() obliga a Supabase a devolvernos el ID generado
+      .from('tienda')
+      .insert([{
+        domicilio: domicilio || null,
+        cp: (idCp || id_cp) || null, // Vuestra columna se llama 'cp', no 'id_cp'
+        id_cadena: id_cadena ? parseInt(id_cadena) : null
+      }])
+      .select(); // .select() obliga a Supabase a devolvernos el ID generado
 
     if (errorTienda) throw errorTienda;
 
@@ -1193,16 +1193,16 @@ app.post('/api/tiendas', requireAuth, async (req, res) => {
     // 2. Si el usuario marcó "Participa: Sí", la vinculamos a la campaña actual
     if (participa && idCampania) {
       const { error: errorCampania } = await supabase
-          .from('tienda_campania')
-          .insert([{
-            id_tienda: nuevaTiendaId,
-            id_campania: parseInt(idCampania),
-            num_cajas: parseInt(numCajas) || 0,
-            id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
-            id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
-            id_capitan: idCapitan ? parseInt(idCapitan) : null,
-            participa: participa === true || participa === 'true'
-          }]);
+        .from('tienda_campania')
+        .insert([{
+          id_tienda: nuevaTiendaId,
+          id_campania: parseInt(idCampania),
+          num_cajas: parseInt(numCajas) || 0,
+          id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
+          id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
+          id_capitan: idCapitan ? parseInt(idCapitan) : null,
+          participa: participa === true || participa === 'true'
+        }]);
 
       if (errorCampania) throw errorCampania;
     }
@@ -1276,15 +1276,15 @@ app.get('/api/zonas_por_campania', requireAuth, async (req, res) => {
     }
 
     const { data, error } = await supabase
-        .from('asignacion_zona')
-        .select(`
+      .from('asignacion_zona')
+      .select(`
         id_zona,
         zona:id_zona (
           id_zona,
           zona_geografica
         )
       `)
-        .eq('id_campania', idCampania);
+      .eq('id_campania', idCampania);
 
     if (error) throw error;
     res.json(data || []);
@@ -1306,7 +1306,7 @@ app.get('/api/cps', requireAuth, async (req, res) => {
   }
 });
 
-app.get('/api/cadenas', requireAuth, async (req, res) => {
+app.get(['/cadenas', '/api/cadenas'], requireAuth, async (req, res) => {
   try {
     const cadenas = await fetchAll('cadena');
     res.json(cadenas);
@@ -1335,36 +1335,36 @@ app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
 
     const tiendaId = req.params.id;
     const {
-      domicilio, idCp, idCadena,
+      domicilio, idCp, id_cp, id_cadena,
       idResponsable, idCoordinador, idCapitan,
       numCajas, participa, idCampania
     } = req.body;
 
     // 1. Actualizamos la tabla principal: tienda
     const { error: errorTienda } = await supabase
-        .from('tienda')
-        .update({
-          domicilio: domicilio || null,
-          cp: idCp || null,
-          id_cadena: idCadena ? parseInt(idCadena) : null
-        })
-        .eq('id_tienda', tiendaId);
+      .from('tienda')
+      .update({
+        domicilio: domicilio || null,
+        cp: (idCp || id_cp) || null,
+        id_cadena: (idCadena || id_cadena) ? parseInt(idCadena || id_cadena) : null
+      })
+      .eq('id_tienda', tiendaId);
 
     if (errorTienda) throw errorTienda;
 
     // 2. Actualizamos la relación tienda_campania (SOLO SI SE ENVIÓ CONTEXTO DE CAMPAÑA DESDE EL FRONT)
     if (idCampania) {
       const { error: errorCampania } = await supabase
-          .from('tienda_campania')
-          .update({
-            id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
-            id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
-            id_capitan: idCapitan ? parseInt(idCapitan) : null,
-            num_cajas: parseInt(numCajas) || 0,
-            participa: participa === true || participa === 'true'
-          })
-          .eq('id_tienda', tiendaId)
-          .eq('id_campania', idCampania);
+        .from('tienda_campania')
+        .update({
+          id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
+          id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
+          id_capitan: idCapitan ? parseInt(idCapitan) : null,
+          num_cajas: parseInt(numCajas) || 0,
+          participa: participa === true || participa === 'true'
+        })
+        .eq('id_tienda', tiendaId)
+        .eq('id_campania', idCampania);
 
       if (errorCampania) throw errorCampania;
     }
@@ -1390,8 +1390,8 @@ app.get('/api/campanias_por_zona', requireAuth, async (req, res) => {
     }
 
     const { data, error } = await supabase
-        .from('asignacion_zona')
-        .select(`
+      .from('asignacion_zona')
+      .select(`
         id_campania,
         campania:id_campania (
           id_campania,
@@ -1401,7 +1401,7 @@ app.get('/api/campanias_por_zona', requireAuth, async (req, res) => {
           tipo
         )
       `)
-        .eq('id_zona', idZona);
+      .eq('id_zona', idZona);
 
     if (error) throw error;
     res.json(data || []);
@@ -1432,8 +1432,8 @@ app.all([
 // Catch-all para la SPA
 app.get('*', (req, res) => {
   const indexPath = process.env.NODE_ENV === 'development'
-      ? '/public/html/index.html'
-      : path.join(__dirname, '..', 'public', 'html', 'index.html');
+    ? '/public/html/index.html'
+    : path.join(__dirname, '..', 'public', 'html', 'index.html');
   res.sendFile(indexPath);
 });
 
