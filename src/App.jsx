@@ -1,28 +1,58 @@
-import { BrowserRouter, Link, Route, Routes } from 'react-router-dom'
+import { useEffect } from 'react'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
 import { Header, Footer } from './components/header_footer'
 import Homepage from './components/homepage'
 
-const legacyLinks = [
-  { label: 'Login', href: '/html/index.html' },
-  { label: 'Inicio', href: '/' },
-  { label: 'Campanias', href: '/html/campanias.html' },
-  { label: 'Zonas', href: '/html/zonas.html' },
-  { label: 'Tiendas', href: '/html/tiendas.html' },
-  { label: 'Entidades', href: '/html/entidades.html' },
-  { label: 'Voluntarios', href: '/html/voluntarios.html' },
-]
+function LoginRedirect() {
+  const token = sessionStorage.getItem('token')
+
+  useEffect(() => {
+    if (!token) {
+      window.location.replace('/html/index.html')
+    }
+  }, [token])
+
+  if (token) {
+    return <Navigate to="/homepage" replace />
+  }
+
+  return null
+}
+
+function RequireAuth({ children }) {
+  const token = sessionStorage.getItem('token')
+
+  useEffect(() => {
+    if (!token) {
+      window.location.replace('/html/index.html')
+    }
+  }, [token])
+
+  if (!token) {
+    return null
+  }
+
+  return children
+}
 
 function App() {
   return (
     <BrowserRouter>
-      <Header />
-
       <Routes>
-        <Route path="/" element={<Homepage />} />
-      </Routes>
+        <Route path="/" element={<LoginRedirect />} />
 
-      <Footer />
+        <Route
+          path="/homepage"
+          element={
+            <RequireAuth>
+              <Header />
+              <Homepage />
+              <Footer />
+            </RequireAuth>
+          }
+        />
+      </Routes>
     </BrowserRouter>
   )
 }

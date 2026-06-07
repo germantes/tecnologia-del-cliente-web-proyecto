@@ -1,0 +1,48 @@
+:root {
+    --twilight-indigo: #323266;
+    --sky-surge: #58b9da;
+    --graphite: #333333;
+    --white: #ffffff;
+    --bg-gray: #f4f6f8;
+    --font-main: 'Poppins', sans-serif;
+    --font-alt: 'Raleway', sans-serif;
+}
+
+main{
+    padding-left: 5%;
+    color : var(--twilight-indigo);
+}
+
+#rol{
+    font-weight: bold;
+}
+
+h1{
+    color: var(--twilight-indigo)
+}
+
+#informacion-extra{
+    max-width: 60%;
+    padding-top: 1%;
+    padding-bottom: 2%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-main);
+    background:
+            radial-gradient(
+                    circle at top right,
+                    rgba(88, 185, 218, 0.28),
+                    transparent 34%
+            ),
+            linear-gradient(
+                    135deg,
+                    var(--white) 0%,
+                    #f4fbfe 45%,
+                    rgba(88, 185, 218, 0.22) 100%
+            );
+    background-attachment: fixed;
+}

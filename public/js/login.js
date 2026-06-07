@@ -4,7 +4,7 @@
 function checkExistingSession() {
   // Si ya hay token en sesión, vamos directos al inicio sin comprobar roles
   if (sessionStorage.getItem("token")) {
-    window.location.href = "/html/inicio.html";
+    window.location.href = "/homepage";
   }
 }
 
@@ -84,7 +84,7 @@ function storeSessionData(data) {
 
 // Redirect to appropriate dashboard
 function redirectToDashboard(role) {
-  window.location.href = "/html/inicio.html";
+  window.location.href = "/homepage";
 }
 
 // Display error message

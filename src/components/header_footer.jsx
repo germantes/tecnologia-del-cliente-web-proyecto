@@ -1,19 +1,17 @@
-import '../styles/header.css';
-import '../styles/footer.css';
+import '../styles/header.css'
+import '../styles/footer.css'
 import { Link } from 'react-router-dom'
+import { cerrarSesion as borrarSesion } from './session.js'
 
 function Header() {
   function cerrarSesion() {
-    localStorage.removeItem('token')
-    localStorage.removeItem('usuario')
-    localStorage.removeItem('rol')
-
-    window.location.href = '/html/index.html'
+    borrarSesion()
+    window.location.href = '/'
   }
 
   return (
     <header className="bancosol-header">
-      <Link className="bancosol-header__logo-link" to="/" aria-label="Ir a inicio">
+      <Link className="bancosol-header__logo-link" to="/homepage" aria-label="Ir a inicio">
         <img className="bancosol-header__logo" src="/resources/img/BancosolLogo.png" alt="BancoSol Alimentos"/>
       </Link>
 
@@ -34,7 +32,7 @@ function Header() {
       </div>
 
       <nav className="bancosol-header__nav" aria-label="Navegación principal">
-        <Link className="bancosol-header__nav-item bancosol-header__nav-item--active" data-nav="inicio" to="/">
+        <Link className="bancosol-header__nav-item bancosol-header__nav-item--active" data-nav="inicio" to="/homepage">
           Inicio
         </Link>
 

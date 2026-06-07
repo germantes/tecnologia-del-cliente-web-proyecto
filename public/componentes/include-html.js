@@ -55,7 +55,7 @@ class IncludeHTML extends HTMLElement {
             sessionStorage.removeItem("token");
             sessionStorage.removeItem("perfil");
             sessionStorage.removeItem("usuario");
-            window.location.href = "/html/index.html";
+            window.location.href = "/";
         });
     }
 }
