@@ -66,8 +66,7 @@ function Footer(){
             <img className="bancosol-footer__logo" src="/resources/img/Bancosol.png" alt="BancoSol"></img>
             <div className="bancosol-footer__content">
                 <span className="bancosol-footer__brand">BancoSol</span>.
-                Proyecto Tecnologías del Servidor y del Cliente para aplicaciones web -
-                <span data-current-year></span>
+                Proyecto Tecnologías del Servidor y del Cliente para aplicaciones web - 2026
             </div>
         </footer>
     )
