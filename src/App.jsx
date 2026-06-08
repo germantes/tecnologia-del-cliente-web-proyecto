@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
 import { Header, Footer } from './components/header_footer'
 import Homepage from './components/homepage'
+import Cadenas from './components/cadenas'
 
 function LoginRedirect() {
   const token = sessionStorage.getItem('token')
@@ -48,6 +49,16 @@ function App() {
             <RequireAuth>
               <Header />
               <Homepage />
+              <Footer />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/cadenas"
+          element={
+            <RequireAuth>
+              <Header />
+              <Cadenas />
               <Footer />
             </RequireAuth>
           }

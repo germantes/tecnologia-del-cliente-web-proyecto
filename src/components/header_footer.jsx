@@ -40,6 +40,10 @@ function Header() {
           Campañas
         </a>
 
+        <Link className="bancosol-header__nav-item" data-nav="cadenas" to="/cadenas">
+          Cadenas
+        </Link>
+
         <a className="bancosol-header__nav-item" data-nav="zonas" href="/html/zonas.html">
           Zonas
         </a>
