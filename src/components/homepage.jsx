@@ -1,22 +1,29 @@
 import { useEffect, useState } from 'react'
 import '../styles/homepage.css'
 import { getSesion } from './session.js'
-import { getAccesosRapidosPorRol } from './auxiliar-homepage.js'
+import {
+  getAccesosRapidosPorRol,
+  getResumenCampaniaActiva,
+} from './auxiliar-homepage.js'
 
 function Homepage() {
   const sesion = getSesion()
 
   const rol = sesion.usuario
-    ? sesion.perfil
+    ? sesion.perfil 
     : null
 
   const nombreUsuario = sesion.usuario
-    ? sesion.usuario.nombre
+    ? sesion.usuario.nombre || 'usuario'
     : 'usuario'
 
   const [accesos, setAccesos] = useState([])
   const [cargandoAccesos, setCargandoAccesos] = useState(false)
   const [errorAccesos, setErrorAccesos] = useState('')
+
+  const [resumenCampania, setResumenCampania] = useState(null)
+  const [cargandoResumenCampania, setCargandoResumenCampania] = useState(false)
+  const [errorResumenCampania, setErrorResumenCampania] = useState('')
 
   useEffect(() => {
     if (!rol) {
@@ -54,6 +61,38 @@ function Homepage() {
     }
   }, [rol])
 
+  useEffect(() => {
+    let componenteActivo = true
+
+    async function cargarResumenCampania() {
+      try {
+        setCargandoResumenCampania(true)
+        setErrorResumenCampania('')
+
+        const resumen = await getResumenCampaniaActiva()
+
+        if (componenteActivo) {
+          setResumenCampania(resumen)
+        }
+      } catch (error) {
+        if (componenteActivo) {
+          setErrorResumenCampania('No se pudo cargar el resumen de la campaña activa.')
+          setResumenCampania(null)
+        }
+      } finally {
+        if (componenteActivo) {
+          setCargandoResumenCampania(false)
+        }
+      }
+    }
+
+    cargarResumenCampania()
+
+    return () => {
+      componenteActivo = false
+    }
+  }, [])
+
   if (!sesion.usuario) {
     return (
       <main className="homepage-main">
@@ -80,6 +119,30 @@ function Homepage() {
         <span>{acceso.texto}</span>
         <span className="quick-access__arrow" aria-hidden="true">›</span>
       </a>
+    )
+  }
+
+  function pintarBarraProgreso(etiqueta, porcentaje, detalle) {
+    return (
+      <div className="campaign-progress">
+        <div className="campaign-progress__header">
+          <span>{etiqueta}</span>
+          <strong>{porcentaje}%</strong>
+        </div>
+
+        <div className="campaign-progress__bar" aria-hidden="true">
+          <div
+            className="campaign-progress__fill"
+            style={{ width: `${porcentaje}%` }}
+          ></div>
+        </div>
+
+        {detalle && (
+          <p className="campaign-progress__detail">
+            {detalle}
+          </p>
+        )}
+      </div>
     )
   }
 
@@ -267,6 +330,74 @@ function Homepage() {
     return accesos.map(crearAcceso)
   }
 
+  function pintarResumenCampaniaActiva() {
+    if (cargandoResumenCampania) {
+      return (
+        <p className="campaign-summary__message">
+          Cargando resumen de la campaña activa...
+        </p>
+      )
+    }
+
+    if (errorResumenCampania) {
+      return (
+        <p className="campaign-summary__message campaign-summary__message--error">
+          {errorResumenCampania}
+        </p>
+      )
+    }
+
+    if (!resumenCampania) {
+      return (
+        <p className="campaign-summary__message">
+          No hay ninguna campaña activa actualmente.
+        </p>
+      )
+    }
+
+    return (
+      <>
+        <div className="campaign-summary__main">
+          <div className="campaign-summary__field campaign-summary__field--name">
+            <span>Nombre</span>
+            <strong>{resumenCampania.nombre}</strong>
+          </div>
+
+          <div className="campaign-summary__field">
+            <span>Estado</span>
+            <strong className="campaign-summary__status">Activa</strong>
+          </div>
+
+          <div className="campaign-summary__field">
+            <span>Fechas</span>
+            <strong>{resumenCampania.fechas}</strong>
+          </div>
+
+          <div className="campaign-summary__field">
+            <span>Tiendas participantes</span>
+            <strong>
+              {resumenCampania.numeroTiendasParticipan} / {resumenCampania.numeroTiendasTotales}
+            </strong>
+          </div>
+        </div>
+
+        <div className="campaign-progress-grid">
+          {pintarBarraProgreso(
+            'Tiendas participantes',
+            resumenCampania.porcentajeTiendasParticipan,
+            `${resumenCampania.numeroTiendasParticipan} de ${resumenCampania.numeroTiendasTotales} tiendas participan en la campaña.`
+          )}
+
+          {pintarBarraProgreso(
+            'Tiempo transcurrido',
+            resumenCampania.porcentajeTiempoTranscurrido,
+            'Porcentaje de tiempo transcurrido desde el inicio hasta el final de la campaña.'
+          )}
+        </div>
+      </>
+    )
+  }
+
   return (
     <main className="homepage-main">
       <section className="homepage-hero">
@@ -315,6 +446,19 @@ function Homepage() {
             {accesosRapidos()}
           </div>
         </article>
+      </section>
+
+      <section className="campaign-summary" aria-label="Resumen de la campaña activa">
+        <div className="campaign-summary__header">
+          <div className="campaign-summary__icon" aria-hidden="true"></div>
+
+          <div>
+            <h3>Campaña activa</h3>
+            <p>Resumen general de la campaña que se encuentra actualmente en curso.</p>
+          </div>
+        </div>
+
+        {pintarResumenCampaniaActiva()}
       </section>
     </main>
   )
