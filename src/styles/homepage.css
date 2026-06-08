@@ -7,6 +7,9 @@
     --card-border: #dfe7ef;
     --card-shadow: 0 12px 30px rgba(50, 50, 102, 0.12);
     --soft-blue: rgba(88, 185, 218, 0.14);
+    --icon-circle-bg: #e7f5fb;
+    --icon-circle-size: 65px;
+    --icon-size: 30px;
     --font-main: 'Poppins', sans-serif;
     --font-alt: 'Raleway', sans-serif;
 }
@@ -72,8 +75,6 @@ body {
     line-height: 1.5;
 }
 
-/* Estructura general */
-
 .homepage-controls,
 .stats-row {
     width: 100%;
@@ -88,17 +89,6 @@ body {
 .stats-row {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     margin-top: 24px;
-}
-
-.icon-circle--campanias::after {
-    content: "▣";
-}
-
-.stat-card__content small {
-    color: var(--twilight-indigo);
-    font-size: 0.9rem;
-    line-height: 1.3;
-    opacity: 0.82;
 }
 
 .panel {
@@ -161,65 +151,35 @@ body {
     color: #b00020;
 }
 
-/* Iconos genéricos */
-
-.icon-circle {
-    width: 46px;
-    height: 46px;
-    flex: 0 0 46px;
-    border-radius: 50%;
-    background:
-            linear-gradient(
-                    135deg,
-                    rgba(88, 185, 218, 0.22),
-                    rgba(88, 185, 218, 0.08)
-            );
-    border: 1px solid rgba(88, 185, 218, 0.3);
-    position: relative;
+.stats-message {
+    padding: 18px 22px;
 }
 
-.icon-circle::after {
-    content: "";
-    position: absolute;
-    inset: 13px;
-    border-radius: 8px;
-    border: 2px solid var(--sky-surge);
-    opacity: 0.85;
-}
+/* Iconos comunes */
 
-.icon-circle--large {
-    width: 66px;
-    height: 66px;
-    flex: 0 0 66px;
+.homepage-icon {
+    width: var(--icon-circle-size);
+    height: var(--icon-circle-size);
+    flex: 0 0 var(--icon-circle-size);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 0;
-    color: #2f68c9;
+    border-radius: 50%;
+    background-color: var(--icon-circle-bg);
+    color: var(--twilight-indigo);
+    line-height: 1;
 }
 
-.icon-circle--large::after {
-    inset: auto;
-    border: 0;
-    border-radius: 0;
-    opacity: 1;
-    color: #2f68c9;
-    font-size: 1.9rem;
-    font-weight: 900;
+.homepage-icon__svg {
+    width: var(--icon-size);
+    height: var(--icon-size);
+    display: block;
+    color: var(--twilight-indigo);
 }
 
-.icon-circle--tiendas::after {
-    content: "▤";
-}
-
-.icon-circle--entidades::after {
-    content: "▥";
-}
-
-.icon-circle--voluntarios::after {
-    content: "●●";
-    font-size: 1.2rem;
-    letter-spacing: -2px;
+.panel__header .homepage-icon,
+.stat-card .homepage-icon {
+    flex-shrink: 0;
 }
 
 /* Listas */
@@ -250,9 +210,9 @@ body {
     justify-content: center;
     margin-top: 1px;
     border-radius: 50%;
-    background-color: var(--twilight-indigo);
-    color: var(--white);
-    font-size: 0.72rem;
+    background-color: var(--soft-blue);
+    color: var(--twilight-indigo);
+    font-size: 0.6rem;
     font-weight: 800;
 }
 
@@ -425,6 +385,13 @@ body {
     font-size: 1rem;
     font-weight: 700;
     line-height: 1.25;
+}
+
+.stat-card__content small {
+    color: var(--twilight-indigo);
+    font-size: 0.9rem;
+    line-height: 1.3;
+    opacity: 0.82;
 }
 
 /* Responsive */

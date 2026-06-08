@@ -1,9 +1,32 @@
 import { getAuthHeaders, getUsuario } from './session.js'
+import {
+  faArrowRight,
+  faBuilding,
+  faCalendarCheck,
+  faCheckCircle,
+  faClipboardList,
+  faFlagCheckered,
+  faShieldHalved,
+  faStore,
+  faUsers,
+} from '@fortawesome/free-solid-svg-icons'
 
 const API_BASE =
   typeof window !== 'undefined' && window.API_URL
     ? window.API_URL
     : 'http://localhost:3000'
+
+const ICONOS_HOME = {
+  responsabilidades: faClipboardList,
+  permisos: faShieldHalved,
+  accesosRapidos: faArrowRight,
+  campaniaActiva: faFlagCheckered,
+  campaniasActivas: faCalendarCheck,
+  tiendasRegistradas: faStore,
+  entidadesRegistradas: faBuilding,
+  voluntariosRegistrados: faUsers,
+  lista: faCheckCircle,
+}
 
 function construirUrlApi(ruta) {
   if (ruta.startsWith('http://') || ruta.startsWith('https://')) {
@@ -11,6 +34,20 @@ function construirUrlApi(ruta) {
   }
 
   return `${API_BASE}${ruta}`
+}
+
+function construirUrl(base, parametros = {}) {
+  const urlParams = new URLSearchParams()
+
+  Object.entries(parametros).forEach(([clave, valor]) => {
+    if (valor !== undefined && valor !== null && valor !== '') {
+      urlParams.set(clave, valor)
+    }
+  })
+
+  const queryString = urlParams.toString()
+
+  return queryString ? `${base}?${queryString}` : base
 }
 
 function convertirANumero(valor) {
@@ -37,6 +74,7 @@ function obtenerPrimerValorDisponible(objeto, campos) {
   return null
 }
 
+
 function sonMismoIdentificador(valorA, valorB) {
   if (
     valorA === undefined ||
@@ -48,20 +86,6 @@ function sonMismoIdentificador(valorA, valorB) {
   }
 
   return String(valorA) === String(valorB)
-}
-
-function construirUrl(base, parametros = {}) {
-  const urlParams = new URLSearchParams()
-
-  Object.entries(parametros).forEach(([clave, valor]) => {
-    if (valor !== undefined && valor !== null && valor !== '') {
-      urlParams.set(clave, valor)
-    }
-  })
-
-  const queryString = urlParams.toString()
-
-  return queryString ? `${base}?${queryString}` : base
 }
 
 async function obtenerJsonApi(ruta) {
@@ -85,14 +109,34 @@ async function obtenerJsonApiOpcional(ruta) {
   }
 }
 
+function normalizarLista(respuesta) {
+  if (Array.isArray(respuesta)) {
+    return respuesta
+  }
+
+  if (Array.isArray(respuesta?.data)) {
+    return respuesta.data
+  }
+
+  if (Array.isArray(respuesta?.rows)) {
+    return respuesta.rows
+  }
+
+  if (Array.isArray(respuesta?.result)) {
+    return respuesta.result
+  }
+
+  return []
+}
+
 async function obtenerListaApiOpcional(ruta) {
   const respuesta = await obtenerJsonApiOpcional(ruta)
-  return respuesta || []
+  return normalizarLista(respuesta)
 }
 
 function contarElementosUnicos(lista, camposId) {
   return new Set(
-    (lista || [])
+    normalizarLista(lista)
       .map((elemento) => obtenerPrimerValorDisponible(elemento, camposId))
       .filter((id) => id !== undefined && id !== null)
       .map(String)
@@ -128,11 +172,13 @@ async function obtenerIdEntidadPorUsuario(idUsuario) {
     return null
   }
 
-  const entidades = (await obtenerJsonApi(
-    construirUrl('/api/entidades', {
-      id_usuario_contacto: idUsuarioNumero,
-    })
-  )) || []
+  const entidades = normalizarLista(
+    await obtenerJsonApi(
+      construirUrl('/api/entidades', {
+        id_usuario_contacto: idUsuarioNumero,
+      })
+    )
+  )
 
   const entidad = entidades.find((entidad) => {
     const idUsuarioContacto = obtenerPrimerValorDisponible(entidad, [
@@ -280,7 +326,7 @@ function esCampaniaActiva(campania) {
 }
 
 async function obtenerCampanias() {
-  return (await obtenerJsonApi('/api/campanias')) || []
+  return normalizarLista(await obtenerJsonApi('/api/campanias'))
 }
 
 async function obtenerCampaniaActiva() {
@@ -305,18 +351,22 @@ async function obtenerTiendasRegistradas() {
 }
 
 async function obtenerTiendasDeCampania(idCampania) {
-  return (await obtenerJsonApi(
+  return normalizarLista(
+    await obtenerJsonApi(
       construirUrl('/api/tiendas', {
         idCampania,
       })
-    )) || []
+    )
+  )
 }
 
 function obtenerRelacionCampaniaTienda(tienda, idCampania) {
-  const relaciones = obtenerPrimerValorDisponible(tienda, [
-    'tienda_campania',
-    'tiendaCampania',
-  ]) || []
+  const relaciones = normalizarLista(
+    obtenerPrimerValorDisponible(tienda, [
+      'tienda_campania',
+      'tiendaCampania',
+    ])
+  )
 
   return (
     relaciones.find((relacion) => {
@@ -423,7 +473,7 @@ async function obtenerEstadisticasHomepage() {
     entidades,
     voluntarios,
   ] = await Promise.all([
-    obtenerCampanias(),
+    obtenerListaApiOpcional('/api/campanias'),
     obtenerTiendasRegistradas(),
     obtenerListaApiOpcional('/api/entidades'),
     obtenerListaApiOpcional('/api/voluntarios'),
@@ -535,6 +585,7 @@ async function obtenerAccesosRapidosPorRol(rol) {
 }
 
 export {
+  ICONOS_HOME,
   obtenerAccesosRapidosPorRol,
   obtenerResumenCampaniaActiva,
   obtenerEstadisticasHomepage,

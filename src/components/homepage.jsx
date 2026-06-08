@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import '../styles/homepage.css'
 import { getSesion } from './session.js'
 import {
+  ICONOS_HOME,
   obtenerAccesosRapidosPorRol,
   obtenerResumenCampaniaActiva,
   obtenerEstadisticasHomepage,
@@ -99,7 +101,7 @@ function Homepage() {
   const sesion = getSesion()
 
   const perfil = sesion.usuario
-    ? (sesion.perfil || sesion.usuario.puesto || sesion.usuario.rol || null)
+    ? sesion.perfil
     : null
 
   const nombreDelUsuario = sesion.usuario
@@ -223,10 +225,18 @@ function Homepage() {
     )
   }
 
+  function renderizarIcono(icono) {
+    return (
+      <span className="homepage-icon" aria-hidden="true">
+        <FontAwesomeIcon icon={icono} className="homepage-icon__svg" />
+      </span>
+    )
+  }
+
   function renderizarLista(items) {
     return items.map((texto) => (
       <li key={texto} className="card-list__item">
-        <span className="card-list__check" aria-hidden="true">✓</span>
+        <FontAwesomeIcon icon={ICONOS_HOME.lista} className="card-list__check" aria-hidden="true" />
         <span>{texto}</span>
       </li>
     ))
@@ -332,12 +342,16 @@ function Homepage() {
   }
 
   function crearTarjetaEstadistica(tipo, numero, titulo, subtitulo) {
+    const iconosEstadistica = {
+      campanias: ICONOS_HOME.campaniasActivas,
+      tiendas: ICONOS_HOME.tiendasRegistradas,
+      entidades: ICONOS_HOME.entidadesRegistradas,
+      voluntarios: ICONOS_HOME.voluntariosRegistrados,
+    }
+
     return (
       <article className="stat-card panel panel--bordered">
-        <div
-          className={`icon-circle icon-circle--large icon-circle--${tipo}`}
-          aria-hidden="true"
-        ></div>
+        {renderizarIcono(iconosEstadistica[tipo])}
 
         <div className="stat-card__content">
           <strong>{numero}</strong>
@@ -352,57 +366,61 @@ function Homepage() {
   }
 
   function renderizarEstadisticas() {
-  const datos = estadisticas.datos
+    const datos = estadisticas.datos
 
-  if (estadisticas.cargando) {
+    if (estadisticas.cargando) {
+      return (
+        <section className="stats-row">
+          <p className="message panel panel--bordered stats-message">
+            Cargando estadísticas generales...
+          </p>
+        </section>
+      )
+    }
+
+    if (estadisticas.error) {
+      return (
+        <section className="stats-row">
+          <p className="message message--error panel panel--bordered stats-message">
+            {estadisticas.error}
+          </p>
+        </section>
+      )
+    }
+
+    if (!datos) {
+      return null
+    }
+
     return (
-      <section className="stats-row">
-        <p className="message panel">Cargando estadísticas generales...</p>
+      <section className="stats-row" aria-label="Estadísticas generales">
+        {crearTarjetaEstadistica(
+          'campanias',
+          datos.campaniasActivas,
+          'Campañas activas',
+          `${datos.campaniasTotales} campañas registradas`
+        )}
+
+        {crearTarjetaEstadistica(
+          'tiendas',
+          datos.tiendasRegistradas,
+          'Tiendas registradas'
+        )}
+
+        {crearTarjetaEstadistica(
+          'entidades',
+          datos.entidadesRegistradas,
+          'Entidades registradas'
+        )}
+
+        {crearTarjetaEstadistica(
+          'voluntarios',
+          datos.voluntariosRegistrados,
+          'Voluntarios registrados'
+        )}
       </section>
     )
   }
-
-  if (estadisticas.error) {
-    return (
-      <section className="stats-row">
-        <p className="message message--error panel">{estadisticas.error}</p>
-      </section>
-    )
-  }
-
-  if (!datos) {
-    return null
-  }
-
-  return (
-    <section className="stats-row" aria-label="Estadísticas generales">
-      {crearTarjetaEstadistica(
-        'campanias',
-        datos.campaniasActivas,
-        'Campañas activas',
-        `${datos.campaniasTotales} campañas registradas`
-      )}
-
-      {crearTarjetaEstadistica(
-        'tiendas',
-        datos.tiendasRegistradas,
-        'Tiendas registradas'
-      )}
-
-      {crearTarjetaEstadistica(
-        'entidades',
-        datos.entidadesRegistradas,
-        'Entidades registradas'
-      )}
-
-      {crearTarjetaEstadistica(
-        'voluntarios',
-        datos.voluntariosRegistrados,
-        'Voluntarios registrados'
-      )}
-    </section>
-  )
-}
 
   return (
     <main className="homepage-main">
@@ -422,7 +440,7 @@ function Homepage() {
       <section className="homepage-controls" aria-label="Resumen principal del usuario">
         <article className="homepage-card panel panel--bordered">
           <div className="panel__header">
-            <div className="icon-circle" aria-hidden="true"></div>
+            {renderizarIcono(ICONOS_HOME.responsabilidades)}
             <h3>Mis responsabilidades</h3>
           </div>
 
@@ -433,7 +451,7 @@ function Homepage() {
 
         <article className="homepage-card panel panel--bordered">
           <div className="panel__header">
-            <div className="icon-circle" aria-hidden="true"></div>
+            {renderizarIcono(ICONOS_HOME.permisos)}
             <h3>Mis permisos</h3>
           </div>
 
@@ -444,7 +462,7 @@ function Homepage() {
 
         <article className="homepage-card panel panel--bordered">
           <div className="panel__header">
-            <div className="icon-circle" aria-hidden="true"></div>
+            {renderizarIcono(ICONOS_HOME.accesosRapidos)}
             <h3>Accesos rápidos</h3>
           </div>
 
@@ -456,7 +474,7 @@ function Homepage() {
 
       <section className="campaign-summary panel panel--bordered" aria-label="Resumen de la campaña activa">
         <div className="panel__header">
-          <div className="icon-circle" aria-hidden="true"></div>
+          {renderizarIcono(ICONOS_HOME.campaniaActiva)}
 
           <div>
             <h3>Campaña activa</h3>
