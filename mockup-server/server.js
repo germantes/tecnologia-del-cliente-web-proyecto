@@ -1315,6 +1315,30 @@ app.get('/api/cadenas', requireAuth, async (req, res) => {
   }
 });
 
+// Endpoint para crear una nueva cadena
+app.post('/api/cadenas', requireAuth, async (req, res) => {
+    try {
+        const { codigo_cadena, establecimiento, nombre_particular, empresa } = req.body;
+
+        // Validación básica
+        if (!codigo_cadena || !establecimiento) {
+            return res.status(400).json({ success: false, message: 'El código y el establecimiento son obligatorios.' });
+        }
+
+        const [newCadena] = await insertRows('cadena', [{
+            codigo_cadena,
+            establecimiento,
+            nombre_particular,
+            empresa_cadena: empresa // Aseguramos el mapeo correcto
+        }]);
+        
+        res.status(201).json(newCadena);
+
+    } catch (error) {
+        sendError(res, error, 'Error al crear la cadena');
+    }
+});
+
 app.get('/api/usuarios', requireAuth, async (req, res) => {
   try {
     const usuarios = await fetchAll('usuario');
