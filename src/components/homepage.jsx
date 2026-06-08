@@ -376,7 +376,7 @@ function Homepage() {
           <div className="campaign-summary__field">
             <span>Tiendas participantes</span>
             <strong>
-              {resumenCampania.numeroTiendasParticipan} / {resumenCampania.numeroTiendasTotales}
+              {resumenCampania.numeroTiendasParticipan}
             </strong>
           </div>
         </div>

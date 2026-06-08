@@ -300,20 +300,11 @@ body {
     opacity: 0.85;
 }
 
-.campaign-summary__badge {
-    margin-left: auto;
-    padding: 6px 14px;
-    border-radius: 999px;
-    background-color: rgba(46, 204, 113, 0.14);
-    color: #168a45;
-    font-weight: 800;
-    font-size: 0.9rem;
-}
-
 .campaign-summary__main {
     display: grid;
-    grid-template-columns: 1.5fr repeat(5, 1fr);
-    gap: 18px;
+    grid-template-columns: 1.6fr 0.8fr 1.4fr 1fr;
+    column-gap: 36px;
+    row-gap: 18px;
     align-items: start;
 }
 
@@ -342,50 +333,6 @@ body {
     color: #168a45 !important;
 }
 
-.campaign-summary__actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 14px;
-    margin-top: 22px;
-    padding-top: 18px;
-    border-top: 1px solid var(--card-border);
-}
-
-.campaign-summary__button {
-    min-width: 140px;
-    padding: 10px 16px;
-    border: 1px solid var(--twilight-indigo);
-    border-radius: 8px;
-    background-color: rgba(255, 255, 255, 0.78);
-    color: var(--twilight-indigo);
-    text-align: center;
-    text-decoration: none;
-    font-weight: 800;
-    box-sizing: border-box;
-    transition:
-            transform 0.2s ease,
-            background-color 0.2s ease,
-            color 0.2s ease,
-            box-shadow 0.2s ease;
-}
-
-.campaign-summary__button:hover {
-    transform: translateY(-2px);
-    background-color: var(--twilight-indigo);
-    color: var(--white);
-    box-shadow: 0 8px 18px rgba(50, 50, 102, 0.12);
-}
-
-.campaign-summary__button--primary {
-    background-color: var(--twilight-indigo);
-    color: var(--white);
-}
-
-.campaign-summary__button--primary:hover {
-    background-color: var(--sky-surge);
-    border-color: var(--sky-surge);
-}
-
 .campaign-summary__message {
     margin: 0;
     color: var(--twilight-indigo);
@@ -399,11 +346,6 @@ body {
 @media (max-width: 1100px) {
     .campaign-summary__main {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .campaign-summary__actions {
-        justify-content: flex-start;
-        flex-wrap: wrap;
     }
 }
 
@@ -422,14 +364,6 @@ body {
 
     .campaign-summary__main {
         grid-template-columns: 1fr;
-    }
-
-    .campaign-summary__actions {
-        flex-direction: column;
-    }
-
-    .campaign-summary__button {
-        width: 100%;
     }
 }
 
