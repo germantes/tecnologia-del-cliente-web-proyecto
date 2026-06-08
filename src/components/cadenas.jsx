@@ -1,7 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { getAuthHeaders } from './session.js';
+import CadenaCard from './CadenaCard.jsx';
+import '../styles/card-display.css';
+import '../styles/common.css';
+
+import '../styles/tiendas.css'
 
 function Cadenas() {
+    const [cadenas, setCadenas] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
     useEffect(() => {
         async function fetchCadenas() {
             try {
@@ -15,18 +24,39 @@ function Cadenas() {
                 }
 
                 const data = await response.json();
-                console.log('Cadenas:', data);
+                setCadenas(data);
             } catch (error) {
-                console.error("Could not fetch cadenas:", error);
+                setError(error.message);
+            } finally {
+                setLoading(false);
             }
         }
         fetchCadenas();
-    }, []); // Empty dependency array means this effect runs once on mount
+    }, []);
 
     return (
-        <main className="bancosol-main" style={{ padding: '2rem', flex: 1 }}>
+        <main className="main" style={{ padding: '2rem', flex: 1 }}>
             <h1>Cadenas</h1>
-            <p>Página de gestión de cadenas.</p>
+            
+            {loading && (
+                <div className="loading">
+                    <span className="spinner"></span> Cargando cadenas...
+                </div>
+            )}
+            
+            {error && (
+                <div className="alert alert-error">
+                    Error: {error}
+                </div>
+            )}
+            
+            {!loading && !error && (
+                <div className="tiendas-grid">
+                    {cadenas.map((cadena) => (
+                        <CadenaCard key={cadena.id_cadena} cadena={cadena} />
+                    ))}
+                </div>
+            )}
         </main>
     )
 }
