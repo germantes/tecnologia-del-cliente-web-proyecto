@@ -5,7 +5,7 @@ const API_BASE =
     ? window.API_URL
     : 'http://localhost:3000'
 
-function crearUrlApi(ruta) {
+function construirUrlApi(ruta) {
   if (ruta.startsWith('http://') || ruta.startsWith('https://')) {
     return ruta
   }
@@ -20,19 +20,15 @@ function convertirANumero(valor) {
 
   const numero = Number(valor)
 
-  if (Number.isNaN(numero)) {
-    return null
-  }
-
-  return numero
+  return Number.isNaN(numero) ? null : numero
 }
 
-function obtenerCampo(objeto, nombresCampos) {
+function obtenerPrimerValorDisponible(objeto, campos) {
   if (!objeto) {
     return null
   }
 
-  for (const campo of nombresCampos) {
+  for (const campo of campos) {
     if (objeto[campo] !== undefined && objeto[campo] !== null) {
       return objeto[campo]
     }
@@ -41,58 +37,7 @@ function obtenerCampo(objeto, nombresCampos) {
   return null
 }
 
-function crearUrl(base, parametros = {}) {
-  const urlParams = new URLSearchParams()
-
-  Object.entries(parametros).forEach(([clave, valor]) => {
-    if (valor !== undefined && valor !== null && valor !== '') {
-      urlParams.set(clave, valor)
-    }
-  })
-
-  const queryString = urlParams.toString()
-
-  if (!queryString) {
-    return base
-  }
-
-  return `${base}?${queryString}`
-}
-
-async function apiGet(ruta) {
-  const respuesta = await fetch(crearUrlApi(ruta), {
-    method: 'GET',
-    headers: getAuthHeaders(),
-  })
-
-  if (!respuesta.ok) {
-    throw new Error(`Error al cargar ${ruta}`)
-  }
-
-  return await respuesta.json()
-}
-
-function normalizarLista(respuesta) {
-  if (Array.isArray(respuesta)) {
-    return respuesta
-  }
-
-  if (Array.isArray(respuesta?.data)) {
-    return respuesta.data
-  }
-
-  if (Array.isArray(respuesta?.rows)) {
-    return respuesta.rows
-  }
-
-  if (Array.isArray(respuesta?.result)) {
-    return respuesta.result
-  }
-
-  return []
-}
-
-function sonMismoId(valorA, valorB) {
+function sonMismoIdentificador(valorA, valorB) {
   if (
     valorA === undefined ||
     valorA === null ||
@@ -105,74 +50,124 @@ function sonMismoId(valorA, valorB) {
   return String(valorA) === String(valorB)
 }
 
-function getIdUsuarioActual() {
+function construirUrl(base, parametros = {}) {
+  const urlParams = new URLSearchParams()
+
+  Object.entries(parametros).forEach(([clave, valor]) => {
+    if (valor !== undefined && valor !== null && valor !== '') {
+      urlParams.set(clave, valor)
+    }
+  })
+
+  const queryString = urlParams.toString()
+
+  return queryString ? `${base}?${queryString}` : base
+}
+
+async function obtenerJsonApi(ruta) {
+  const respuesta = await fetch(construirUrlApi(ruta), {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  })
+
+  if (!respuesta.ok) {
+    throw new Error(`Error al cargar ${ruta}`)
+  }
+
+  return await respuesta.json()
+}
+
+async function obtenerJsonApiOpcional(ruta) {
+  try {
+    return await obtenerJsonApi(ruta)
+  } catch {
+    return null
+  }
+}
+
+async function obtenerListaApiOpcional(ruta) {
+  const respuesta = await obtenerJsonApiOpcional(ruta)
+  return respuesta || []
+}
+
+function contarElementosUnicos(lista, camposId) {
+  return new Set(
+    (lista || [])
+      .map((elemento) => obtenerPrimerValorDisponible(elemento, camposId))
+      .filter((id) => id !== undefined && id !== null)
+      .map(String)
+  ).size
+}
+
+function obtenerIdUsuarioActual() {
   const usuario = getUsuario()
 
-  const idUsuario = obtenerCampo(usuario, [
-    'id_usuario',
-    'idUsuario',
-    'id',
-  ])
-
-  return convertirANumero(idUsuario)
+  return convertirANumero(
+    obtenerPrimerValorDisponible(usuario, [
+      'id_usuario',
+      'idUsuario',
+      'id',
+    ])
+  )
 }
 
-function obtenerIdEntidadDeObjeto(entidad) {
-  const idEntidad = obtenerCampo(entidad, [
-    'id_entidad',
-    'idEntidad',
-    'id',
-  ])
-
-  return convertirANumero(idEntidad)
+function obtenerIdEntidad(entidad) {
+  return convertirANumero(
+    obtenerPrimerValorDisponible(entidad, [
+      'id_entidad',
+      'idEntidad',
+      'id',
+    ])
+  )
 }
 
-async function getIdEntidadPorIdUsuario(idUsuario) {
+async function obtenerIdEntidadPorUsuario(idUsuario) {
   const idUsuarioNumero = convertirANumero(idUsuario)
 
   if (!idUsuarioNumero) {
     return null
   }
 
-  const url = crearUrl('/api/entidades', {
-    id_usuario_contacto: idUsuarioNumero,
-  })
-
-  const respuesta = await apiGet(url)
-  const entidades = normalizarLista(respuesta)
-
-  if (entidades.length === 0) {
-    return null
-  }
+  const entidades = (await obtenerJsonApi(
+    construirUrl('/api/entidades', {
+      id_usuario_contacto: idUsuarioNumero,
+    })
+  )) || []
 
   const entidad = entidades.find((entidad) => {
-    return sonMismoId(entidad.id_usuario_contacto, idUsuarioNumero)
+    const idUsuarioContacto = obtenerPrimerValorDisponible(entidad, [
+      'id_usuario_contacto',
+      'idUsuarioContacto',
+    ])
+
+    return sonMismoIdentificador(idUsuarioContacto, idUsuarioNumero)
   })
 
-  return obtenerIdEntidadDeObjeto(entidad || entidades[0])
+  return obtenerIdEntidad(entidad || entidades[0])
 }
 
-async function getIdEntidadUsuarioActual() {
+async function obtenerIdEntidadDelUsuarioActual() {
   const usuario = getUsuario()
 
   if (!usuario) {
     return null
   }
 
-  const idEntidadGuardado = obtenerCampo(usuario, [
-    'id_entidad'
-  ])
+  const idEntidadGuardado = convertirANumero(
+    obtenerPrimerValorDisponible(usuario, [
+      'id_entidad',
+      'idEntidad',
+    ])
+  )
 
   if (idEntidadGuardado) {
-    return convertirANumero(idEntidadGuardado)
+    return idEntidadGuardado
   }
 
-  const idUsuario = getIdUsuarioActual()
-
-  return await getIdEntidadPorIdUsuario(idUsuario)
+  return await obtenerIdEntidadPorUsuario(obtenerIdUsuarioActual())
 }
 
-function parseFechaLocal(fecha) {
+function parsearFechaLocal(fecha) {
   if (!fecha) {
     return null
   }
@@ -186,8 +181,8 @@ function parseFechaLocal(fecha) {
 }
 
 function formatearRangoFechas(fechaInicio, fechaFin) {
-  const inicio = parseFechaLocal(fechaInicio)
-  const fin = parseFechaLocal(fechaFin)
+  const inicio = parsearFechaLocal(fechaInicio)
+  const fin = parsearFechaLocal(fechaFin)
 
   if (
     !inicio ||
@@ -222,10 +217,10 @@ function formatearRangoFechas(fechaInicio, fechaFin) {
     inicio.getMonth() === fin.getMonth() &&
     inicio.getFullYear() === fin.getFullYear()
   ) {
-    return `${diaInicio} - ${diaFin} ${mesFin}`
+    return `${diaInicio}-${diaFin} ${mesFin}`
   }
 
-  return `${diaInicio} ${mesInicio} - ${diaFin} ${mesFin}`
+  return `${diaInicio} ${mesInicio}-${diaFin} ${mesFin}`
 }
 
 function calcularPorcentaje(parte, total) {
@@ -235,20 +230,12 @@ function calcularPorcentaje(parte, total) {
 
   const porcentaje = (parte / total) * 100
 
-  if (porcentaje < 0) {
-    return 0
-  }
-
-  if (porcentaje > 100) {
-    return 100
-  }
-
-  return Math.round(porcentaje)
+  return Math.max(0, Math.min(100, Math.round(porcentaje)))
 }
 
-function calcularPorcentajeTiempoTranscurrido(fechaInicio, fechaFin) {
-  const inicio = parseFechaLocal(fechaInicio)
-  const fin = parseFechaLocal(fechaFin)
+function calcularPorcentajeTiempo(fechaInicio, fechaFin) {
+  const inicio = parsearFechaLocal(fechaInicio)
+  const fin = parsearFechaLocal(fechaFin)
 
   if (
     !inicio ||
@@ -261,35 +248,25 @@ function calcularPorcentajeTiempoTranscurrido(fechaInicio, fechaFin) {
 
   fin.setHours(23, 59, 59, 999)
 
-  const ahora = new Date()
   const duracionTotal = fin.getTime() - inicio.getTime()
-  const tiempoTranscurrido = ahora.getTime() - inicio.getTime()
-
-  if (duracionTotal <= 0) {
-    return 0
-  }
+  const tiempoTranscurrido = Date.now() - inicio.getTime()
 
   return calcularPorcentaje(tiempoTranscurrido, duracionTotal)
 }
 
 function esCampaniaActiva(campania) {
-  const fechaInicio = obtenerCampo(campania, [
+  const fechaInicio = obtenerPrimerValorDisponible(campania, [
     'fecha_inicio',
     'fechaInicio',
   ])
 
-  const fechaFin = obtenerCampo(campania, [
+  const fechaFin = obtenerPrimerValorDisponible(campania, [
     'fecha_fin',
     'fechaFin',
   ])
 
-  if (!fechaInicio || !fechaFin) {
-    return false
-  }
-
-  const hoy = new Date()
-  const inicio = parseFechaLocal(fechaInicio)
-  const fin = parseFechaLocal(fechaFin)
+  const inicio = parsearFechaLocal(fechaInicio)
+  const fin = parsearFechaLocal(fechaFin)
 
   if (!inicio || !fin) {
     return false
@@ -297,123 +274,70 @@ function esCampaniaActiva(campania) {
 
   fin.setHours(23, 59, 59, 999)
 
+  const hoy = new Date()
+
   return hoy >= inicio && hoy <= fin
 }
 
-async function getCampaniaActiva() {
-  const respuesta = await apiGet('/api/campanias')
-  const campanias = normalizarLista(respuesta)
+async function obtenerCampanias() {
+  return (await obtenerJsonApi('/api/campanias')) || []
+}
 
-  if (campanias.length === 0) {
-    return null
-  }
-
+async function obtenerCampaniaActiva() {
+  const campanias = await obtenerCampanias()
   return campanias.find(esCampaniaActiva) || null
 }
 
-async function getIdCampaniaActiva() {
-  const campaniaActiva = await getCampaniaActiva()
+async function obtenerIdCampaniaActiva() {
+  const campaniaActiva = await obtenerCampaniaActiva()
 
-  if (!campaniaActiva) {
-    return null
-  }
-
-  const idCampania = obtenerCampo(campaniaActiva, [
-    'id_campania',
-    'idCampania',
-    'id',
-  ])
-
-  return convertirANumero(idCampania)
-}
-
-async function getCampaniaPorId(idCampania) {
-  const idCampaniaNumero = convertirANumero(idCampania)
-
-  if (!idCampaniaNumero) {
-    return null
-  }
-
-  const respuesta = await apiGet('/api/campanias')
-  const campanias = normalizarLista(respuesta)
-
-  return (
-    campanias.find((campania) => {
-      const id = obtenerCampo(campania, [
-        'id_campania',
-        'idCampania',
-        'id',
-      ])
-
-      return sonMismoId(id, idCampaniaNumero)
-    }) || null
-  )
-}
-
-async function getTiendasDeCampania(idCampania) {
-  const tiendas = await apiGet(
-    crearUrl('/api/tiendas', {
-      idCampania,
-    })
-  )
-
-  return normalizarLista(tiendas)
-}
-
-async function getNumeroTotalTiendasRegistradas() {
-  const respuesta = await apiGet('/tiendas')
-  const tiendas = normalizarLista(respuesta)
-
-  const idsTiendas = new Set(
-    tiendas
-      .map(getIdTienda)
-      .filter((idTienda) => idTienda !== undefined && idTienda !== null)
-      .map(String)
-  )
-
-  return idsTiendas.size
-}
-
-function getIdCampaniaDeRelacion(relacion) {
-  return obtenerCampo(relacion, [
-    'id_campania',
-    'idCampania',
-  ])
-}
-
-function getIdTienda(tienda) {
-  return obtenerCampo(tienda, [
-    'id_tienda',
-    'idTienda',
-    'id',
-  ])
-}
-
-function getRelacionCampaniaTienda(tienda, idCampania) {
-  const relaciones = normalizarLista(
-    obtenerCampo(tienda, [
-      'tienda_campania',
-      'tiendaCampania',
+  return convertirANumero(
+    obtenerPrimerValorDisponible(campaniaActiva, [
+      'id_campania',
+      'idCampania',
+      'id',
     ])
   )
+}
+
+async function obtenerTiendasRegistradas() {
+  return await obtenerListaApiOpcional('/tiendas')
+}
+
+async function obtenerTiendasDeCampania(idCampania) {
+  return (await obtenerJsonApi(
+      construirUrl('/api/tiendas', {
+        idCampania,
+      })
+    )) || []
+}
+
+function obtenerRelacionCampaniaTienda(tienda, idCampania) {
+  const relaciones = obtenerPrimerValorDisponible(tienda, [
+    'tienda_campania',
+    'tiendaCampania',
+  ]) || []
 
   return (
     relaciones.find((relacion) => {
-      return sonMismoId(getIdCampaniaDeRelacion(relacion), idCampania)
+      const idCampaniaRelacion = obtenerPrimerValorDisponible(relacion, [
+        'id_campania',
+        'idCampania',
+      ])
+
+      return sonMismoIdentificador(idCampaniaRelacion, idCampania)
     }) || null
   )
 }
 
 function tiendaParticipaEnCampania(tienda, idCampania) {
-  const relacion = getRelacionCampaniaTienda(tienda, idCampania)
+  const relacion = obtenerRelacionCampaniaTienda(tienda, idCampania)
 
   if (!relacion) {
-    return false
+    return true
   }
 
-  const participa = obtenerCampo(relacion, [
-    'participa',
-  ])
+  const participa = obtenerPrimerValorDisponible(relacion, ['participa'])
 
   return (
     participa === true ||
@@ -423,75 +347,115 @@ function tiendaParticipaEnCampania(tienda, idCampania) {
   )
 }
 
-async function getResumenCampaniaPorId(idCampania) {
-  const idCampaniaNumero = convertirANumero(idCampania)
-
-  if (!idCampaniaNumero) {
-    return null
-  }
-
-  const [campania, tiendas, numeroTiendasTotales] = await Promise.all([
-    getCampaniaPorId(idCampaniaNumero),
-    getTiendasDeCampania(idCampaniaNumero),
-    getNumeroTotalTiendasRegistradas(),
-  ])
+async function obtenerResumenCampaniaActiva() {
+  const campania = await obtenerCampaniaActiva()
 
   if (!campania) {
     return null
   }
 
-  const fechaInicio = obtenerCampo(campania, [
+  const idCampania = convertirANumero(
+    obtenerPrimerValorDisponible(campania, [
+      'id_campania',
+      'idCampania',
+      'id',
+    ])
+  )
+
+  if (!idCampania) {
+    return null
+  }
+
+  const [
+    tiendasCampania,
+    tiendasRegistradas,
+  ] = await Promise.all([
+    obtenerTiendasDeCampania(idCampania),
+    obtenerTiendasRegistradas(),
+  ])
+
+  const fechaInicio = obtenerPrimerValorDisponible(campania, [
     'fecha_inicio',
     'fechaInicio',
   ])
 
-  const fechaFin = obtenerCampo(campania, [
+  const fechaFin = obtenerPrimerValorDisponible(campania, [
     'fecha_fin',
     'fechaFin',
   ])
 
-  const tiendasParticipantes = tiendas.filter((tienda) => {
-    return tiendaParticipaEnCampania(tienda, idCampaniaNumero)
+  const tiendasParticipantes = tiendasCampania.filter((tienda) => {
+    return tiendaParticipaEnCampania(tienda, idCampania)
   })
 
-  const idsTiendasParticipantes = new Set(
-    tiendasParticipantes
-      .map(getIdTienda)
-      .filter((idTienda) => idTienda !== undefined && idTienda !== null)
-      .map(String)
-  )
+  const numeroTiendasParticipan = contarElementosUnicos(tiendasParticipantes, [
+    'id_tienda',
+    'idTienda',
+    'id',
+  ])
+
+  const numeroTiendasTotales = contarElementosUnicos(tiendasRegistradas, [
+    'id_tienda',
+    'idTienda',
+    'id',
+  ])
 
   return {
-    nombre: obtenerCampo(campania, [
-      'nombre',
-    ]),
+    nombre: obtenerPrimerValorDisponible(campania, ['nombre']),
     fechas: formatearRangoFechas(fechaInicio, fechaFin),
-    numeroTiendasParticipan: idsTiendasParticipantes.size,
+    numeroTiendasParticipan,
     numeroTiendasTotales,
     porcentajeTiendasParticipan: calcularPorcentaje(
-      idsTiendasParticipantes.size,
+      numeroTiendasParticipan,
       numeroTiendasTotales
     ),
-    porcentajeTiempoTranscurrido: calcularPorcentajeTiempoTranscurrido(
+    porcentajeTiempoTranscurrido: calcularPorcentajeTiempo(
       fechaInicio,
       fechaFin
     ),
   }
 }
 
-async function getResumenCampaniaActiva() {
-  const idCampaniaActiva = await getIdCampaniaActiva()
+async function obtenerEstadisticasHomepage() {
+  const [
+    campanias,
+    tiendas,
+    entidades,
+    voluntarios,
+  ] = await Promise.all([
+    obtenerCampanias(),
+    obtenerTiendasRegistradas(),
+    obtenerListaApiOpcional('/api/entidades'),
+    obtenerListaApiOpcional('/api/voluntarios'),
+  ])
 
-  if (!idCampaniaActiva) {
-    return null
+  return {
+    campaniasActivas: campanias.filter(esCampaniaActiva).length,
+    campaniasTotales: campanias.length,
+
+    tiendasRegistradas: contarElementosUnicos(tiendas, [
+      'id_tienda',
+      'idTienda',
+      'id',
+    ]),
+
+    entidadesRegistradas: contarElementosUnicos(entidades, [
+      'id_entidad',
+      'idEntidad',
+      'id',
+    ]),
+
+    voluntariosRegistrados: contarElementosUnicos(voluntarios, [
+      'id_voluntario',
+      'idVoluntario',
+      'id',
+    ]),
   }
-
-  return await getResumenCampaniaPorId(idCampaniaActiva)
 }
 
-async function getAccesosRapidosPorRol(rol) {
-  const idUsuario = getIdUsuarioActual()
-  const idCampaniaActiva = await getIdCampaniaActiva()
+async function obtenerAccesosRapidosPorRol(rol) {
+  const idUsuario = obtenerIdUsuarioActual()
+  const idCampaniaActiva = await obtenerIdCampaniaActiva()
 
   if (rol === 'ADMINISTRADOR') {
     return [
@@ -502,37 +466,18 @@ async function getAccesosRapidosPorRol(rol) {
     ]
   }
 
-  if (rol === 'CAPITAN') {
+  if (rol === 'CAPITAN' || rol === 'COORDINADOR') {
     return [
       {
         texto: 'Zonas',
-        enlace: crearUrl('/html/zonas.html', {
+        enlace: construirUrl('/html/zonas.html', {
           idCampania: idCampaniaActiva,
           idUsuario,
         }),
       },
       {
         texto: 'Tiendas',
-        enlace: crearUrl('/html/tiendas.html', {
-          idCampania: idCampaniaActiva,
-          idUsuario,
-        }),
-      },
-    ]
-  }
-
-  if (rol === 'COORDINADOR') {
-    return [
-      {
-        texto: 'Zonas',
-        enlace: crearUrl('/html/zonas.html', {
-          idCampania: idCampaniaActiva,
-          idUsuario,
-        }),
-      },
-      {
-        texto: 'Tiendas',
-        enlace: crearUrl('/html/tiendas.html', {
+        enlace: construirUrl('/html/tiendas.html', {
           idCampania: idCampaniaActiva,
           idUsuario,
         }),
@@ -541,13 +486,13 @@ async function getAccesosRapidosPorRol(rol) {
   }
 
   if (rol === 'RESPONSABLE-ENTIDAD') {
-    const idEntidad = await getIdEntidadUsuarioActual()
+    const idEntidad = await obtenerIdEntidadDelUsuarioActual()
 
     return [
       {
         texto: 'Mi entidad',
         enlace: idEntidad
-          ? crearUrl('/html/edit.html', {
+          ? construirUrl('/html/edit.html', {
               type: 'entidades',
               id: idEntidad,
             })
@@ -556,14 +501,14 @@ async function getAccesosRapidosPorRol(rol) {
       {
         texto: 'Voluntarios',
         enlace: idEntidad
-          ? crearUrl('/html/voluntarios.html', {
+          ? construirUrl('/html/voluntarios.html', {
               idEntidad,
             })
           : '/html/voluntarios.html',
       },
       {
         texto: 'Tiendas',
-        enlace: crearUrl('/html/tiendas.html', {
+        enlace: construirUrl('/html/tiendas.html', {
           idCampania: idCampaniaActiva,
           idEntidad,
         }),
@@ -575,7 +520,7 @@ async function getAccesosRapidosPorRol(rol) {
     return [
       {
         texto: 'Mis tiendas',
-        enlace: crearUrl('/html/tiendas.html', {
+        enlace: construirUrl('/html/tiendas.html', {
           idCampania: idCampaniaActiva,
           idResponsableTienda: idUsuario,
         }),
@@ -590,14 +535,7 @@ async function getAccesosRapidosPorRol(rol) {
 }
 
 export {
-  convertirANumero,
-  crearUrl,
-  getIdUsuarioActual,
-  getIdEntidadPorIdUsuario,
-  getIdEntidadUsuarioActual,
-  getCampaniaActiva,
-  getIdCampaniaActiva,
-  getAccesosRapidosPorRol,
-  getResumenCampaniaPorId,
-  getResumenCampaniaActiva,
+  obtenerAccesosRapidosPorRol,
+  obtenerResumenCampaniaActiva,
+  obtenerEstadisticasHomepage,
 }
