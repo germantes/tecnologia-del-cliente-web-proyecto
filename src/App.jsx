@@ -4,6 +4,7 @@ import './App.css'
 import { Header, Footer } from './components/header_footer'
 import Homepage from './components/homepage'
 import Cadenas from './components/cadenas'
+import EditPage from './components/EditPage'
 
 function LoginRedirect() {
   const token = sessionStorage.getItem('token')
@@ -59,6 +60,16 @@ function App() {
             <RequireAuth>
               <Header />
               <Cadenas />
+              <Footer />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/edit/:entityType"
+          element={
+            <RequireAuth>
+              <Header />
+              <EditPage />
               <Footer />
             </RequireAuth>
           }

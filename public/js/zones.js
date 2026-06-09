@@ -4,6 +4,7 @@ let allZones = [];
 let allCampaigns = [];
 let zonesByCampaign = {}; // Mapeo de campaña -> zonas
 let campaignsWithZones = new Set(); // IDs de campañas que tienen zonas asignadas
+let editingZone = null;
 
 // Cargar zonas y campañas al iniciar
 async function loadZones() {
@@ -77,9 +78,18 @@ function renderZones(zones) {
             <p>${zonaGeografica}</p>
           </div>
         </div>
+        <div class="card-actions" style="padding: 15px; text-align: center;">
+          <button class="btn-editar" type="button" onclick="openEditModal('${zone.id_zona}')">Editar</button>
+        </div>
       </div>
     `;
   }).join('');
+}
+
+// Abrir modal de edición
+function openEditModal(zoneId) {
+  // Redirigir a la página de edición React
+  window.location.href = `/edit/zona?id=${zoneId}`;
 }
 
 // Llenar el select de campañas dinámicamente (solo las que tienen zonas asignadas)

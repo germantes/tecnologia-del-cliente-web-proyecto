@@ -115,6 +115,17 @@ main {
     width: 95px;
 }
 
+/* Contenedor de acciones en la card */
+.card-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-top: 2px solid var(--twilight-indigo);
+    margin-top: auto;
+}
+
 /* 5. BOTONERA */
 .botones-card {
     display: flex;

@@ -1,6 +1,7 @@
 // campaigns.js — Gestión de campañas
 
 let allCampaigns = [];
+let editingCampaign = null;
 
 // Cargar campañas al iniciar
 async function loadCampaigns() {
@@ -33,13 +34,17 @@ function renderCampaigns(campaigns) {
       <p><strong>Fecha del fin: </strong>${formatDate(campaign.fecha_fin)}</p>
       <p><strong>Tipo: </strong>${campaign.tipo}</p>
       
-      <div class="botones-card">
-          <a href="/#">
-              <button class="btn-editar" type="button">Editar</button>
-          </a>
+      <div class="card-actions">
+          <button class="btn-editar" type="button" onclick="openEditModal(${campaign.id_campania})">Editar</button>
       </div>
     </div>
   `).join('');
+}
+
+// Abrir modal de edición
+function openEditModal(campaignId) {
+  // Redirigir a la página de edición React
+  window.location.href = `/edit/campania?id=${campaignId}`;
 }
 
 // Formatear fecha

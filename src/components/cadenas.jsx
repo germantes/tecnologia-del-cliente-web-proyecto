@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getAuthHeaders } from './session.js';
 import CadenaCard from './CadenaCard.jsx';
-import FormCadena from './FormCadena.jsx'; // Importar el nuevo formulario
 import '../styles/card-display.css';
 import '../styles/cadenas.css';
 
@@ -9,7 +8,6 @@ function Cadenas() {
     const [cadenas, setCadenas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isFormVisible, setIsFormVisible] = useState(false); // Estado para mostrar/ocultar el formulario
 
     useEffect(() => {
         async function fetchCadenas() {
@@ -34,21 +32,15 @@ function Cadenas() {
         fetchCadenas();
     }, []);
 
-    // Función para añadir la nueva cadena a la lista y ocultar el formulario
-    const handleCadenaCreated = (newCadena) => {
-        setCadenas(prevCadenas => [...prevCadenas, newCadena]);
-        setIsFormVisible(false);
+    const handleEdit = (cadena) => {
+        // Redirigir a la página de edición React
+        window.location.href = `/edit/cadena?id=${cadena.id_cadena}`;
     };
 
-    if (isFormVisible) {
-        return (
-            <FormCadena 
-                onClose={() => setIsFormVisible(false)}
-                existingCadenas={cadenas}
-                onCadenaCreated={handleCadenaCreated}
-            />
-        );
-    }
+    const handleCreate = () => {
+        // Redirigir a la página de creación React
+        window.location.href = '/edit/cadena';
+    };
 // <main className="main" style={{padding: '2rem', flex: 1}}>
     return (
         <main>
@@ -59,7 +51,7 @@ function Cadenas() {
             </div>
 
             <div style={{ display: 'block', marginBottom: '2rem' }}>
-                <button className="btn-crear" onClick={() => setIsFormVisible(true)}>
+                <button className="btn-crear" onClick={handleCreate}>
                     Crear Cadena
                 </button>
             </div>
@@ -79,7 +71,11 @@ function Cadenas() {
             {!loading && !error && (
                 <div className="cadenas-grid">
                     {cadenas.map((cadena) => (
-                        <CadenaCard key={cadena.id_cadena} cadena={cadena}/>
+                        <CadenaCard 
+                            key={cadena.id_cadena} 
+                            cadena={cadena}
+                            onEdit={handleEdit}
+                        />
                     ))}
                 </div>
             )}
