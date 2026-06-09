@@ -7,6 +7,9 @@
     --card-border: #dfe7ef;
     --card-shadow: 0 12px 30px rgba(50, 50, 102, 0.12);
     --soft-blue: rgba(88, 185, 218, 0.14);
+    --icon-circle-bg: #e7f5fb;
+    --icon-circle-size: 65px;
+    --icon-size: 30px;
     --font-main: 'Poppins', sans-serif;
     --font-alt: 'Raleway', sans-serif;
 }
@@ -43,7 +46,7 @@ body {
     max-width: 900px;
 }
 
-#Welcome {
+.homepage-title {
     margin: 0;
     color: var(--twilight-indigo);
     font-family: var(--font-alt);
@@ -53,36 +56,43 @@ body {
     letter-spacing: -0.06em;
 }
 
-#rol {
+.homepage-role {
     margin: 18px 0 0;
     font-weight: 800;
     color: var(--twilight-indigo);
     text-transform: uppercase;
 }
 
-#informacion-extra {
+.homepage-intro {
     max-width: 90%;
     padding-top: 10px;
     padding-bottom: 28px;
     color: var(--twilight-indigo);
 }
 
-#informacion-extra p {
+.homepage-intro p {
     margin: 0;
     line-height: 1.5;
 }
 
-#controles-principales {
+.homepage-controls,
+.stats-row {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 24px;
 }
 
-.homepage-card {
-    min-height: 220px;
-    padding: 22px;
-    border: 5px solid var(--twilight-indigo);
+.homepage-controls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.stats-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-top: 24px;
+}
+
+.panel {
+    border: 1px solid var(--card-border);
     border-radius: 14px;
     background: rgba(255, 255, 255, 0.88);
     box-shadow: var(--card-shadow);
@@ -90,7 +100,11 @@ body {
     backdrop-filter: blur(8px);
 }
 
-.homepage-card__header {
+.panel--bordered {
+    border: 3.5px solid var(--twilight-indigo);
+}
+
+.panel__header {
     display: flex;
     align-items: center;
     gap: 16px;
@@ -99,39 +113,76 @@ body {
     border-bottom: 1px solid var(--card-border);
 }
 
-.homepage-card__header h3 {
+.panel__header h3 {
     margin: 0;
     color: var(--twilight-indigo);
     font-size: 1.2rem;
     font-weight: 800;
 }
 
-/* Bloque reservado para la imagen/icono.
-   Cuando tengas la imagen, puedes sustituir el contenido de este div
-   por un <img> o aplicarla como background-image. */
-.homepage-card__image-placeholder {
-    width: 46px;
-    height: 46px;
-    flex: 0 0 46px;
-    border-radius: 50%;
-    background:
-            linear-gradient(
-                    135deg,
-                    rgba(88, 185, 218, 0.22),
-                    rgba(88, 185, 218, 0.08)
-            );
-    border: 1px solid rgba(88, 185, 218, 0.3);
-    position: relative;
+.panel__header p {
+    margin: 4px 0 0;
+    color: var(--twilight-indigo);
+    line-height: 1.4;
 }
 
-.homepage-card__image-placeholder::after {
-    content: "";
-    position: absolute;
-    inset: 13px;
-    border-radius: 8px;
-    border: 2px solid var(--sky-surge);
-    opacity: 0.85;
+.homepage-card,
+.campaign-summary {
+    padding: 22px;
 }
+
+.homepage-card {
+    min-height: 220px;
+}
+
+.campaign-summary {
+    width: 100%;
+    margin-top: 24px;
+}
+
+.message {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--twilight-indigo);
+    font-weight: 700;
+}
+
+.message--error {
+    color: #b00020;
+}
+
+.stats-message {
+    padding: 18px 22px;
+}
+
+/* Iconos comunes */
+
+.homepage-icon {
+    width: var(--icon-circle-size);
+    height: var(--icon-circle-size);
+    flex: 0 0 var(--icon-circle-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--icon-circle-bg);
+    color: var(--twilight-indigo);
+    line-height: 1;
+}
+
+.homepage-icon__svg {
+    width: var(--icon-size);
+    height: var(--icon-size);
+    display: block;
+    color: var(--twilight-indigo);
+}
+
+.panel__header .homepage-icon,
+.stat-card .homepage-icon {
+    flex-shrink: 0;
+}
+
+/* Listas */
 
 .card-list {
     display: grid;
@@ -159,11 +210,13 @@ body {
     justify-content: center;
     margin-top: 1px;
     border-radius: 50%;
-    background-color: var(--twilight-indigo);
-    color: var(--white);
-    font-size: 0.72rem;
+    background-color: var(--soft-blue);
+    color: var(--twilight-indigo);
+    font-size: 0.6rem;
     font-weight: 800;
 }
+
+/* Accesos rápidos */
 
 .quick-access-grid {
     display: grid;
@@ -218,13 +271,148 @@ body {
             transform 0.2s ease;
 }
 
+.quick-access:hover .quick-access__arrow {
+    transform: translateX(2px);
+}
+
+/* Campaña activa */
+
+.campaign-summary__main {
+    display: grid;
+    grid-template-columns: 1.6fr 0.8fr 1.4fr 1fr;
+    column-gap: 36px;
+    row-gap: 18px;
+    align-items: start;
+}
+
+.campaign-summary__field {
+    display: grid;
+    gap: 6px;
+}
+
+.campaign-summary__field span {
+    color: var(--twilight-indigo);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.campaign-summary__field strong {
+    color: var(--twilight-indigo);
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.campaign-summary__field--name strong {
+    font-size: 1.15rem;
+}
+
+.campaign-summary__status {
+    color: #168a45 !important;
+}
+
+/* Barras de progreso */
+
+.progress-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--card-border);
+}
+
+.progress {
+    display: grid;
+    gap: 10px;
+}
+
+.progress__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--twilight-indigo);
+    font-weight: 800;
+}
+
+.progress__bar {
+    width: 100%;
+    height: 14px;
+    overflow: hidden;
+    border-radius: 999px;
+    background-color: rgba(50, 50, 102, 0.14);
+}
+
+.progress__fill {
+    height: 100%;
+    border-radius: 999px;
+    background-color: var(--twilight-indigo);
+    transition: width 0.3s ease;
+}
+
+.progress__detail {
+    margin: 0;
+    color: var(--twilight-indigo);
+    font-size: 0.92rem;
+    line-height: 1.4;
+}
+
+/* Estadísticas */
+
+.stat-card {
+    min-height: 110px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 20px 24px;
+}
+
+.stat-card__content {
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+}
+
+.stat-card__content strong {
+    color: var(--twilight-indigo);
+    font-size: 2.1rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.stat-card__content span {
+    color: var(--twilight-indigo);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.stat-card__content small {
+    color: var(--twilight-indigo);
+    font-size: 0.9rem;
+    line-height: 1.3;
+    opacity: 0.82;
+}
+
+/* Responsive */
+
+@media (max-width: 1200px) {
+    .stats-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
 @media (max-width: 1100px) {
-    #controles-principales {
+    .homepage-controls {
         grid-template-columns: 1fr;
     }
 
     .homepage-card {
         min-height: auto;
+    }
+
+    .campaign-summary__main {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
@@ -233,11 +421,24 @@ body {
         padding: 28px 20px 40px;
     }
 
-    #informacion-extra {
+    .homepage-intro {
         max-width: 100%;
     }
 
-    .quick-access-grid {
+    .quick-access-grid,
+    .campaign-summary__main,
+    .progress-grid,
+    .stats-row {
         grid-template-columns: 1fr;
+    }
+
+    .panel__header {
+        align-items: flex-start;
+    }
+
+    .homepage-card,
+    .campaign-summary,
+    .stat-card {
+        padding: 18px;
     }
 }

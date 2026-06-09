@@ -1,38 +1,42 @@
 import { getAuthHeaders, getUsuario } from './session.js'
+import {
+  faArrowRight,
+  faBuilding,
+  faCalendarCheck,
+  faCheckCircle,
+  faClipboardList,
+  faFlagCheckered,
+  faShieldHalved,
+  faStore,
+  faUsers,
+} from '@fortawesome/free-solid-svg-icons'
 
-function convertirANumero(valor) {
-  if (valor === undefined || valor === null || valor === '') {
-    return null
-  }
+const API_BASE =
+  typeof window !== 'undefined' && window.API_URL
+    ? window.API_URL
+    : 'http://localhost:3000'
 
-  const numero = Number(valor)
-
-  if (Number.isNaN(numero)) {
-    return null
-  }
-
-  return numero
+const ICONOS_HOME = {
+  responsabilidades: faClipboardList,
+  permisos: faShieldHalved,
+  accesosRapidos: faArrowRight,
+  campaniaActiva: faFlagCheckered,
+  campaniasActivas: faCalendarCheck,
+  tiendasRegistradas: faStore,
+  entidadesRegistradas: faBuilding,
+  voluntariosRegistrados: faUsers,
+  lista: faCheckCircle,
 }
 
-function obtenerCampo(objeto, nombresCampos) {
-  if (!objeto) {
-    return null
+function construirUrlApi(ruta) {
+  if (ruta.startsWith('http://') || ruta.startsWith('https://')) {
+    return ruta
   }
 
-  for (const campo of nombresCampos) {
-    if (objeto[campo] !== undefined && objeto[campo] !== null) {
-      return objeto[campo]
-    }
-  }
-
-  return null
+  return `${API_BASE}${ruta}`
 }
 
-function normalizarRol(rol) {
-  return String(rol || '').trim().toUpperCase()
-}
-
-function crearUrl(base, parametros = {}) {
+function construirUrl(base, parametros = {}) {
   const urlParams = new URLSearchParams()
 
   Object.entries(parametros).forEach(([clave, valor]) => {
@@ -43,15 +47,49 @@ function crearUrl(base, parametros = {}) {
 
   const queryString = urlParams.toString()
 
-  if (!queryString) {
-    return base
-  }
-
-  return `${base}?${queryString}`
+  return queryString ? `${base}?${queryString}` : base
 }
 
-async function apiGet(ruta) {
-  const respuesta = await fetch(ruta, {
+function convertirANumero(valor) {
+  if (valor === undefined || valor === null || valor === '') {
+    return null
+  }
+
+  const numero = Number(valor)
+
+  return Number.isNaN(numero) ? null : numero
+}
+
+function obtenerPrimerValorDisponible(objeto, campos) {
+  if (!objeto) {
+    return null
+  }
+
+  for (const campo of campos) {
+    if (objeto[campo] !== undefined && objeto[campo] !== null) {
+      return objeto[campo]
+    }
+  }
+
+  return null
+}
+
+
+function sonMismoIdentificador(valorA, valorB) {
+  if (
+    valorA === undefined ||
+    valorA === null ||
+    valorB === undefined ||
+    valorB === null
+  ) {
+    return false
+  }
+
+  return String(valorA) === String(valorB)
+}
+
+async function obtenerJsonApi(ruta) {
+  const respuesta = await fetch(construirUrlApi(ruta), {
     method: 'GET',
     headers: getAuthHeaders(),
   })
@@ -63,119 +101,413 @@ async function apiGet(ruta) {
   return await respuesta.json()
 }
 
-function getIdUsuarioActual() {
+async function obtenerJsonApiOpcional(ruta) {
+  try {
+    return await obtenerJsonApi(ruta)
+  } catch {
+    return null
+  }
+}
+
+function normalizarLista(respuesta) {
+  if (Array.isArray(respuesta)) {
+    return respuesta
+  }
+
+  if (Array.isArray(respuesta?.data)) {
+    return respuesta.data
+  }
+
+  if (Array.isArray(respuesta?.rows)) {
+    return respuesta.rows
+  }
+
+  if (Array.isArray(respuesta?.result)) {
+    return respuesta.result
+  }
+
+  return []
+}
+
+async function obtenerListaApiOpcional(ruta) {
+  const respuesta = await obtenerJsonApiOpcional(ruta)
+  return normalizarLista(respuesta)
+}
+
+function contarElementosUnicos(lista, camposId) {
+  return new Set(
+    normalizarLista(lista)
+      .map((elemento) => obtenerPrimerValorDisponible(elemento, camposId))
+      .filter((id) => id !== undefined && id !== null)
+      .map(String)
+  ).size
+}
+
+function obtenerIdUsuarioActual() {
   const usuario = getUsuario()
 
-  const idUsuario = obtenerCampo(usuario, [
-    'id_usuario',
-    'idUsuario',
-    'id',
-  ])
-
-  return convertirANumero(idUsuario)
+  return convertirANumero(
+    obtenerPrimerValorDisponible(usuario, [
+      'id_usuario',
+      'idUsuario',
+      'id',
+    ])
+  )
 }
 
-function obtenerIdEntidadDeObjeto(entidad) {
-  const idEntidad = obtenerCampo(entidad, [
-    'id_entidad',
-    'idEntidad',
-    'id',
-  ])
-
-  return convertirANumero(idEntidad)
+function obtenerIdEntidad(entidad) {
+  return convertirANumero(
+    obtenerPrimerValorDisponible(entidad, [
+      'id_entidad',
+      'idEntidad',
+      'id',
+    ])
+  )
 }
 
-async function getIdEntidadPorIdUsuario(idUsuario) {
+async function obtenerIdEntidadPorUsuario(idUsuario) {
   const idUsuarioNumero = convertirANumero(idUsuario)
 
   if (!idUsuarioNumero) {
     return null
   }
 
-  const url = crearUrl('/api/entidades', {
-    id_usuario_contacto: idUsuarioNumero,
-  })
-
-  const entidades = await apiGet(url)
-
-  if (!Array.isArray(entidades) || entidades.length === 0) {
-    return null
-  }
+  const entidades = normalizarLista(
+    await obtenerJsonApi(
+      construirUrl('/api/entidades', {
+        id_usuario_contacto: idUsuarioNumero,
+      })
+    )
+  )
 
   const entidad = entidades.find((entidad) => {
-    return String(entidad.id_usuario_contacto) === String(idUsuarioNumero)
+    const idUsuarioContacto = obtenerPrimerValorDisponible(entidad, [
+      'id_usuario_contacto',
+      'idUsuarioContacto',
+    ])
+
+    return sonMismoIdentificador(idUsuarioContacto, idUsuarioNumero)
   })
 
-  return obtenerIdEntidadDeObjeto(entidad || entidades[0])
+  return obtenerIdEntidad(entidad || entidades[0])
 }
 
-async function getIdEntidadUsuarioActual() {
+async function obtenerIdEntidadDelUsuarioActual() {
   const usuario = getUsuario()
 
   if (!usuario) {
     return null
   }
 
-  const idEntidadGuardado = obtenerCampo(usuario, [
-    'id_entidad',
-    'idEntidad',
-  ])
+  const idEntidadGuardado = convertirANumero(
+    obtenerPrimerValorDisponible(usuario, [
+      'id_entidad',
+      'idEntidad',
+    ])
+  )
 
   if (idEntidadGuardado) {
-    return convertirANumero(idEntidadGuardado)
+    return idEntidadGuardado
   }
 
-  const idUsuario = getIdUsuarioActual()
+  return await obtenerIdEntidadPorUsuario(obtenerIdUsuarioActual())
+}
 
-  return await getIdEntidadPorIdUsuario(idUsuario)
+function parsearFechaLocal(fecha) {
+  if (!fecha) {
+    return null
+  }
+
+  if (typeof fecha === 'string' && fecha.includes('-')) {
+    const [anio, mes, dia] = fecha.split('-').map(Number)
+    return new Date(anio, mes - 1, dia)
+  }
+
+  return new Date(fecha)
+}
+
+function formatearRangoFechas(fechaInicio, fechaFin) {
+  const inicio = parsearFechaLocal(fechaInicio)
+  const fin = parsearFechaLocal(fechaFin)
+
+  if (
+    !inicio ||
+    !fin ||
+    Number.isNaN(inicio.getTime()) ||
+    Number.isNaN(fin.getTime())
+  ) {
+    return ''
+  }
+
+  const meses = [
+    'enero',
+    'febrero',
+    'marzo',
+    'abril',
+    'mayo',
+    'junio',
+    'julio',
+    'agosto',
+    'septiembre',
+    'octubre',
+    'noviembre',
+    'diciembre',
+  ]
+
+  const diaInicio = inicio.getDate()
+  const diaFin = fin.getDate()
+  const mesInicio = meses[inicio.getMonth()]
+  const mesFin = meses[fin.getMonth()]
+
+  if (
+    inicio.getMonth() === fin.getMonth() &&
+    inicio.getFullYear() === fin.getFullYear()
+  ) {
+    return `${diaInicio}-${diaFin} ${mesFin}`
+  }
+
+  return `${diaInicio} ${mesInicio}-${diaFin} ${mesFin}`
+}
+
+function calcularPorcentaje(parte, total) {
+  if (!total || total <= 0) {
+    return 0
+  }
+
+  const porcentaje = (parte / total) * 100
+
+  return Math.max(0, Math.min(100, Math.round(porcentaje)))
+}
+
+function calcularPorcentajeTiempo(fechaInicio, fechaFin) {
+  const inicio = parsearFechaLocal(fechaInicio)
+  const fin = parsearFechaLocal(fechaFin)
+
+  if (
+    !inicio ||
+    !fin ||
+    Number.isNaN(inicio.getTime()) ||
+    Number.isNaN(fin.getTime())
+  ) {
+    return 0
+  }
+
+  fin.setHours(23, 59, 59, 999)
+
+  const duracionTotal = fin.getTime() - inicio.getTime()
+  const tiempoTranscurrido = Date.now() - inicio.getTime()
+
+  return calcularPorcentaje(tiempoTranscurrido, duracionTotal)
 }
 
 function esCampaniaActiva(campania) {
-  if (!campania.fecha_inicio || !campania.fecha_fin) {
+  const fechaInicio = obtenerPrimerValorDisponible(campania, [
+    'fecha_inicio',
+    'fechaInicio',
+  ])
+
+  const fechaFin = obtenerPrimerValorDisponible(campania, [
+    'fecha_fin',
+    'fechaFin',
+  ])
+
+  const inicio = parsearFechaLocal(fechaInicio)
+  const fin = parsearFechaLocal(fechaFin)
+
+  if (!inicio || !fin) {
     return false
   }
 
+  fin.setHours(23, 59, 59, 999)
+
   const hoy = new Date()
-  const fechaInicio = new Date(campania.fecha_inicio)
-  const fechaFin = new Date(campania.fecha_fin)
 
-  fechaFin.setHours(23, 59, 59, 999)
-
-  return hoy >= fechaInicio && hoy <= fechaFin
+  return hoy >= inicio && hoy <= fin
 }
 
-async function getCampaniaActiva() {
-  const campanias = await apiGet('/api/campanias')
+async function obtenerCampanias() {
+  return normalizarLista(await obtenerJsonApi('/api/campanias'))
+}
 
-  if (!Array.isArray(campanias)) {
-    return null
-  }
-
+async function obtenerCampaniaActiva() {
+  const campanias = await obtenerCampanias()
   return campanias.find(esCampaniaActiva) || null
 }
 
-async function getIdCampaniaActiva() {
-  const campaniaActiva = await getCampaniaActiva()
+async function obtenerIdCampaniaActiva() {
+  const campaniaActiva = await obtenerCampaniaActiva()
 
-  if (!campaniaActiva) {
+  return convertirANumero(
+    obtenerPrimerValorDisponible(campaniaActiva, [
+      'id_campania',
+      'idCampania',
+      'id',
+    ])
+  )
+}
+
+async function obtenerTiendasRegistradas() {
+  return await obtenerListaApiOpcional('/tiendas')
+}
+
+async function obtenerTiendasDeCampania(idCampania) {
+  return normalizarLista(
+    await obtenerJsonApi(
+      construirUrl('/api/tiendas', {
+        idCampania,
+      })
+    )
+  )
+}
+
+function obtenerRelacionCampaniaTienda(tienda, idCampania) {
+  const relaciones = normalizarLista(
+    obtenerPrimerValorDisponible(tienda, [
+      'tienda_campania',
+      'tiendaCampania',
+    ])
+  )
+
+  return (
+    relaciones.find((relacion) => {
+      const idCampaniaRelacion = obtenerPrimerValorDisponible(relacion, [
+        'id_campania',
+        'idCampania',
+      ])
+
+      return sonMismoIdentificador(idCampaniaRelacion, idCampania)
+    }) || null
+  )
+}
+
+function tiendaParticipaEnCampania(tienda, idCampania) {
+  const relacion = obtenerRelacionCampaniaTienda(tienda, idCampania)
+
+  if (!relacion) {
+    return true
+  }
+
+  const participa = obtenerPrimerValorDisponible(relacion, ['participa'])
+
+  return (
+    participa === true ||
+    participa === 'true' ||
+    participa === 1 ||
+    participa === '1'
+  )
+}
+
+async function obtenerResumenCampaniaActiva() {
+  const campania = await obtenerCampaniaActiva()
+
+  if (!campania) {
     return null
   }
 
-  const idCampania = obtenerCampo(campaniaActiva, [
-    'id_campania',
-    'idCampania',
+  const idCampania = convertirANumero(
+    obtenerPrimerValorDisponible(campania, [
+      'id_campania',
+      'idCampania',
+      'id',
+    ])
+  )
+
+  if (!idCampania) {
+    return null
+  }
+
+  const [
+    tiendasCampania,
+    tiendasRegistradas,
+  ] = await Promise.all([
+    obtenerTiendasDeCampania(idCampania),
+    obtenerTiendasRegistradas(),
+  ])
+
+  const fechaInicio = obtenerPrimerValorDisponible(campania, [
+    'fecha_inicio',
+    'fechaInicio',
+  ])
+
+  const fechaFin = obtenerPrimerValorDisponible(campania, [
+    'fecha_fin',
+    'fechaFin',
+  ])
+
+  const tiendasParticipantes = tiendasCampania.filter((tienda) => {
+    return tiendaParticipaEnCampania(tienda, idCampania)
+  })
+
+  const numeroTiendasParticipan = contarElementosUnicos(tiendasParticipantes, [
+    'id_tienda',
+    'idTienda',
     'id',
   ])
 
-  return convertirANumero(idCampania)
+  const numeroTiendasTotales = contarElementosUnicos(tiendasRegistradas, [
+    'id_tienda',
+    'idTienda',
+    'id',
+  ])
+
+  return {
+    nombre: obtenerPrimerValorDisponible(campania, ['nombre']),
+    fechas: formatearRangoFechas(fechaInicio, fechaFin),
+    numeroTiendasParticipan,
+    numeroTiendasTotales,
+    porcentajeTiendasParticipan: calcularPorcentaje(
+      numeroTiendasParticipan,
+      numeroTiendasTotales
+    ),
+    porcentajeTiempoTranscurrido: calcularPorcentajeTiempo(
+      fechaInicio,
+      fechaFin
+    ),
+  }
 }
 
-async function getAccesosRapidosPorRol(rol) {
-  const rolNormalizado = normalizarRol(rol)
-  const idUsuario = getIdUsuarioActual()
-  const idCampaniaActiva = await getIdCampaniaActiva()
+async function obtenerEstadisticasHomepage() {
+  const [
+    campanias,
+    tiendas,
+    entidades,
+    voluntarios,
+  ] = await Promise.all([
+    obtenerListaApiOpcional('/api/campanias'),
+    obtenerTiendasRegistradas(),
+    obtenerListaApiOpcional('/api/entidades'),
+    obtenerListaApiOpcional('/api/voluntarios'),
+  ])
 
-  if (rolNormalizado === 'ADMINISTRADOR') {
+  return {
+    campaniasActivas: campanias.filter(esCampaniaActiva).length,
+    campaniasTotales: campanias.length,
+
+    tiendasRegistradas: contarElementosUnicos(tiendas, [
+      'id_tienda',
+      'idTienda',
+      'id',
+    ]),
+
+    entidadesRegistradas: contarElementosUnicos(entidades, [
+      'id_entidad',
+      'idEntidad',
+      'id',
+    ]),
+
+    voluntariosRegistrados: contarElementosUnicos(voluntarios, [
+      'id_voluntario',
+      'idVoluntario',
+      'id',
+    ]),
+  }
+}
+
+async function obtenerAccesosRapidosPorRol(rol) {
+  const idUsuario = obtenerIdUsuarioActual()
+  const idCampaniaActiva = await obtenerIdCampaniaActiva()
+
+  if (rol === 'ADMINISTRADOR') {
     return [
       { texto: 'Campañas', enlace: '/html/campanias.html' },
       { texto: 'Tiendas', enlace: '/html/tiendas.html' },
@@ -184,18 +516,18 @@ async function getAccesosRapidosPorRol(rol) {
     ]
   }
 
-  if (rolNormalizado === 'CAPITAN') {
+  if (rol === 'CAPITAN' || rol === 'COORDINADOR') {
     return [
       {
         texto: 'Zonas',
-        enlace: crearUrl('/html/zonas.html', {
+        enlace: construirUrl('/html/zonas.html', {
           idCampania: idCampaniaActiva,
           idUsuario,
         }),
       },
       {
         texto: 'Tiendas',
-        enlace: crearUrl('/html/tiendas.html', {
+        enlace: construirUrl('/html/tiendas.html', {
           idCampania: idCampaniaActiva,
           idUsuario,
         }),
@@ -203,61 +535,42 @@ async function getAccesosRapidosPorRol(rol) {
     ]
   }
 
-  if (rolNormalizado === 'COORDINADOR') {
-    return [
-      {
-        texto: 'Zonas',
-        enlace: crearUrl('/html/zonas.html', {
-          idCampania: idCampaniaActiva,
-          idUsuario,
-        }),
-      },
-      {
-        texto: 'Tiendas',
-        enlace: crearUrl('/html/tiendas.html', {
-          idCampania: idCampaniaActiva,
-          idUsuario,
-        }),
-      },
-    ]
-  }
-
-  if (rolNormalizado === 'RESPONSABLE-ENTIDAD') {
-    const idEntidad = await getIdEntidadUsuarioActual()
+  if (rol === 'RESPONSABLE-ENTIDAD') {
+    const idEntidad = await obtenerIdEntidadDelUsuarioActual()
 
     return [
-        {
+      {
         texto: 'Mi entidad',
         enlace: idEntidad
-            ? crearUrl('/html/edit.html', {
-                type: 'entidades',
-                id: idEntidad,
+          ? construirUrl('/html/edit.html', {
+              type: 'entidades',
+              id: idEntidad,
             })
-            : '/html/entidades.html',
-        },
-        {
+          : '/html/entidades.html',
+      },
+      {
         texto: 'Voluntarios',
         enlace: idEntidad
-            ? crearUrl('/html/voluntarios.html', {
-                idEntidad,
+          ? construirUrl('/html/voluntarios.html', {
+              idEntidad,
             })
-            : '/html/voluntarios.html',
-        },
-        {
+          : '/html/voluntarios.html',
+      },
+      {
         texto: 'Tiendas',
-        enlace: crearUrl('/html/tiendas.html', {
-            idCampania: idCampaniaActiva,
-            idEntidad,
+        enlace: construirUrl('/html/tiendas.html', {
+          idCampania: idCampaniaActiva,
+          idEntidad,
         }),
-        },
+      },
     ]
   }
 
-  if (rolNormalizado === 'RESPONSABLE-TIENDA') {
+  if (rol === 'RESPONSABLE-TIENDA') {
     return [
       {
         texto: 'Mis tiendas',
-        enlace: crearUrl('/html/tiendas.html', {
+        enlace: construirUrl('/html/tiendas.html', {
           idCampania: idCampaniaActiva,
           idResponsableTienda: idUsuario,
         }),
@@ -272,12 +585,8 @@ async function getAccesosRapidosPorRol(rol) {
 }
 
 export {
-  convertirANumero,
-  crearUrl,
-  getIdUsuarioActual,
-  getIdEntidadPorIdUsuario,
-  getIdEntidadUsuarioActual,
-  getCampaniaActiva,
-  getIdCampaniaActiva,
-  getAccesosRapidosPorRol,
+  ICONOS_HOME,
+  obtenerAccesosRapidosPorRol,
+  obtenerResumenCampaniaActiva,
+  obtenerEstadisticasHomepage,
 }
