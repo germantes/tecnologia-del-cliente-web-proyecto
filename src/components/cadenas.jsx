@@ -3,8 +3,7 @@ import { getAuthHeaders } from './session.js';
 import CadenaCard from './CadenaCard.jsx';
 import FormCadena from './FormCadena.jsx'; // Importar el nuevo formulario
 import '../styles/card-display.css';
-import '../styles/common.css';
-import '../styles/tiendas.css';
+import '../styles/cadenas.css';
 
 function Cadenas() {
     const [cadenas, setCadenas] = useState([]);
@@ -50,12 +49,12 @@ function Cadenas() {
             />
         );
     }
-
+// <main className="main" style={{padding: '2rem', flex: 1}}>
     return (
-        <main className="main" style={{padding: '2rem', flex: 1}}>
+        <main>
             <div className="page-header">
                 <div>
-                    <h1 id="tituloVista" className="page-title">Cadenas</h1>
+                    <h1 className="page-title">Cadenas</h1>
                 </div>
             </div>
 
@@ -78,7 +77,7 @@ function Cadenas() {
             )}
 
             {!loading && !error && (
-                <div className="tiendas-grid">
+                <div className="cadenas-grid">
                     {cadenas.map((cadena) => (
                         <CadenaCard key={cadena.id_cadena} cadena={cadena}/>
                     ))}

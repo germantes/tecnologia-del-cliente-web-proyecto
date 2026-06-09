@@ -26,27 +26,17 @@ function renderCampaigns(campaigns) {
   }
 
   container.innerHTML = campaigns.map(campaign => `
-    <div class="card">
-      <div class="brand">
-        <h2>${campaign.nombre}</h2>
-      </div>
-      <div class="values">
-        <div class="value">
-          <p>ID:</p>
-          <p>${campaign.id_campania}</p>
-        </div>
-        <div class="value">
-          <p>Inicio:</p>
-          <p>${formatDate(campaign.fecha_inicio)}</p>
-        </div>
-        <div class="value">
-          <p>Fin:</p>
-          <p>${formatDate(campaign.fecha_fin)}</p>
-        </div>
-        <div class="value">
-          <p>Tipo:</p>
-          <p>${campaign.tipo}</p>
-        </div>
+    <div class="cadena-card">
+      <h3 class="titulo-cadena">${campaign.nombre}</h3>
+      
+      <p><strong>Fecha de inicio: </strong>${formatDate(campaign.fecha_inicio)}</p>
+      <p><strong>Fecha del fin: </strong>${formatDate(campaign.fecha_fin)}</p>
+      <p><strong>Tipo: </strong>${campaign.tipo}</p>
+      
+      <div class="botones-card">
+          <a href="/#">
+              <button class="btn-editar" type="button">Editar</button>
+          </a>
       </div>
     </div>
   `).join('');

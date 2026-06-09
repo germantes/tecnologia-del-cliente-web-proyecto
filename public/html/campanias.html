@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="../css/header.css">
     <link rel="stylesheet" href="../css/footer.css">
     <link rel="stylesheet" href="../css/card-display.css" />
-    
+    <link rel="stylesheet" href="../css/cadenas.css" />
+
   </head>
   <body>
     <include-html
@@ -17,7 +18,12 @@
     ></include-html>
 
     <main>
-      <h1>Campañas</h1>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Campanias</h1>
+        </div>
+      </div>
+
       <form class="filter-form">
         <div class="filter-group">
           <label for="filterName">Nombre:</label>
@@ -43,7 +49,7 @@
           <button type="button" id="exportBtn">Exportar</button>
         </div>
       </form>
-      <div class="grid" id="container"></div>
+      <div class="cadenas-grid" id="container"></div>
     </main>
 
     <include-html src="../componentes/footer.html"></include-html>

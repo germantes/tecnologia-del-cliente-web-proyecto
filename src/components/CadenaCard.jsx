@@ -1,21 +1,25 @@
-import '../styles/tiendas.css'
+import '../styles/cadenas.css'
 
 function CadenaCard({cadena}) {
     return (
-        <div className="tienda-card">
-            <h3 className="titulo-tienda">{cadena.codigo_cadena}</h3>
+        <div className="cadena-card">
+            <h3 className="titulo-cadena">{cadena.codigo_cadena}</h3>
             <p>
                 <strong>Establecimiento: </strong><br/>
                 {cadena.establecimiento || 'Sin establecimiento'}
             </p>
-            <p>
-                <strong>Nombre particular: </strong><br/>
-                {cadena.nombre_particular || 'Sin nombre'}
-            </p>
-            <p>
-                <strong>Empresa: </strong>
-                {cadena.empresa_cadena || 'Sin empresa'}
-            </p>
+            {cadena.nombre_particular && (
+                <p>
+                    <strong>Nombre particular: </strong><br/>
+                    {cadena.nombre_particular}
+                </p>
+            )}
+            {cadena.empresa_cadena && (
+                <p>
+                    <strong>Empresa: </strong>
+                    {cadena.empresa_cadena}
+                </p>
+            )}
         </div>
     );
 }
