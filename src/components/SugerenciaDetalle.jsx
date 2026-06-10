@@ -10,7 +10,7 @@ import '../styles/sugerencias.css'
 const ENTITY_ENDPOINTS = {
     cadena: { endpoint: '/api/cadenas', idField: 'id_cadena', nameField: ['nombre_particular', 'establecimiento'], label: 'Cadena' },
     campania: { endpoint: '/api/campanias', idField: 'id_campania', nameField: ['nombre'], label: 'Campaña' },
-    zona: { endpoint: '/api/cp', idField: 'id_zona', nameField: ['zona_geografica'], label: 'Zona' },
+    zona: { endpoint: '/api/zonas', idField: 'id_zona', nameField: ['zona_geografica'], label: 'Zona' },
     entidad: { endpoint: '/api/entidades', idField: 'id_entidad', nameField: ['nombre'], label: 'Entidad' },
     tienda: { endpoint: '/api/tiendas', idField: 'id_tienda', nameField: ['domicilio'], label: 'Tienda' },
     usuario: { endpoint: '/api/usuarios', idField: 'id_usuario', nameField: ['nombre_completo', 'nombre'], label: 'Usuario' },
@@ -71,6 +71,74 @@ function getFirstValue(obj, fields) {
     }
     return null
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Configuración de visualización de campos (Tu "switch" gigante)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const FIELD_LABELS = {
+    // General
+    nombre: 'Nombre',
+    domicilio: 'Domicilio',
+    email: 'Email',
+    telefono: 'Teléfono',
+    observaciones: 'Observaciones',
+    fecha: 'Fecha',
+    estado: 'Estado',
+
+    // Campos de IDs
+    id_cadena: 'Cadena',
+    id_campania: 'Campaña',
+    id_zona: 'Zona',
+    id_entidad: 'Entidad',
+    id_tienda: 'Tienda',
+    id_usuario: 'Usuario',
+    id_voluntario: 'Voluntario',
+    id_capitan: 'Capitán',
+    id_coordinador: 'Coordinador',
+    id_responsable_tienda: 'Responsable de Tienda',
+    id_usuario_contacto: 'Usuario de Contacto',
+    id_propuesto_por: 'Sugerido por',
+    id_revisado_por: 'Revisado por',
+    cp: 'Código Postal',
+    id_cp: 'Código Postal',
+
+    // Campos específicos
+    codigo_bancosol: 'Código Bancosol',
+    vinculado_bancosol: 'Vinculado a Bancosol',
+    apellido_1: 'Primer Apellido',
+    apellido_2: 'Segundo Apellido',
+    nombre_completo: 'Nombre Completo',
+    puesto: 'Puesto / Rol',
+    fecha_inicio: 'Fecha de Inicio',
+    fecha_fin: 'Fecha de Fin',
+};
+
+function getFieldLabel(key) {
+    return FIELD_LABELS[key] || key.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Conjunto de campos a mostrar por tipo de entidad (el "switch" que pedías)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ENTITY_FIELD_SETS = {
+    tienda: [
+        'domicilio', 'cp', 'id_cadena', 'id_tienda'
+    ],
+    // TODO: Alex que toque esto que yo no tengo ni idea de como va
+    zonas: [
+        "id_usuario", 'nombre_completo', 'email', 'telefono', 'rol', 'domicilio', "cp"
+    ],
+    voluntario: [
+        'nombre', 'apellido_1', 'apellido_2', 'email', 'id_entidad'
+    ],
+    entidad: [
+        'id_entidad', 'nombre', 'domicilio', 'cp', 'codigo_bancosol', 'vinculado_bancosol', 'id_usuario_contacto'
+    ]
+    // Añade aquí más configuraciones para 'campania', 'entidad', etc.
+    // Si un tipo de entidad no está aquí, se mostrarán todos sus campos.
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Parseo de datos_propuestos
@@ -160,12 +228,31 @@ async function buildFkResolvers(neededTypes) {
 }
 
 function resolveValue(fieldName, rawValue, resolvers) {
-    if (rawValue === null || rawValue === undefined || rawValue === '') return '-'
-    const entityType = FK_FIELDS[fieldName]
-    if (!entityType) return formatValue(rawValue)
-    const index = resolvers[entityType] || {}
-    const resolved = index[String(rawValue)]
-    return resolved ?? formatValue(rawValue)
+    if (rawValue === null || rawValue === undefined || rawValue === '') return '-';
+    const entityType = FK_FIELDS[fieldName];
+
+    if (!entityType) {
+        return formatValue(rawValue);
+    }
+
+    const index = resolvers[entityType] || {};
+    const resolvedName = index[String(rawValue)];
+
+    if (!resolvedName) {
+        return formatValue(rawValue);
+    }
+
+    const config = ENTITY_ENDPOINTS[entityType];
+    const urlType = config?.endpoint?.split('/')[2]; // ej: /api/usuarios -> usuarios
+
+    // Solo creamos enlaces para entidades que tienen una página de edición definida.
+    if (config && urlType && entityType !== 'cp' && entityType !== 'zona') {
+        const editUrl = `/html/edit.html?type=${urlType}&id=${rawValue}`;
+        return (
+            <a href={editUrl} target="_blank" rel="noopener noreferrer" title={`Ver/Editar ${config.label || entityType} #${rawValue}`}>{resolvedName}</a>
+        );
+    }
+    return resolvedName;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -195,14 +282,19 @@ function getEntityDisplayName(tipoEntidad, entity) {
 // Construcción de filas de comparación
 // ─────────────────────────────────────────────────────────────────────────────
 
-function buildComparisonRows(original, proposed, resolvers) {
+function buildComparisonRows(tipoEntidad, original, proposed, resolvers) {
     const origObj = original && typeof original === 'object' && !Array.isArray(original) ? original : null
     const propObj = proposed && typeof proposed === 'object' && !Array.isArray(proposed) ? proposed : null
 
     if (propObj) {
-        // Unión de claves: propuestas primero, luego las del original que no estén
-        const keys = [...new Set([...Object.keys(propObj), ...(origObj ? Object.keys(origObj) : [])])]
-            .filter((k) => !PK_FIELDS.has(k)) // ocultar PKs
+        // Determinar qué claves mostrar: usar el set específico o todas.
+        const fieldSet = ENTITY_FIELD_SETS[tipoEntidad?.toLowerCase()];
+        const initialKeys = fieldSet
+            ? fieldSet
+            // Fallback: si no hay set, usar la unión de todas las claves
+            : [...new Set([...Object.keys(propObj), ...(origObj ? Object.keys(origObj) : [])])];
+
+        const keys = initialKeys.filter((k) => !PK_FIELDS.has(k)); // Ocultar PKs en CUALQUIER caso
 
         return keys.map((key) => {
             const origRaw = origObj ? origObj[key] : undefined
@@ -211,6 +303,7 @@ function buildComparisonRows(original, proposed, resolvers) {
             const propDisplay = resolveValue(key, propRaw, resolvers)
             return {
                 key,
+                label: getFieldLabel(key),
                 originalDisplay: origDisplay,
                 proposedDisplay: propDisplay,
                 changed: String(origRaw ?? '') !== String(propRaw ?? ''),
@@ -221,6 +314,7 @@ function buildComparisonRows(original, proposed, resolvers) {
     // datos_propuestos sin parsear como objeto
     return [{
         key: 'datos_propuestos',
+        label: 'Datos Propuestos',
         originalDisplay: original ? formatValue(original) : '-',
         proposedDisplay: proposed ? String(proposed) : '-',
         changed: true,
@@ -250,11 +344,16 @@ function SugerenciaDetalle() {
     const [comparisonRows, setComparisonRows] = useState([])
     const [entityDisplayName, setEntityDisplayName] = useState(null)
     const [userNames, setUserNames] = useState({})
+    const [isAdmin, setIsAdmin] = useState(false)
+    const [isProcessing, setIsProcessing] = useState(false)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
 
     useEffect(() => {
         let active = true
+
+        const perfil = sessionStorage.getItem('perfil')
+        if (active) setIsAdmin(perfil === 'ADMINISTRADOR')
 
         async function loadDetalle() {
             try {
@@ -262,9 +361,16 @@ function SugerenciaDetalle() {
                     fetch(`/api/sugerencias/${id}`, { headers: getAuthHeaders() }),
                     fetch('/api/usuarios', { headers: getAuthHeaders() }),
                 ])
+                if (!active) return
 
-                if (!sugerenciaResp.ok) throw new Error(`No se encontró la sugerencia ${id}`)
-                if (!usuariosResp.ok) throw new Error('Error cargando usuarios')
+                if (!sugerenciaResp.ok) {
+                    const errData = await sugerenciaResp.json().catch(() => null)
+                    throw new Error(errData?.message || `No se encontró la sugerencia ${id}`)
+                }
+                if (!usuariosResp.ok) {
+                    const errData = await usuariosResp.json().catch(() => null)
+                    throw new Error(errData?.message || 'Error cargando usuarios')
+                }
 
                 const [suggestion, usuarios] = await Promise.all([
                     sugerenciaResp.json(),
@@ -304,7 +410,7 @@ function SugerenciaDetalle() {
                 const resolvers = needed.size > 0 ? await buildFkResolvers(needed) : {}
                 if (!active) return
 
-                setComparisonRows(buildComparisonRows(original, proposed, resolvers))
+                setComparisonRows(buildComparisonRows(tipoEntidad, original, proposed, resolvers))
             } catch (err) {
                 if (active) setError(err.message || 'Error cargando la sugerencia')
             } finally {
@@ -319,6 +425,36 @@ function SugerenciaDetalle() {
     const renderUserName = (userId) => {
         if (userId === null || userId === undefined || userId === '') return '-'
         return userNames[String(userId)] || String(userId)
+    }
+
+    const handleDecision = async (newState) => {
+        if (sugerencia.estado !== 'PENDIENTE') {
+            alert('Esta sugerencia ya ha sido procesada.')
+            return
+        }
+
+        setIsProcessing(true)
+        setError('')
+
+        try {
+            const resp = await fetch(`/api/sugerencias/${id}`, {
+                method: 'PUT',
+                headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado: newState }),
+            })
+
+            if (!resp.ok) {
+                const errData = await resp.json()
+                throw new Error(errData.message || `Error al ${newState === 'APROBADA' ? 'aprobar' : 'rechazar'}`)
+            }
+
+            const updatedSugerencia = await resp.json()
+            setSugerencia(updatedSugerencia) // Actualiza el estado local para reflejar el cambio
+        } catch (err) {
+            setError(err.message)
+        } finally {
+            setIsProcessing(false)
+        }
     }
 
     const entityLabel = sugerencia
@@ -365,6 +501,25 @@ function SugerenciaDetalle() {
                         <div><strong>Fecha revisión:</strong> {formatDate(sugerencia.fecha_revision)}</div>
                     </div>
 
+                    {isAdmin && sugerencia.estado === 'PENDIENTE' && (
+                        <div className="sugerencia-actions">
+                            <button
+                                className="btn btn-success"
+                                onClick={() => handleDecision('APROBADA')}
+                                disabled={isProcessing}
+                            >
+                                {isProcessing ? 'Procesando...' : 'Aprobar Cambio'}
+                            </button>
+                            <button
+                                className="btn btn-danger"
+                                onClick={() => handleDecision('RECHAZADA')}
+                                disabled={isProcessing}
+                            >
+                                {isProcessing ? 'Procesando...' : 'Rechazar Cambio'}
+                            </button>
+                        </div>
+                    )}
+
                     <div className="comparacion-section">
                         <h2 className="section-title">Comparación de campos</h2>
                         <table className="comparacion-table">
@@ -383,7 +538,7 @@ function SugerenciaDetalle() {
                                 ) : (
                                     comparisonRows.map((row) => (
                                         <tr key={row.key} className={row.changed ? 'highlight-diff' : ''}>
-                                            <td>{row.key}</td>
+                                            <td>{row.label}</td>
                                             <td>{row.originalDisplay}</td>
                                             <td>{row.proposedDisplay}</td>
                                         </tr>

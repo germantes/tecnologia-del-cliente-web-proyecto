@@ -38,6 +38,16 @@ const FALLBACK_TABLE_NAMES = {
   tiendaCampania: ['tienda_campania', 'tiendas_campanias', 'TiendaCampania'],
 };
 
+// Mapa de tipo de entidad a su clave primaria
+const PK_MAP = {
+  usuario: 'id_usuario',
+  campania: 'id_campania',
+  tienda: 'id_tienda',
+  voluntario: 'id_voluntario',
+  entidad: 'id_entidad',
+  turno: 'id_turno',
+};
+
 const tableNameCache = new Map();
 const SUPABASE_PAGE_SIZE = 1000;
 
@@ -109,17 +119,17 @@ async function requireAuth(req, res, next) {
   return res.status(401).json({ success: false, message: 'Token inválido o expirado' });
 }
 
-  /*
-  // Los GET de consulta se dejan públicos para poder probarlos directamente en navegador.
-  if (req.method === 'GET' && PUBLIC_GET_PATHS.has(req.path)) return next();
+/*
+// Los GET de consulta se dejan públicos para poder probarlos directamente en navegador.
+if (req.method === 'GET' && PUBLIC_GET_PATHS.has(req.path)) return next();
 
-  const user = verifyToken(req.headers.authorization);
-  if (!user) {
-    return res.status(401).json({ success: false, message: 'Acceso no autorizado. Inicia sesión.' });
-  }
-  req.user = user;
-  next();
-  */
+const user = verifyToken(req.headers.authorization);
+if (!user) {
+  return res.status(401).json({ success: false, message: 'Acceso no autorizado. Inicia sesión.' });
+}
+req.user = user;
+next();
+*/
 
 function requireAdmin(req, res, next) {
   // --- BYPASS TEMPORAL DE ADMIN ---
@@ -1053,8 +1063,8 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
 
     // 2. Consulta Base (Añadimos id_campania a la petición de Supabase)
     let query = supabase
-        .from('tienda')
-        .select(`
+      .from('tienda')
+      .select(`
                 id_tienda, 
                 domicilio,
                 cadena (id_cadena, establecimiento, nombre_particular),
@@ -1132,8 +1142,8 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
     const tiendaId = req.params.id;
 
     const { data: tienda, error } = await supabase
-        .from('tienda')
-        .select(`
+      .from('tienda')
+      .select(`
                 id_tienda, 
                 domicilio,
                 cadena (id_cadena, establecimiento, nombre_particular),
@@ -1153,8 +1163,8 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
                     num_cajas
                 )
             `)
-        .eq('id_tienda', tiendaId)
-        .single(); // Le decimos a Supabase que devuelva 1 solo objeto, no un array
+      .eq('id_tienda', tiendaId)
+      .single(); // Le decimos a Supabase que devuelva 1 solo objeto, no un array
 
     if (error) throw error;
     res.json(tienda);
@@ -1178,13 +1188,13 @@ app.post('/api/tiendas', requireAuth, async (req, res) => {
 
     // 1. Crear la tienda física en la tabla 'tienda' usando Supabase
     const { data: resultTienda, error: errorTienda } = await supabase
-        .from('tienda')
-        .insert([{
-          domicilio: domicilio || null,
-          cp: idCp || null, // Vuestra columna se llama 'cp', no 'id_cp'
-          id_cadena: idCadena ? parseInt(idCadena) : null
-        }])
-        .select(); // .select() obliga a Supabase a devolvernos el ID generado
+      .from('tienda')
+      .insert([{
+        domicilio: domicilio || null,
+        cp: idCp || null, // Vuestra columna se llama 'cp', no 'id_cp'
+        id_cadena: idCadena ? parseInt(idCadena) : null
+      }])
+      .select(); // .select() obliga a Supabase a devolvernos el ID generado
 
     if (errorTienda) throw errorTienda;
 
@@ -1194,16 +1204,16 @@ app.post('/api/tiendas', requireAuth, async (req, res) => {
     // 2. Si el usuario marcó "Participa: Sí", la vinculamos a la campaña actual
     if (participa && idCampania) {
       const { error: errorCampania } = await supabase
-          .from('tienda_campania')
-          .insert([{
-            id_tienda: nuevaTiendaId,
-            id_campania: parseInt(idCampania),
-            num_cajas: parseInt(numCajas) || 0,
-            id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
-            id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
-            id_capitan: idCapitan ? parseInt(idCapitan) : null,
-            participa: participa === true || participa === 'true'
-          }]);
+        .from('tienda_campania')
+        .insert([{
+          id_tienda: nuevaTiendaId,
+          id_campania: parseInt(idCampania),
+          num_cajas: parseInt(numCajas) || 0,
+          id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
+          id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
+          id_capitan: idCapitan ? parseInt(idCapitan) : null,
+          participa: participa === true || participa === 'true'
+        }]);
 
       if (errorCampania) throw errorCampania;
     }
@@ -1277,15 +1287,15 @@ app.get('/api/zonas_por_campania', requireAuth, async (req, res) => {
     }
 
     const { data, error } = await supabase
-        .from('asignacion_zona')
-        .select(`
+      .from('asignacion_zona')
+      .select(`
         id_zona,
         zona:id_zona (
           id_zona,
           zona_geografica
         )
       `)
-        .eq('id_campania', idCampania);
+      .eq('id_campania', idCampania);
 
     if (error) throw error;
     res.json(data || []);
@@ -1318,26 +1328,26 @@ app.get('/api/cadenas', requireAuth, async (req, res) => {
 
 // Endpoint para crear una nueva cadena
 app.post('/api/cadenas', requireAuth, async (req, res) => {
-    try {
-        const { codigo_cadena, establecimiento, nombre_particular, empresa } = req.body;
+  try {
+    const { codigo_cadena, establecimiento, nombre_particular, empresa } = req.body;
 
-        // Validación básica
-        if (!codigo_cadena || !establecimiento) {
-            return res.status(400).json({ success: false, message: 'El código y el establecimiento son obligatorios.' });
-        }
-
-        const [newCadena] = await insertRows('cadena', [{
-            codigo_cadena,
-            establecimiento,
-            nombre_particular,
-            empresa_cadena: empresa // Aseguramos el mapeo correcto
-        }]);
-        
-        res.status(201).json(newCadena);
-
-    } catch (error) {
-        sendError(res, error, 'Error al crear la cadena');
+    // Validación básica
+    if (!codigo_cadena || !establecimiento) {
+      return res.status(400).json({ success: false, message: 'El código y el establecimiento son obligatorios.' });
     }
+
+    const [newCadena] = await insertRows('cadena', [{
+      codigo_cadena,
+      establecimiento,
+      nombre_particular,
+      empresa_cadena: empresa // Aseguramos el mapeo correcto
+    }]);
+
+    res.status(201).json(newCadena);
+
+  } catch (error) {
+    sendError(res, error, 'Error al crear la cadena');
+  }
 });
 
 app.get('/api/usuarios', requireAuth, async (req, res) => {
@@ -1371,6 +1381,62 @@ app.get('/api/sugerencias/:id', requireAuth, requireAdmin, async (req, res) => {
 });
 
 // =========================================================================
+// ENDPOINT: APROBAR/RECHAZAR SUGERENCIA
+// =========================================================================
+app.put('/api/sugerencias/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { estado } = req.body; // 'APROBADA' o 'RECHAZADA'
+    const userId = req.user.id;
+
+    if (!['APROBADA', 'RECHAZADA'].includes(estado)) {
+      return res.status(400).json({ error: 'El estado proporcionado no es válido.' });
+    }
+
+    const sugerencia = await findById('sugerenciaCambio', id, ['id_sugerencia']);
+    if (!sugerencia) {
+      return res.status(404).json({ error: 'Sugerencia no encontrada.' });
+    }
+    if (sugerencia.estado !== 'PENDIENTE') {
+      return res.status(409).json({ error: `La sugerencia ya ha sido procesada (estado: ${sugerencia.estado}).` });
+    }
+
+    // Si se aprueba, aplicamos los cambios a la entidad original
+    if (estado === 'APROBADA') {
+      const tipoEntidad = sugerencia.tipo_entidad;
+      const idEntidadOriginal = sugerencia.id_entidad_original;
+      const pkField = PK_MAP[tipoEntidad];
+
+      if (!tipoEntidad || !idEntidadOriginal || !pkField) {
+        throw new Error(`Configuración de entidad no encontrada para el tipo: ${tipoEntidad}`);
+      }
+
+      let datosPropuestos;
+      try {
+        datosPropuestos = JSON.parse(sugerencia.datos_propuestos);
+      } catch (e) {
+        return res.status(400).json({ error: 'Los datos propuestos no son un JSON válido y no se pueden aplicar automáticamente.' });
+      }
+
+      await updateRows(tipoEntidad, pkField, idEntidadOriginal, datosPropuestos);
+    }
+
+    // Finalmente, actualizamos el estado de la sugerencia
+    const patchSugerencia = {
+      estado,
+      id_revisado_por: userId,
+      fecha_revision: new Date().toISOString(),
+    };
+
+    const [updatedSugerencia] = await updateRows('sugerenciaCambio', 'id_sugerencia', id, patchSugerencia);
+
+    res.json(updatedSugerencia);
+  } catch (error) {
+    sendError(res, error, 'Error al procesar la sugerencia');
+  }
+});
+
+// =========================================================================
 // ENDPOINT: GUARDAR/EDITAR TIENDA (Equivalente a doGuardarTienda en Java)
 // =========================================================================
 app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
@@ -1388,29 +1454,29 @@ app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
 
     // 1. Actualizamos la tabla principal: tienda
     const { error: errorTienda } = await supabase
-        .from('tienda')
-        .update({
-          domicilio: domicilio || null,
-          cp: idCp || null,
-          id_cadena: idCadena ? parseInt(idCadena) : null
-        })
-        .eq('id_tienda', tiendaId);
+      .from('tienda')
+      .update({
+        domicilio: domicilio || null,
+        cp: idCp || null,
+        id_cadena: idCadena ? parseInt(idCadena) : null
+      })
+      .eq('id_tienda', tiendaId);
 
     if (errorTienda) throw errorTienda;
 
     // 2. Actualizamos la relación tienda_campania (SOLO SI SE ENVIÓ CONTEXTO DE CAMPAÑA DESDE EL FRONT)
     if (idCampania) {
       const { error: errorCampania } = await supabase
-          .from('tienda_campania')
-          .update({
-            id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
-            id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
-            id_capitan: idCapitan ? parseInt(idCapitan) : null,
-            num_cajas: parseInt(numCajas) || 0,
-            participa: participa === true || participa === 'true'
-          })
-          .eq('id_tienda', tiendaId)
-          .eq('id_campania', idCampania);
+        .from('tienda_campania')
+        .update({
+          id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
+          id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
+          id_capitan: idCapitan ? parseInt(idCapitan) : null,
+          num_cajas: parseInt(numCajas) || 0,
+          participa: participa === true || participa === 'true'
+        })
+        .eq('id_tienda', tiendaId)
+        .eq('id_campania', idCampania);
 
       if (errorCampania) throw errorCampania;
     }
@@ -1436,8 +1502,8 @@ app.get('/api/campanias_por_zona', requireAuth, async (req, res) => {
     }
 
     const { data, error } = await supabase
-        .from('asignacion_zona')
-        .select(`
+      .from('asignacion_zona')
+      .select(`
         id_campania,
         campania:id_campania (
           id_campania,
@@ -1447,7 +1513,7 @@ app.get('/api/campanias_por_zona', requireAuth, async (req, res) => {
           tipo
         )
       `)
-        .eq('id_zona', idZona);
+      .eq('id_zona', idZona);
 
     if (error) throw error;
     res.json(data || []);
@@ -1478,8 +1544,8 @@ app.all([
 // Catch-all para la SPA
 app.get('*', (req, res) => {
   const indexPath = process.env.NODE_ENV === 'development'
-      ? '/public/html/index.html'
-      : path.join(__dirname, '..', 'public', 'html', 'index.html');
+    ? '/public/html/index.html'
+    : path.join(__dirname, '..', 'public', 'html', 'index.html');
   res.sendFile(indexPath);
 });
 
