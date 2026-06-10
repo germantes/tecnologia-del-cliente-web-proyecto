@@ -13,7 +13,6 @@ import UsuarioCrear from './components/UsuarioCrear.jsx'
 import UsuarioEditar from './components/UsuarioEditar.jsx'
 import Sugerencias from './components/Sugerencias'
 import SugerenciaDetalle from './components/SugerenciaDetalle'
-import { getPerfil } from './components/session.js'
 
 function LoginRedirect() {
     const token = sessionStorage.getItem('token')
