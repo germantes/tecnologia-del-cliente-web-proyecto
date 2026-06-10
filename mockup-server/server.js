@@ -108,27 +108,9 @@ async function requireAuth(req, res, next) {
   return res.status(401).json({ success: false, message: 'Token inválido o expirado' });
 }
 
-  /*
-  // Los GET de consulta se dejan públicos para poder probarlos directamente en navegador.
-  if (req.method === 'GET' && PUBLIC_GET_PATHS.has(req.path)) return next();
-
-  const user = verifyToken(req.headers.authorization);
-  if (!user) {
-    return res.status(401).json({ success: false, message: 'Acceso no autorizado. Inicia sesión.' });
-  }
-  req.user = user;
-  next();
-  */
-
 function requireAdmin(req, res, next) {
   // --- BYPASS TEMPORAL DE ADMIN ---
   return next();
-  /*
-  if (req.user?.puesto !== 'ADMINISTRADOR') {
-    return res.status(403).json({ success: false, message: 'Acceso denegado. Solo administradores.' });
-  }
-  next();
-  */
 }
 
 async function getWorkingTableName(key) {
@@ -244,9 +226,9 @@ async function getIdsVoluntariosByTurno(idTurno) {
   try {
     const rows = await fetchAll('turnoVoluntario');
     return rows
-      .filter((row) => sameNumberOrString(row.id_turno, idTurno))
-      .map((row) => row.id_voluntario)
-      .filter((id) => id !== undefined && id !== null);
+        .filter((row) => sameNumberOrString(row.id_turno, idTurno))
+        .map((row) => row.id_voluntario)
+        .filter((id) => id !== undefined && id !== null);
   } catch (error) {
     console.warn('No se pudo leer la tabla de turnos_voluntarios:', error.message);
     return [];
@@ -280,8 +262,8 @@ async function filtrarTiendasPorZona(tiendas, idZona) {
   try {
     const cps = await fetchAll('cp');
     const cpsDeZona = cps
-      .filter((cp) => sameNumberOrString(getField(cp, 'idZona', 'id_zona'), idZona))
-      .map((cp) => getField(cp, 'cp', 'codigo_postal', 'codigoPostal', 'id_cp', 'idCP'));
+        .filter((cp) => sameNumberOrString(getField(cp, 'idZona', 'id_zona'), idZona))
+        .map((cp) => getField(cp, 'cp', 'codigo_postal', 'codigoPostal', 'id_cp', 'idCP'));
 
     return tiendas.filter((tienda) => cpsDeZona.some((cp) => sameNumberOrString(getField(tienda, 'cp', 'codigo_postal', 'id_cp', 'idCP'), cp)));
   } catch {
@@ -306,7 +288,7 @@ async function construirUsuarioSesion(usuario) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Config estática/front
+// Config estática/front (RUTAS CORREGIDAS A /public)
 // ─────────────────────────────────────────────────────────────────────────────
 app.get('/api/config.js', (req, res) => {
   const apiUrl = process.env.API_URL || `http://localhost:${PORT}`;
@@ -314,10 +296,15 @@ app.get('/api/config.js', (req, res) => {
   res.send(`window.API_URL = '${apiUrl}';`);
 });
 
-const srcPath = process.env.NODE_ENV === 'development'
-  ? '/public'
-  : path.join(__dirname, '..', 'public');
-app.use(express.static(srcPath));
+// Definimos la ruta absoluta hacia la carpeta "public" mapeada por Docker
+const publicPath = path.join(__dirname, '..', 'public');
+
+// Exponemos la carpeta public en la raíz, y cada subcarpeta de forma explícita
+app.use(express.static(publicPath));
+app.use('/html', express.static(path.join(publicPath, 'html')));
+app.use('/css', express.static(path.join(publicPath, 'css')));
+app.use('/js', express.static(path.join(publicPath, 'js')));
+app.use('/componentes', express.static(path.join(publicPath, 'componentes')));
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Rutas públicas/auth
@@ -360,14 +347,10 @@ app.post('/auth/login', async (req, res) => {
         if (storedPassword) {
           // Si la contraseña almacenada comienza con $2b$ (formato bcrypt)
           if (storedPassword.startsWith('$2b$') || storedPassword.startsWith('$2a$') || storedPassword.startsWith('$2y$')) {
-            // Comparar usando bcrypt
-            console.log(`🔐 Comparando con bcrypt...`);
             passwordValid = await bcrypt.compare(password, storedPassword);
-            console.log(`✅ Resultado bcrypt: ${passwordValid}`);
           } else {
             // Fallback: comparación directa (para contraseñas en texto plano)
             passwordValid = str(storedPassword) === str(password);
-            console.log(`📝 Comparación directa: ${passwordValid}`);
           }
         }
 
@@ -408,7 +391,6 @@ app.get('/usuarios', requireAuth, async (req, res) => {
   } catch (error) { sendError(res, error, 'Error obteniendo usuarios'); }
 });
 
-// Obtener todas las campañas con el prefijo /api/ para la SPA
 app.get('/api/campanias', requireAuth, async (req, res) => {
   try {
     const rows = applyGenericFilters(await fetchAll('campania'), req.query);
@@ -420,27 +402,27 @@ app.get('/api/campanias', requireAuth, async (req, res) => {
 
 // ─── RUTAS PARA SERVIR PÁGINAS HTML (FRONTEND) ───────────────────────────────
 app.get('/entidades', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'entidades.html'));
+  res.sendFile(path.join(publicPath, 'html', 'entidades.html'));
 });
 
 app.get('/voluntarios', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'voluntarios.html'));
+  res.sendFile(path.join(publicPath, 'html', 'voluntarios.html'));
 });
 
 app.get('/turnos_modificar', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'turnos_modificar.html'));
+  res.sendFile(path.join(publicPath, 'html', 'turnos_modificar.html'));
 });
 
 // Rutas para la página de edición y creación (soporta con y sin .html)
 app.get('/edit', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'edit.html'), (err) => {
-    if (err) res.sendFile(path.join(srcPath, 'edit.html')); // Fallback si el archivo aún no se ha movido a /html
-  });
+  res.sendFile(path.join(publicPath, 'html', 'edit.html'));
 });
 app.get('/edit.html', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'edit.html'), (err) => {
-    if (err) res.sendFile(path.join(srcPath, 'edit.html'));
-  });
+  res.sendFile(path.join(publicPath, 'html', 'edit.html'));
+});
+
+app.get('/tienda_turnos', (req, res) => {
+  res.sendFile(path.join(publicPath, 'html', 'tienda_turnos.html'));
 });
 
 // ─── RUTAS DE API (DATOS JSON PURAMENTE) ──────────────────────────────────────
@@ -574,8 +556,8 @@ app.get('/tienda_editar', requireAuth, async (req, res) => {
 app.get(['/cp', '/api/cp'], requireAuth, async (req, res) => {
   try {
     const { data, error } = await supabase
-      .from('cp')
-      .select(`
+        .from('cp')
+        .select(`
         cp,
         localidad,
         id_zona,
@@ -599,114 +581,53 @@ app.get('/api/tienda_turnos', requireAuth, async (req, res) => {
     const idTienda = req.query.idTienda;
     const idCampania = req.query.idCampania;
 
-    if (!idTienda) {
-      return res.status(400).json({
-        success: false,
-        message: 'Falta el parámetro idTienda.'
-      });
-    }
-
-    if (!idCampania) {
-      return res.status(400).json({
-        success: false,
-        message: 'Falta el parámetro idCampania.'
-      });
+    if (!idTienda || !idCampania) {
+      return res.status(400).json({ success: false, message: 'Faltan parámetros.' });
     }
 
     const tiendaCampanias = await fetchAll('tiendaCampania').catch(() => []);
-
     const tiendaCampania = tiendaCampanias.find((row) =>
-      sameNumberOrString(getIdTienda(row), idTienda)
-      && sameNumberOrString(getIdCampania(row), idCampania)
+        sameNumberOrString(getIdTienda(row), idTienda) && sameNumberOrString(getIdCampania(row), idCampania)
     );
 
-    const turnos = filterTurnos(await fetchAll('turno'), {
-      idTienda,
-      idCampania
-    });
-
+    const turnos = filterTurnos(await fetchAll('turno'), { idTienda, idCampania });
     const relacionesTurnoVoluntario = await fetchAll('turnoVoluntario').catch(() => []);
     const voluntarios = await fetchAll('voluntario').catch(() => []);
 
     const turnosTienda = turnos
-      .map((turno) => {
-        const idsVoluntarios = relacionesTurnoVoluntario
-          .filter((relacion) =>
-            sameNumberOrString(
-              relacion.id_turno,
-              getIdTurno(turno)
+        .map((turno) => {
+          const idsVoluntarios = relacionesTurnoVoluntario
+              .filter((relacion) => sameNumberOrString(relacion.id_turno, getIdTurno(turno)))
+              .map((relacion) => relacion.id_voluntario);
+
+          return {
+            ...turno,
+            voluntarios: voluntarios.filter((voluntario) =>
+                idsVoluntarios.some((id) => sameNumberOrString(getIdVoluntario(voluntario), id))
             )
-          )
-          .map((relacion) =>
-            relacion.id_voluntario
-          );
-
-        return {
-          ...turno,
-          voluntarios: voluntarios.filter((voluntario) =>
-            idsVoluntarios.some((idVoluntario) =>
-              sameNumberOrString(getIdVoluntario(voluntario), idVoluntario)
-            )
-          )
-        };
-      })
-      .sort((a, b) => {
-        const comparacionFecha = str(getFecha(a)).localeCompare(str(getFecha(b)));
-
-        if (comparacionFecha !== 0) {
-          return comparacionFecha;
-        }
-
-        return normalizeTurno(getTipoTurno(a)).localeCompare(
-          normalizeTurno(getTipoTurno(b))
-        );
-      });
+          };
+        })
+        .sort((a, b) => {
+          const compFecha = str(getFecha(a)).localeCompare(str(getFecha(b)));
+          if (compFecha !== 0) return compFecha;
+          return normalizeTurno(getTipoTurno(a)).localeCompare(normalizeTurno(getTipoTurno(b)));
+        });
 
     const { data: tiendaDetalle } = await supabase
-      .from('tienda')
-      .select(`
-        id_tienda,
-        domicilio,
-        cadena (
-          id_cadena,
-          establecimiento,
-          nombre_particular
-        ),
-        cp (
-          cp,
-          localidad,
-          municipio,
-          zona (
-            id_zona,
-            zona_geografica
-          )
-        )
-      `)
-      .eq('id_tienda', idTienda)
-      .single();
+        .from('tienda')
+        .select(`id_tienda, domicilio, cadena (id_cadena, establecimiento, nombre_particular), cp (cp, localidad, municipio, zona (id_zona, zona_geografica))`)
+        .eq('id_tienda', idTienda)
+        .single();
 
     const campania = await findById('campania', idCampania, ['id_campania']).catch(() => null);
-
     const idResponsable = tiendaCampania ? tiendaCampania.id_responsable_tienda : null;
-
-    const responsableTienda = idResponsable
-      ? await findById('usuario', idResponsable, ['id_usuario']).catch(() => null)
-      : null;
+    const responsableTienda = idResponsable ? await findById('usuario', idResponsable, ['id_usuario']).catch(() => null) : null;
 
     res.json({
-      turnosTienda,
-      idTienda,
-      idCampania,
-      tiendaCampania: {
-        ...(tiendaCampania || {}),
-        tienda: tiendaDetalle || null,
-        campania,
-        responsableTienda
-      }
+      turnosTienda, idTienda, idCampania,
+      tiendaCampania: { ...(tiendaCampania || {}), tienda: tiendaDetalle || null, campania, responsableTienda }
     });
-  } catch (error) {
-    sendError(res, error, 'Error obteniendo turnos de tienda');
-  }
+  } catch (error) { sendError(res, error, 'Error obteniendo turnos de tienda'); }
 });
 
 async function buildTurnoEditarResponse(query) {
@@ -719,15 +640,10 @@ async function buildTurnoEditarResponse(query) {
   const idsVoluntariosSeleccionados = await getIdsVoluntariosByTurno(getIdTurno(turno));
 
   return {
-    idTienda: query.idTienda,
-    idCampania: query.idCampania,
-    fecha: query.fecha,
-    turno,
-    turnoTexto: normalizeTurno(getTipoTurno(turno)).toUpperCase(),
+    idTienda: query.idTienda, idCampania: query.idCampania, fecha: query.fecha,
+    turno, turnoTexto: normalizeTurno(getTipoTurno(turno)).toUpperCase(),
     nombreEntidadResponsable: getNombreEntidad(entidad) || 'Sin entidad responsable',
-    listaVoluntarios,
-    idsVoluntariosSeleccionados,
-    busqueda: query.busqueda || ''
+    listaVoluntarios, idsVoluntariosSeleccionados, busqueda: query.busqueda || ''
   };
 }
 
@@ -776,9 +692,7 @@ app.get('/api/turno_voluntarios', requireAuth, async (req, res) => {
       idTurno: getIdTurno(turno),
       idsVoluntariosSeleccionados,
       voluntarios: voluntarios.filter((voluntario) =>
-        idsVoluntariosSeleccionados.some((idVoluntario) =>
-          sameNumberOrString(getIdVoluntario(voluntario), idVoluntario)
-        )
+          idsVoluntariosSeleccionados.some((idVoluntario) => sameNumberOrString(getIdVoluntario(voluntario), idVoluntario))
       )
     });
   } catch (error) { sendError(res, error, 'Error obteniendo voluntarios del turno'); }
@@ -796,10 +710,7 @@ app.post('/api/turno_guardar_voluntarios', requireAuth, async (req, res) => {
 
     await deleteTurnoVoluntarios(idTurno);
     if (idsVoluntarios.length) {
-      await insertRows('turnoVoluntario', idsVoluntarios.map((idVoluntario) => ({
-        id_turno: idTurno,
-        id_voluntario: idVoluntario
-      })));
+      await insertRows('turnoVoluntario', idsVoluntarios.map((idVoluntario) => ({ id_turno: idTurno, id_voluntario: idVoluntario })));
     }
 
     res.json({ success: true, idTurno, idsVoluntariosSeleccionados: idsVoluntarios });
@@ -809,23 +720,14 @@ app.post('/api/turno_guardar_voluntarios', requireAuth, async (req, res) => {
 app.post('/api/turno_borrar_dia', requireAuth, async (req, res) => {
   try {
     const params = { ...req.query, ...req.body };
-    const idTienda = params.idTienda;
-    const idCampania = params.idCampania;
-    const fecha = params.fecha;
+    const { idTienda, idCampania, fecha } = params;
 
     if (!idTienda || !idCampania || !fecha) {
       return res.status(400).json({ success: false, message: 'Faltan parámetros para borrar turnos.' });
     }
 
-    const turnos = filterTurnos(await fetchAll('turno'), {
-      idTienda,
-      idCampania,
-      fecha
-    });
-
-    if (!turnos.length) {
-      return res.json({ success: true, deleted: 0 });
-    }
+    const turnos = filterTurnos(await fetchAll('turno'), { idTienda, idCampania, fecha });
+    if (!turnos.length) return res.json({ success: true, deleted: 0 });
 
     for (const turno of turnos) {
       const idTurno = getIdTurno(turno);
@@ -871,10 +773,7 @@ app.post('/api/turno_observaciones_guardar', requireAuth, async (req, res) => {
     const turno = await getTurnoObservaciones(params);
     if (!turno) return res.status(404).json({ success: false, message: 'Turno no encontrado.' });
 
-    const [updated] = await updateRows('turno', 'id_turno', getIdTurno(turno), {
-      observaciones: params.observaciones || ''
-    });
-
+    const [updated] = await updateRows('turno', 'id_turno', getIdTurno(turno), { observaciones: params.observaciones || '' });
     res.json({ success: true, turno: updated || turno });
   } catch (error) { sendError(res, error, 'Error guardando observaciones'); }
 });
@@ -883,10 +782,50 @@ app.post('/api/turno_observaciones_guardar', requireAuth, async (req, res) => {
 // Escritura genérica mantenida para el frontend antiguo
 // ─────────────────────────────────────────────────────────────────────────────
 app.post('/usuarios', requireAuth, requireAdmin, async (req, res) => {
-  try { res.json((await insertRows('usuario', [req.body]))[0]); } catch (e) { sendError(res, e, 'Error creando usuario'); }
+  try {
+    const datosUsuario = { ...req.body };
+
+    // 1. Mapeo de campos camelCase a snake_case
+    if (datosUsuario.idCp !== undefined) {
+      datosUsuario.cp = datosUsuario.idCp;
+      delete datosUsuario.idCp;
+      delete datosUsuario.id_cp;
+    }
+    if (datosUsuario.nombreCompleto !== undefined) {
+      datosUsuario.nombre_completo = datosUsuario.nombreCompleto;
+      delete datosUsuario.nombreCompleto;
+    }
+
+    // 2. Eliminamos campos temporales del frontend que no van a la BD
+    if (datosUsuario.confirmContrasenia !== undefined) {
+      delete datosUsuario.confirmContrasenia;
+    }
+
+    res.json((await insertRows('usuario', [datosUsuario]))[0]);
+  } catch (e) { sendError(res, e, 'Error creando usuario'); }
 });
 app.put('/usuarios/:id', requireAuth, requireAdmin, async (req, res) => {
-  try { res.json((await updateRows('usuario', 'id_usuario', req.params.id, req.body))[0]); } catch (e) { sendError(res, e, 'Error actualizando usuario'); }
+  try {
+    const datosUsuario = { ...req.body };
+
+    // 1. Mapeo de campos camelCase a snake_case
+    if (datosUsuario.idCp !== undefined) {
+      datosUsuario.cp = datosUsuario.idCp;
+      delete datosUsuario.idCp;
+      delete datosUsuario.id_cp;
+    }
+    if (datosUsuario.nombreCompleto !== undefined) {
+      datosUsuario.nombre_completo = datosUsuario.nombreCompleto;
+      delete datosUsuario.nombreCompleto;
+    }
+
+    // 2. Eliminamos campos temporales del frontend que no van a la BD
+    if (datosUsuario.confirmContrasenia !== undefined) {
+      delete datosUsuario.confirmContrasenia;
+    }
+
+    res.json((await updateRows('usuario', 'id_usuario', req.params.id, datosUsuario))[0]);
+  } catch (e) { sendError(res, e, 'Error actualizando usuario'); }
 });
 app.delete('/usuarios/:id', requireAuth, requireAdmin, async (req, res) => {
   try { res.json(await deleteRows('usuario', 'id_usuario', req.params.id)); } catch (e) { sendError(res, e, 'Error eliminando usuario'); }
@@ -1035,7 +974,6 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
     const { idZona, participa, idCampania: queryIdCampania } = req.query;
     const idCampania = queryIdCampania ? parseInt(queryIdCampania) : null;
 
-    // 1. Obtener todas las campañas y calcular cuál es la "Activa" de hoy
     const { data: campanias } = await supabase.from('campania').select('*');
     let idActiva = null;
     if (campanias) {
@@ -1044,13 +982,12 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
         if (!c.fecha_inicio || !c.fecha_fin) return false;
         const inicio = new Date(c.fecha_inicio);
         const fin = new Date(c.fecha_fin);
-        fin.setHours(23, 59, 59, 999); // Expandimos el fin hasta el último segundo del día
+        fin.setHours(23, 59, 59, 999);
         return hoy >= inicio && hoy <= fin;
       });
       if (activa) idActiva = activa.id_campania;
     }
 
-    // 2. Consulta Base (Añadimos id_campania a la petición de Supabase)
     let query = supabase
         .from('tienda')
         .select(`
@@ -1072,7 +1009,6 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
                 )
             `);
 
-    // 3. Filtros previos en Base de Datos según el ROL EXACTO
     if (puesto === 'ADMINISTRADOR') {
       if (idZona && idZona !== '0') query = query.eq('cp.id_zona', idZona);
     } else if (puesto === 'COORDINADOR') {
@@ -1090,7 +1026,6 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
     const { data: tiendas, error } = await query;
     if (error) throw error;
 
-    // 4. LIMPIEZA POST-CONSULTA Y FILTRADO ESTRICTO
     const tiendasFiltradas = tiendas.filter(t => {
       if (!t.cp) return false;
 
@@ -1109,7 +1044,6 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
           return true;
         }
       } else {
-        // COORDINADORES, CAPITANES, RESPONSABLES: Solo ven campaña ACTIVA
         if (!idActiva) return false;
         const relacionActiva = t.tienda_campania?.find(tc => tc.id_campania === idActiva);
         return relacionActiva && relacionActiva.participa === true;
@@ -1123,9 +1057,6 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
   }
 });
 
-// =========================================================================
-// ENDPOINT: OBTENER DETALLE DE UNA SOLA TIENDA (+ INFO)
-// =========================================================================
 app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
   try {
     const tiendaId = req.params.id;
@@ -1153,7 +1084,7 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
                 )
             `)
         .eq('id_tienda', tiendaId)
-        .single(); // Le decimos a Supabase que devuelva 1 solo objeto, no un array
+        .single();
 
     if (error) throw error;
     res.json(tienda);
@@ -1164,9 +1095,6 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
   }
 });
 
-// =======================================================================
-// CREAR NUEVA TIENDA (Y asignarla a campaña si participa)
-// =======================================================================
 app.post('/api/tiendas', requireAuth, async (req, res) => {
   try {
     const {
@@ -1175,22 +1103,19 @@ app.post('/api/tiendas', requireAuth, async (req, res) => {
       idResponsable, idCoordinador, idCapitan
     } = req.body;
 
-    // 1. Crear la tienda física en la tabla 'tienda' usando Supabase
     const { data: resultTienda, error: errorTienda } = await supabase
         .from('tienda')
         .insert([{
           domicilio: domicilio || null,
-          cp: idCp || null, // Vuestra columna se llama 'cp', no 'id_cp'
+          cp: idCp || null,
           id_cadena: idCadena ? parseInt(idCadena) : null
         }])
-        .select(); // .select() obliga a Supabase a devolvernos el ID generado
+        .select();
 
     if (errorTienda) throw errorTienda;
 
-    // Extraemos el ID de la tienda recién creada
     const nuevaTiendaId = resultTienda[0].id_tienda;
 
-    // 2. Si el usuario marcó "Participa: Sí", la vinculamos a la campaña actual
     if (participa && idCampania) {
       const { error: errorCampania } = await supabase
           .from('tienda_campania')
@@ -1207,7 +1132,6 @@ app.post('/api/tiendas', requireAuth, async (req, res) => {
       if (errorCampania) throw errorCampania;
     }
 
-    // 3. Responder al frontend que todo ha ido genial
     res.status(201).json({
       success: true,
       message: 'Tienda creada con éxito',
@@ -1220,9 +1144,6 @@ app.post('/api/tiendas', requireAuth, async (req, res) => {
   }
 });
 
-// =========================================================================
-// ENDPOINT: ELIMINAR TIENDA (Limpieza en cascada)
-// =========================================================================
 app.delete('/api/tiendas/:id', requireAuth, async (req, res) => {
   try {
     if (req.user.puesto?.toUpperCase() !== 'ADMINISTRADOR') {
@@ -1230,44 +1151,33 @@ app.delete('/api/tiendas/:id', requireAuth, async (req, res) => {
     }
 
     const tiendaId = req.params.id;
-
-    // 1. Buscar todos los turnos que pertenecen a esta tienda
     const { data: turnos } = await supabase.from('turno').select('id_turno').eq('id_tienda', tiendaId);
 
     if (turnos && turnos.length > 0) {
-      // 2. Borrar a los voluntarios de esos turnos (usamos tu helper nativo)
       for (const t of turnos) {
         await deleteTurnoVoluntarios(t.id_turno);
       }
-      // 3. Borrar los turnos en sí
       await supabase.from('turno').delete().eq('id_tienda', tiendaId);
     }
 
-    // 4. Desvincular la tienda de cualquier campaña
     await supabase.from('tienda_campania').delete().eq('id_tienda', tiendaId);
-
-    // 5. ¡Ahora sí! Borrar la tienda principal
     const { error } = await supabase.from('tienda').delete().eq('id_tienda', tiendaId);
 
     if (error) throw error;
-
     res.json({ success: true, message: 'Tienda eliminada correctamente' });
 
   } catch (error) {
     console.error("Error al eliminar la tienda:", error);
-    // Le decimos que devuelva el mensaje real por si acaso
     res.status(500).json({ error: 'Fallo SQL al eliminar: ' + error.message });
   }
 });
 
-// Endpoint auxiliar para rellenar el selector de zonas del Admin (Middleware corregido)
 app.get('/api/zonas', requireAuth, async (req, res) => {
   const { data, error } = await supabase.from('zona').select('*').order('zona_geografica');
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 });
 
-// Endpoint para obtener zonas asignadas a una campaña específica
 app.get('/api/zonas_por_campania', requireAuth, async (req, res) => {
   try {
     const idCampania = req.query.idCampania;
@@ -1294,9 +1204,6 @@ app.get('/api/zonas_por_campania', requireAuth, async (req, res) => {
   }
 });
 
-// =========================================================================
-// ENDPOINTS PARA LOS DESPLEGABLES DE EDITAR TIENDA
-// =========================================================================
 app.get('/api/cps', requireAuth, async (req, res) => {
   try {
     const cps = await fetchAll('cp');
@@ -1324,9 +1231,6 @@ app.get('/api/usuarios', requireAuth, async (req, res) => {
   }
 });
 
-// =========================================================================
-// ENDPOINT: GUARDAR/EDITAR TIENDA (Equivalente a doGuardarTienda en Java)
-// =========================================================================
 app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
   try {
     if (req.user.puesto?.toUpperCase() !== 'ADMINISTRADOR') {
@@ -1340,7 +1244,6 @@ app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
       numCajas, participa, idCampania
     } = req.body;
 
-    // 1. Actualizamos la tabla principal: tienda
     const { error: errorTienda } = await supabase
         .from('tienda')
         .update({
@@ -1352,7 +1255,6 @@ app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
 
     if (errorTienda) throw errorTienda;
 
-    // 2. Actualizamos la relación tienda_campania (SOLO SI SE ENVIÓ CONTEXTO DE CAMPAÑA DESDE EL FRONT)
     if (idCampania) {
       const { error: errorCampania } = await supabase
           .from('tienda_campania')
@@ -1377,11 +1279,6 @@ app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
   }
 });
 
-app.get('/tienda_turnos', (req, res) => {
-  res.sendFile(path.join(srcPath, 'html', 'tienda_turnos.html'));
-});
-
-// Endpoint para obtener campañas asignadas a una zona específica
 app.get('/api/campanias_por_zona', requireAuth, async (req, res) => {
   try {
     const idZona = req.query.idZona;
@@ -1411,6 +1308,276 @@ app.get('/api/campanias_por_zona', requireAuth, async (req, res) => {
   }
 });
 
+// NUEVO: Tiendas agrupadas por Zona
+app.get('/api/stats/tiendas-por-zona', requireAuth, async (req, res) => {
+  try {
+    const tiendas = await fetchAll('tienda');
+    const cps = await fetchAll('cp');
+    const zonas = await fetchAll('zona');
+
+    // Mapeamos CP a Zona para búsqueda rápida
+    const cpToZona = {};
+    cps.forEach(cp => {
+      cpToZona[cp.cp] = getField(cp, 'idZona', 'id_zona');
+    });
+
+    // Agrupamos contando tiendas usando su CP para saber su zona
+    const conteo = tiendas.reduce((acc, tienda) => {
+      const idCp = getField(tienda, 'cp', 'idCp', 'codigo_postal');
+      const idZona = cpToZona[idCp];
+      if (idZona) acc[idZona] = (acc[idZona] || 0) + 1;
+      return acc;
+    }, {});
+
+    const resultado = zonas.map(z => ({
+      nombre: z.zona_geografica || z.nombre || 'Sin Zona',
+      total: conteo[z.id_zona] || 0
+    }));
+
+    res.json(resultado);
+  } catch (error) { sendError(res, error, 'Error calculando stats tiendas'); }
+});
+
+// NUEVO: Usuarios agrupados por Zona (basado en su CP)
+app.get('/api/stats/usuarios-por-zona', requireAuth, async (req, res) => {
+  try {
+    const usuarios = await fetchAll('usuario');
+    const cps = await fetchAll('cp');
+    const zonas = await fetchAll('zona');
+
+    // Mapeamos CP a Zona para búsqueda rápida
+    const cpToZona = {};
+    cps.forEach(cp => {
+      cpToZona[cp.cp] = getField(cp, 'idZona', 'id_zona');
+    });
+
+    const conteo = usuarios.reduce((acc, user) => {
+      const idCp = getField(user, 'id_cp', 'idCp', 'cp');
+      const idZona = cpToZona[idCp];
+      if (idZona) acc[idZona] = (acc[idZona] || 0) + 1;
+      return acc;
+    }, {});
+
+    const resultado = zonas.map(z => ({
+      nombre: z.zona_geografica || z.nombre || 'Sin Zona',
+      total: conteo[z.id_zona] || 0
+    }));
+
+    res.json(resultado);
+  } catch (error) { sendError(res, error, 'Error calculando stats usuarios'); }
+});
+
+// NUEVO: Tiendas por CP filtradas por Campaña y Zona
+app.get('/api/stats/tiendas-por-cp', requireAuth, async (req, res) => {
+  try {
+    const { idCampania, idZona } = req.query;
+
+    // Filtramos tiendas que participen en la campaña Y que estén en la zona
+    const { data, error } = await supabase
+        .from('tienda')
+        .select(`
+            cp!inner (cp, id_zona),
+            tienda_campania!inner (id_campania)
+        `)
+        .eq('tienda_campania.id_campania', idCampania)
+        .eq('cp.id_zona', idZona);
+
+    if (error) throw error;
+
+    // Agrupamos y contamos por CP
+    const conteo = data.reduce((acc, t) => {
+      const cp = t.cp.cp;
+      acc[cp] = (acc[cp] || 0) + 1;
+      return acc;
+    }, {});
+
+    res.json(Object.entries(conteo).map(([cp, total]) => ({ cp, total })));
+  } catch (error) { sendError(res, error, 'Error calculando tiendas por CP'); }
+});
+
+// NUEVO: Usuarios por CP filtrados por Zona
+app.get('/api/stats/usuarios-por-cp', requireAuth, async (req, res) => {
+  try {
+    const { idZona } = req.query;
+
+    const { data, error } = await supabase
+        .from('usuario')
+        .select(`
+            cp!inner (cp, id_zona)
+        `)
+        .eq('cp.id_zona', idZona);
+
+    if (error) throw error;
+
+    // Agrupamos y contamos por CP
+    const conteo = data.reduce((acc, u) => {
+      const cp = u.cp.cp;
+      acc[cp] = (acc[cp] || 0) + 1;
+      return acc;
+    }, {});
+
+    res.json(Object.entries(conteo).map(([cp, total]) => ({ cp, total })));
+  } catch (error) { sendError(res, error, 'Error calculando usuarios por CP'); }
+});
+
+// =========================================================================
+// NUEVAS GRÁFICAS GENERALES
+// =========================================================================
+
+// 1. Entidades por Zona (Entidad -> CP -> Zona)
+app.get('/api/stats/entidades-por-zona', requireAuth, async (req, res) => {
+    try {
+        const entidades = await fetchAll('entidad');
+        const cps = await fetchAll('cp');
+        const zonas = await fetchAll('zona');
+
+        const cpToZona = {};
+        cps.forEach(cp => { cpToZona[cp.cp] = getField(cp, 'idZona', 'id_zona'); });
+
+        const conteo = entidades.reduce((acc, ent) => {
+            const idZona = cpToZona[ent.cp];
+            if (idZona) acc[idZona] = (acc[idZona] || 0) + 1;
+            return acc;
+        }, {});
+
+        res.json(zonas.map(z => ({ nombre: z.zona_geografica || z.nombre, total: conteo[z.id_zona] || 0 })));
+    } catch (e) { sendError(res, e, 'Error stats entidades'); }
+});
+
+// 2. Tiendas por Cadena (Top 10)
+app.get('/api/stats/tiendas-por-cadena', requireAuth, async (req, res) => {
+  try {
+    const tiendas = await fetchAll('tienda');
+    const cadenas = await fetchAll('cadena');
+
+    const conteo = tiendas.reduce((acc, t) => {
+      if (t.id_cadena) acc[t.id_cadena] = (acc[t.id_cadena] || 0) + 1;
+      return acc;
+    }, {});
+
+    const resultado = cadenas
+        .map(c => ({ nombre: c.nombre_particular || c.establecimiento || 'Cadena ' + c.id_cadena, total: conteo[c.id_cadena] || 0 }))
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 10); // Ordenamos de mayor a menor y nos quedamos con el Top 10
+
+    res.json(resultado);
+  } catch (e) { sendError(res, e, 'Error stats cadenas'); }
+});
+
+// 3. Tiendas por Campaña
+app.get('/api/stats/tiendas-por-campania', requireAuth, async (req, res) => {
+    try {
+        const tc = await fetchAll('tiendaCampania');
+        const campanias = await fetchAll('campania');
+
+        const conteo = tc.reduce((acc, t) => {
+            if (t.id_campania) acc[t.id_campania] = (acc[t.id_campania] || 0) + 1;
+            return acc;
+        }, {});
+
+        res.json(campanias.map(c => ({ nombre: c.nombre, total: conteo[c.id_campania] || 0 })));
+    } catch (e) { sendError(res, e, 'Error stats tiendas campaña'); }
+});
+
+// 4. Voluntarios por Entidad (Top 10 para no saturar la gráfica)
+app.get('/api/stats/voluntarios-por-entidad', requireAuth, async (req, res) => {
+    try {
+        const voluntarios = await fetchAll('voluntario');
+        const entidades = await fetchAll('entidad');
+
+        const conteo = voluntarios.reduce((acc, v) => {
+            if (v.id_entidad) acc[v.id_entidad] = (acc[v.id_entidad] || 0) + 1;
+            return acc;
+        }, {});
+
+        const resultado = entidades
+            .map(e => ({ nombre: e.nombre || 'Entidad ' + e.id_entidad, total: conteo[e.id_entidad] || 0 }))
+            .sort((a, b) => b.total - a.total)
+            .slice(0, 10); // Solo las 10 con más voluntarios
+
+        res.json(resultado);
+    } catch (e) { sendError(res, e, 'Error stats voluntarios'); }
+});
+
+// =========================================================================
+// GRÁFICAS GRANULARES (Reemplaza a los dos endpoints anteriores)
+// =========================================================================
+app.get('/api/stats/detalle-granular', requireAuth, async (req, res) => {
+    try {
+        const { idCampania, idZona } = req.query;
+
+        // 1. Obtener CPs de la zona
+        const cpsData = await fetchAll('cp');
+        const cpsZona = cpsData.filter(c => sameNumberOrString(getField(c, 'idZona', 'id_zona'), idZona)).map(c => c.cp);
+
+        // 2. Tiendas de esos CPs
+        const tiendas = await fetchAll('tienda');
+        const tiendasZona = tiendas.filter(t => cpsZona.includes(getField(t, 'cp', 'idCp', 'codigo_postal')));
+        const idsTiendas = tiendasZona.map(t => t.id_tienda);
+
+        // 3. Filtros Supabase Directos (Más rápidos)
+        const { data: tcZona } = await supabase.from('tienda_campania').select('*').eq('id_campania', idCampania).in('id_tienda', idsTiendas.length ? idsTiendas : [0]);
+        const { data: asignacionTienda } = await supabase.from('asignacion_tienda').select('*').eq('id_campania', idCampania);
+        const { data: asignacionZona } = await supabase.from('asignacion_zona').select('*').eq('id_campania', idCampania).eq('id_zona', idZona);
+        const { data: contactosAdicionales } = await supabase.from('contacto_adicional').select('*');
+        const entidades = await fetchAll('entidad');
+
+        // Estructuras de datos (Usamos Sets para no contar al mismo usuario dos veces en un CP)
+        const tiendasPorCp = {};
+        const usuariosPorCp = {};
+        const rolesCount = { coordinadores: new Set(), capitanes: new Set(), responsablesTienda: new Set(), responsablesEntidad: new Set() };
+
+        cpsZona.forEach(cp => { tiendasPorCp[cp] = 0; usuariosPorCp[cp] = new Set(); });
+
+        // LÓGICA DE TIENDAS Y RESPONSABLES ASOCIADOS A TIENDA
+        (tcZona || []).forEach(tc => {
+            const tienda = tiendasZona.find(t => t.id_tienda === tc.id_tienda);
+            if (!tienda) return;
+            const cp = getField(tienda, 'cp', 'idCp', 'codigo_postal');
+            tiendasPorCp[cp]++;
+
+            if (tc.id_coordinador) { usuariosPorCp[cp].add(tc.id_coordinador); rolesCount.coordinadores.add(tc.id_coordinador); }
+            if (tc.id_capitan) { usuariosPorCp[cp].add(tc.id_capitan); rolesCount.capitanes.add(tc.id_capitan); }
+            if (tc.id_responsable_tienda) { usuariosPorCp[cp].add(tc.id_responsable_tienda); rolesCount.responsablesTienda.add(tc.id_responsable_tienda); }
+
+            // Responsable de Entidad
+            const at = (asignacionTienda || []).find(a => a.id_tienda === tc.id_tienda);
+            if (at && at.id_entidad) {
+                const entidad = entidades.find(e => e.id_entidad === at.id_entidad);
+                if (entidad && entidad.id_usuario_contacto) {
+                    usuariosPorCp[cp].add(entidad.id_usuario_contacto);
+                    rolesCount.responsablesEntidad.add(entidad.id_usuario_contacto);
+                }
+                (contactosAdicionales || []).filter(ca => ca.id_entidad === at.id_entidad && ca.id_usuario).forEach(c => {
+                    usuariosPorCp[cp].add(c.id_usuario);
+                    rolesCount.responsablesEntidad.add(c.id_usuario);
+                });
+            }
+        });
+
+        // LÓGICA DE ASIGNACIÓN A ZONA (Añadimos al primer CP de la zona para que figuren en la gráfica)
+        const firstCp = cpsZona[0];
+        (asignacionZona || []).forEach(az => {
+            if (az.rol_en_campania === 'COORDINADOR') rolesCount.coordinadores.add(az.id_usuario);
+            if (az.rol_en_campania === 'CAPITAN') rolesCount.capitanes.add(az.id_usuario);
+            if (firstCp && az.id_usuario) usuariosPorCp[firstCp].add(az.id_usuario);
+        });
+
+        // Mapeo final para React
+        res.json({
+            tiendasPorCp: Object.keys(tiendasPorCp).map(cp => ({ cp, total: tiendasPorCp[cp] })).filter(x => x.total > 0),
+            usuariosPorCp: Object.keys(usuariosPorCp).map(cp => ({ cp, total: usuariosPorCp[cp].size })).filter(x => x.total > 0),
+            roles: [
+                { nombre: 'Coordinadores', total: rolesCount.coordinadores.size },
+                { nombre: 'Capitanes', total: rolesCount.capitanes.size },
+                { nombre: 'Resp. Tienda', total: rolesCount.responsablesTienda.size },
+                { nombre: 'Resp. Entidad', total: rolesCount.responsablesEntidad.size }
+            ]
+        });
+
+    } catch (error) { sendError(res, error, 'Error en detalle granular'); }
+});
+
 app.all([
   '/voluntarios',
   '/voluntarios/:id',
@@ -1429,12 +1596,9 @@ app.all([
   });
 });
 
-// Catch-all para la SPA
+// Catch-all absoluto para la SPA
 app.get('*', (req, res) => {
-  const indexPath = process.env.NODE_ENV === 'development'
-      ? '/public/html/index.html'
-      : path.join(__dirname, '..', 'public', 'html', 'index.html');
-  res.sendFile(indexPath);
+  res.sendFile(path.join(publicPath, 'html', 'index.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {
