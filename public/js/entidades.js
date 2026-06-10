@@ -169,7 +169,7 @@ function renderizarEntidades(entidades) {
 
         const btnEditar = document.createElement('a');
         btnEditar.className = 'btn btn-primary';
-        btnEditar.href = `/edit.html?type=entidades&id=${idEntidad}`;
+        btnEditar.href = `/html/edit.html?type=entidades&id=${idEntidad}`;
         btnEditar.textContent = 'Editar';
 
         botonesDiv.append(btnInfo, btnEditar);

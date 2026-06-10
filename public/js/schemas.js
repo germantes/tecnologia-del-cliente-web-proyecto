@@ -4,7 +4,7 @@ const SCHEMAS = {
         { key: 'id_entidad', label: 'ID Entidad', type: 'text', readonly: true },
         { key: 'nombre', label: 'Nombre', type: 'text', required: true },
         { key: 'domicilio', label: 'Domicilio', type: 'text' },
-        { key: 'cp', label: 'Código Postal', type: 'text' },
+        { key: 'cp', label: 'Código Postal', type: 'select_zona' },
         { key: 'codigo_bancosol', label: 'Código Bancosol', type: 'text' },
         { key: 'vinculado_bancosol', label: 'Vinculado a Bancosol', type: 'boolean' },
         { key: 'id_usuario_contacto', label: 'Usuario de Contacto', type: 'select_usuario' }
@@ -40,10 +40,10 @@ const SCHEMAS = {
         { key: 'tipo', label: 'Tipo', type: 'text' }
     ],
     zonas: [
-        { key: 'id_zona', label: 'ID Zona', type: 'text', readonly: true },
-        { key: 'cp', label: 'Código Postal', type: 'text', required: true },
-        { key: 'localidad', label: 'Localidad', type: 'text' },
-        { key: 'id_zona_geografica', label: 'Zona Geográfica (ID)', type: 'number' }
+        { key: 'cp', label: 'Código Postal', type: 'text', readonly: true },
+        { key: 'localidad', label: 'Localidad', type: 'select_localidad', required: true },
+        { key: 'distrito', label: 'Distrito', type: 'select_distrito' },
+        { key: 'id_zona', label: 'Zona Geográfica', type: 'select_zona', required: true }
     ],
     usuarios: [
         { key: 'id_usuario', label: 'ID Usuario', type: 'text', readonly: true },

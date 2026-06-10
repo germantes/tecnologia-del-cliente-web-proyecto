@@ -83,6 +83,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             } catch (e) { console.warn('No se pudieron cargar cadenas'); }
         }
 
+        let localidadesDisponibles = [];
+        if (schema.some(field => field.type === 'select_localidad')) {
+            try {
+                const cps = await getRecords('api/cp');
+                localidadesDisponibles = [...new Set(cps.map(c => c.localidad).filter(Boolean))].sort();
+            } catch (e) { console.warn('No se pudieron cargar localidades'); }
+        }
+
+        let distritosDisponibles = [];
+        if (schema.some(field => field.type === 'select_distrito')) {
+            try { distritosDisponibles = await getRecords('api/distritos'); } catch (e) { console.warn('No se pudieron cargar distritos'); }
+        }
+
         // Los roles los voy a hardcodear aqui porque en un principio no habría otros aparte de estos.
         // No puedo hacer un fetch porque no hay un endpoint como tal para recuperar los roles ya que no son una tabla.
 
@@ -135,6 +148,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 else if (field.type === 'select_zona') optionsData = zonasDisponibles;
                 else if (field.type === 'select_rol') optionsData = rolesDisponibles;
                 else if (field.type === 'select_cadena') optionsData = cadenasDisponibles;
+                else if (field.type === 'select_localidad') optionsData = localidadesDisponibles;
+                else if (field.type === 'select_distrito') optionsData = distritosDisponibles;
 
                 optionsData.forEach(item => {
                     const resourceType = field.type.replace('select_', '');
@@ -163,7 +178,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     // Evitar fallos de selección si el valor devuelto por la API es un objeto (ej. un JOIN de Supabase)
                     let safeValue = value;
                     if (value !== null && typeof value === 'object') {
-                        safeValue = value.id_cadena || value.idCadena || value.cp || value.id_cp || value.id_zona || value.id || Object.values(value)[0];
+                        safeValue = value.id_distrito || value.distrito || value.id_cadena || value.idCadena || value.cp || value.id_cp || value.id_zona || value.id || Object.values(value)[0];
                     }
 
                     if (String(itemId) === String(safeValue)) option.selected = true;
@@ -196,6 +211,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             formFields.appendChild(fieldDiv);
         }
         saveBtn.disabled = false;
+
+        // Lógica condicional específica para Zonas (CP)
+        const localidadInput = document.getElementById('localidad');
+        const distritoInput = document.getElementById('distrito');
+
+        if (localidadInput && distritoInput) {
+            const toggleDistrito = () => {
+                const loc = (localidadInput.value || '').trim().toLowerCase();
+                // Aceptamos "Málaga" con o sin tilde
+                const isMalaga = loc === 'málaga' || loc === 'malaga';
+                distritoInput.disabled = !isMalaga;
+                if (!isMalaga) distritoInput.value = '';
+            };
+
+            localidadInput.addEventListener('change', toggleDistrito);
+            toggleDistrito(); // Ejecutamos al inicio para establecer el estado correcto
+        }
 
         // Agregar botón de eliminar si es admin y estamos editando un registro existente
         if (isAdmin && id) {
