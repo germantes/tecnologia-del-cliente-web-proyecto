@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
 import { getAuthHeaders } from './session.js';
-import CadenaCard from './CadenaCard.jsx';
+import ZonaCard from './ZonaCard.jsx';
 import cardStyles from '../styles/card-display.module.css';
 
-function Cadenas() {
-    const [cadenas, setCadenas] = useState([]);
+function Zonas() {
+    const [zonas, setZonas] = useState([]);
     const [filter, setFilter] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        async function fetchCadenas() {
+        async function fetchZonas() {
             try {
-                const response = await fetch('/api/cadenas', {
+                const response = await fetch('/api/cp', {
                     method: 'GET',
                     headers: getAuthHeaders(),
                 });
@@ -22,36 +22,37 @@ function Cadenas() {
                 }
 
                 const data = await response.json();
-                setCadenas(data);
+                setZonas(data);
             } catch (error) {
                 setError(error.message);
             } finally {
                 setLoading(false);
             }
         }
-        fetchCadenas();
+        fetchZonas();
     }, []);
 
-    const handleEdit = (cadena) => {
-        window.location.href = `/edit/cadena?id=${cadena.id_cadena}`;
+    const handleEdit = (zona) => {
+        window.location.href = `/edit/zona?cp=${zona.cp}`;
     };
 
     const handleCreate = () => {
-        window.location.href = '/edit/cadena';
+        window.location.href = '/edit/zona';
     };
 
-    const filtered = cadenas.filter(cadena => {
+    const filtered = zonas.filter(zona => {
         if (!filter) return true;
         const q = filter.toLowerCase();
-        return (cadena.codigo_cadena || '').toLowerCase().includes(q)
-            || (cadena.establecimiento || '').toLowerCase().includes(q)
-            || (cadena.nombre_particular || '').toLowerCase().includes(q)
-            || (cadena.empresa || '').toLowerCase().includes(q);
+        const zonaGeo = zona.zona?.zona_geografica || zona.zona_geografica || '';
+        return (zona.cp || '').toLowerCase().includes(q)
+            || (zona.localidad || '').toLowerCase().includes(q)
+            || (zona.distrito?.nombre_distrito || '').toLowerCase().includes(q)
+            || zonaGeo.toLowerCase().includes(q);
     });
 
     return (
         <main className={cardStyles['page']}>
-            <h1>Cadenas</h1>
+            <h1>Zonas</h1>
 
             <form className={cardStyles['filter-form']} onSubmit={e => e.preventDefault()}>
                 <div className={cardStyles['filter-group']}>
@@ -60,19 +61,19 @@ function Cadenas() {
                         type="text"
                         id="filterSearch"
                         className={cardStyles['input']}
-                        placeholder="Buscar por código, establecimiento..."
+                        placeholder="Buscar por CP, localidad, distrito, zona..."
                         value={filter}
                         onChange={e => setFilter(e.target.value)}
                     />
                 </div>
                 <div className={cardStyles['filter-buttons']}>
                     <button type="reset" className={cardStyles['btn']} onClick={() => setFilter('')}>Limpiar</button>
-                    <button type="button" className={cardStyles['btn']} onClick={handleCreate}>Crear Cadena</button>
+                    <button type="button" className={cardStyles['btn']} onClick={handleCreate}>Crear Zona</button>
                 </div>
             </form>
 
             {loading && (
-                <p style={{ color: 'var(--twilight-indigo)', marginTop: '1rem' }}>Cargando cadenas...</p>
+                <p style={{ color: 'var(--twilight-indigo)', marginTop: '1rem' }}>Cargando zonas...</p>
             )}
 
             {error && (
@@ -81,10 +82,10 @@ function Cadenas() {
 
             {!loading && !error && (
                 <div className={cardStyles['grid']}>
-                    {filtered.map((cadena) => (
-                        <CadenaCard
-                            key={cadena.id_cadena}
-                            cadena={cadena}
+                    {filtered.map((zona) => (
+                        <ZonaCard
+                            key={zona.cp}
+                            zona={zona}
                             onEdit={handleEdit}
                         />
                     ))}
@@ -94,4 +95,4 @@ function Cadenas() {
     );
 }
 
-export default Cadenas;
+export default Zonas;

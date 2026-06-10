@@ -17,9 +17,8 @@ function FormCampania({ onClose, onCampaniaCreated, initialData = null }) {
             initialData={isEditMode ? {
                 nombre: initialData.nombre,
                 tipo: initialData.tipo,
-                fechaInicio: initialData.fecha_inicio?.split('T')[0], // Formato yyyy-mm-dd
+                fechaInicio: initialData.fecha_inicio?.split('T')[0],
                 fechaFin: initialData.fecha_fin?.split('T')[0],
-                descripcion: initialData.descripcion,
             } : {}}
             onClose={onClose}
             onSuccess={onCampaniaCreated}

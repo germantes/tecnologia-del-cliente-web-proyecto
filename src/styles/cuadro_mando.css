@@ -1,0 +1,77 @@
+.dashboard-main {
+    background-color: #f4f6f8;
+    min-height: 100vh;
+    padding: 40px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.dashboard-contenedor {
+    background-color: #ffffff;
+    border: 8px solid #323266;
+    border-radius: 9px;
+    max-width: 1200px;
+    margin: 0 auto;
+    box-shadow: 0 14px 34px rgba(50, 50, 102, 0.22);
+    overflow: hidden;
+}
+
+.dashboard-header {
+    background-color: #323266;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dashboard-header h1 {
+    color: #ffffff;
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.graficas-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    padding: 40px;
+    justify-content: center;
+}
+
+.grafica-card {
+    background-color: #fdfdfd;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    width: 350px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.grafica-larga {
+    width: 600px;
+    flex-grow: 1;
+}
+
+.grafica-card h3 {
+    text-align: center;
+    color: #323266;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #58b9da;
+    padding-bottom: 10px;
+}
+
+.grafica-wrapper {
+    position: relative;
+    height: 300px; /* Alto fijo para que chart.js calcule bien el espacio */
+    width: 100%;
+}
+
+.dashboard-spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #58b9da;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 100px auto;
+}

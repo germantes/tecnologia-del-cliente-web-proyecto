@@ -55,8 +55,8 @@ export const cadenaSchema = {
 // ========== CAMPAÑAS ==========
 export const campaniaSchema = {
     title: 'Campaña',
-    apiEndpoint: '/campanias', // POST y PUT sin /api/
-    apiEndpointGet: '/api/campanias', // GET con /api/
+    apiEndpoint: '/api/campanias',
+    apiEndpointGet: '/api/campanias',
     fields: [
         {
             name: 'nombre',
@@ -67,7 +67,7 @@ export const campaniaSchema = {
         {
             name: 'tipo',
             label: 'Tipo',
-            type: 'select',
+            type: 'text',
             required: true,
             options: [
                 { value: 'Recogida', label: 'Recogida' },
@@ -87,19 +87,12 @@ export const campaniaSchema = {
             type: 'date',
             required: true,
         },
-        {
-            name: 'descripcion',
-            label: 'Descripción',
-            type: 'textarea',
-            required: false,
-        },
     ],
     transformSubmitData: (formData) => ({
         nombre: formData.nombre,
         tipo: formData.tipo,
         fecha_inicio: formData.fechaInicio,
         fecha_fin: formData.fechaFin,
-        descripcion: formData.descripcion || null,
     }),
     validate: (formData) => {
         const inicio = new Date(formData.fechaInicio);
@@ -115,49 +108,44 @@ export const campaniaSchema = {
 // ========== ZONAS ==========
 export const zonaSchema = {
     title: 'Zona',
-    apiEndpointGet: '/api/cp',  // GET con /api/cp
-    apiEndpoint: '/zonas',  // POST y PUT sin /api/
+    apiEndpointGet: '/api/cp',
+    apiEndpoint: '/api/zonas',
     fields: [
         {
             name: 'cp',
             label: 'Código Postal',
             type: 'text',
             required: true,
-            disabled: true, // No editable, es el identificador
+            disabled: true,
+        },
+        {
+            name: 'zonaGeografica',
+            label: 'Zona Geográfica',
+            type: 'select',
+            required: true,
+            placeholder: 'Seleccionar zona...',
         },
         {
             name: 'localidad',
             label: 'Localidad',
-            type: 'text',
+            type: 'select',
             required: true,
+            placeholder: 'Primero selecciona zona...',
         },
         {
             name: 'nombreDistrito',
             label: 'Distrito',
             type: 'text',
             required: false,
-        },
-        {
-            name: 'zonaGeografica',
-            label: 'Zona Geográfica',
-            type: 'text',
-            required: true,
-        },
-        {
-            name: 'descripcion',
-            label: 'Descripción',
-            type: 'textarea',
-            required: false,
+            placeholder: 'Escribir o seleccionar distrito...',
         },
     ],
     transformSubmitData: (formData) => ({
         localidad: formData.localidad,
         zona_geografica: formData.zonaGeografica,
-        descripcion: formData.descripcion || null,
-        // Nota: nombreDistrito se maneja en otra tabla, no se envía en el PUT de zona
+        id_distrito: formData.nombreDistrito ? Number(formData.nombreDistrito) : null,
     }),
     validate: (formData, existingRecords = []) => {
-        // Validación opcional - puedes agregar más validaciones si es necesario
         return null;
     },
 };
