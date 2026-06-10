@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, Link } from 'react-router-dom'
-import './App.css'
+import appStyles from './App.module.css'
 import { Header, Footer } from './components/header_footer'
 import Homepage from './components/homepage'
 import Cadenas from './components/cadenas'
@@ -69,11 +69,11 @@ function RequireAdmin({ children }) {
 // Mantenemos ReactHome por si necesitas acceder a tu menú provisional escribiendo /react-home
 function ReactHome() {
     return (
-        <main className="react-shell">
-            <header className="react-header">
+        <main className={appStyles['react-shell']}>
+            <header className={appStyles['react-header']}>
                 <h1>BancoSol React</h1>
                 <p>Esta página React sirve como punto de entrada provisional a tus pantallas.</p>
-                <nav className="react-nav" style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '20px' }}>
+                <nav className={appStyles['react-nav']} style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '20px' }}>
                     <Link to="/usuarios" className="btn-react-nav">Gestión de Usuarios</Link>
                     <Link to="/dashboard" className="btn-react-nav">Cuadro de Mando</Link>
                 </nav>

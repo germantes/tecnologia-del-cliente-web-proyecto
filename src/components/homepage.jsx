@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import '../styles/homepage.css'
+import styles from '../styles/homepage.module.css'
 import { getSesion } from './session.js'
 import {
   ICONOS_HOME,
@@ -216,9 +216,9 @@ function Homepage() {
 
   if (!sesion.usuario) {
     return (
-      <main className="homepage-main">
-        <section className="homepage-hero">
-          <h1 className="homepage-title">No hay sesión iniciada.</h1>
+      <main className={styles['homepage-main']}>
+        <section className={styles['homepage-hero']}>
+          <h1 className={styles['homepage-title']}>No hay sesión iniciada.</h1>
           <p>Inicia sesión para ver tus responsabilidades, permisos y accesos disponibles.</p>
         </section>
       </main>
@@ -227,16 +227,16 @@ function Homepage() {
 
   function renderizarIcono(icono) {
     return (
-      <span className="homepage-icon" aria-hidden="true">
-        <FontAwesomeIcon icon={icono} className="homepage-icon__svg" />
+      <span className={styles['homepage-icon']} aria-hidden="true">
+        <FontAwesomeIcon icon={icono} className={styles['homepage-icon__svg']} />
       </span>
     )
   }
 
   function renderizarLista(items) {
     return items.map((texto) => (
-      <li key={texto} className="card-list__item">
-        <FontAwesomeIcon icon={ICONOS_HOME.lista} className="card-list__check" aria-hidden="true" />
+      <li key={texto} className={styles['card-list__item']}>
+        <FontAwesomeIcon icon={ICONOS_HOME.lista} className={styles['card-list__check']} aria-hidden="true" />
         <span>{texto}</span>
       </li>
     ))
@@ -244,21 +244,21 @@ function Homepage() {
 
   function renderizarAccesos() {
     if (accesos.cargando) {
-      return <p className="message">Cargando accesos...</p>
+      return <p className={styles['message']}>Cargando accesos...</p>
     }
 
     if (accesos.error) {
-      return <p className="message message--error">{accesos.error}</p>
+      return <p className={`${styles['message']} ${styles['message--error']}`}>{accesos.error}</p>
     }
 
     if (accesos.datos.length === 0) {
-      return <p className="message">No hay accesos disponibles para este rol.</p>
+      return <p className={styles['message']}>No hay accesos disponibles para este rol.</p>
     }
 
     return accesos.datos.map((acceso) => (
-      <a key={acceso.texto} className="quick-access" href={acceso.enlace}>
+      <a key={acceso.texto} className={styles['quick-access']} href={acceso.enlace}>
         <span>{acceso.texto}</span>
-        <span className="quick-access__arrow" aria-hidden="true">›</span>
+        <span className={styles['quick-access__arrow']} aria-hidden="true">›</span>
       </a>
     ))
   }
@@ -267,20 +267,20 @@ function Homepage() {
     const porcentajeSeguro = Math.max(0, Math.min(100, Number(porcentaje) || 0))
 
     return (
-      <div className="progress">
-        <div className="progress__header">
+      <div className={styles['progress']}>
+        <div className={styles['progress__header']}>
           <span>{etiqueta}</span>
           <strong>{porcentajeSeguro}%</strong>
         </div>
 
-        <div className="progress__bar" aria-hidden="true">
+        <div className={styles['progress__bar']} aria-hidden="true">
           <div
-            className="progress__fill"
+            className={styles['progress__fill']}
             style={{ width: `${porcentajeSeguro}%` }}
           ></div>
         </div>
 
-        <p className="progress__detail">{detalle}</p>
+        <p className={styles['progress__detail']}>{detalle}</p>
       </div>
     )
   }
@@ -289,42 +289,42 @@ function Homepage() {
     const resumen = campania.datos
 
     if (campania.cargando) {
-      return <p className="message">Cargando resumen de la campaña activa...</p>
+      return <p className={styles['message']}>Cargando resumen de la campaña activa...</p>
     }
 
     if (campania.error) {
-      return <p className="message message--error">{campania.error}</p>
+      return <p className={`${styles['message']} ${styles['message--error']}`}>{campania.error}</p>
     }
 
     if (!resumen) {
-      return <p className="message">No hay ninguna campaña activa actualmente.</p>
+      return <p className={styles['message']}>No hay ninguna campaña activa actualmente.</p>
     }
 
     return (
       <>
-        <div className="campaign-summary__main">
-          <div className="campaign-summary__field campaign-summary__field--name">
+        <div className={styles['campaign-summary__main']}>
+          <div className={`${styles['campaign-summary__field']} ${styles['campaign-summary__field--name']}`}>
             <span>Nombre</span>
             <strong>{resumen.nombre}</strong>
           </div>
 
-          <div className="campaign-summary__field">
+          <div className={styles['campaign-summary__field']}>
             <span>Estado</span>
-            <strong className="campaign-summary__status">Activa</strong>
+            <strong className={styles['campaign-summary__status']}>Activa</strong>
           </div>
 
-          <div className="campaign-summary__field">
+          <div className={styles['campaign-summary__field']}>
             <span>Fechas</span>
             <strong>{resumen.fechas}</strong>
           </div>
 
-          <div className="campaign-summary__field">
+          <div className={styles['campaign-summary__field']}>
             <span>Tiendas participantes</span>
             <strong>{resumen.numeroTiendasParticipan}</strong>
           </div>
         </div>
 
-        <div className="progress-grid">
+        <div className={styles['progress-grid']}>
           {renderizarProgreso(
             'Tiendas participantes',
             resumen.porcentajeTiendasParticipan,
@@ -350,10 +350,10 @@ function Homepage() {
     }
 
     return (
-      <article className="stat-card panel panel--bordered">
+      <article className={`${styles['stat-card']} ${styles['panel']} ${styles['panel--bordered']}`}>
         {renderizarIcono(iconosEstadistica[tipo])}
 
-        <div className="stat-card__content">
+        <div className={styles['stat-card__content']}>
           <strong>{numero}</strong>
           <span>{titulo}</span>
 
@@ -370,8 +370,8 @@ function Homepage() {
 
     if (estadisticas.cargando) {
       return (
-        <section className="stats-row">
-          <p className="message panel panel--bordered stats-message">
+        <section className={styles['stats-row']}>
+          <p className={`${styles['message']} ${styles['panel']} ${styles['panel--bordered']} ${styles['stats-message']}`}>
             Cargando estadísticas generales...
           </p>
         </section>
@@ -380,8 +380,8 @@ function Homepage() {
 
     if (estadisticas.error) {
       return (
-        <section className="stats-row">
-          <p className="message message--error panel panel--bordered stats-message">
+        <section className={styles['stats-row']}>
+          <p className={`${styles['message']} ${styles['message--error']} ${styles['panel']} ${styles['panel--bordered']} ${styles['stats-message']}`}>
             {estadisticas.error}
           </p>
         </section>
@@ -393,7 +393,7 @@ function Homepage() {
     }
 
     return (
-      <section className="stats-row" aria-label="Estadísticas generales">
+      <section className={styles['stats-row']} aria-label="Estadísticas generales">
         {crearTarjetaEstadistica(
           'campanias',
           datos.campaniasActivas,
@@ -423,12 +423,12 @@ function Homepage() {
   }
 
   return (
-    <main className="homepage-main">
-      <section className="homepage-hero">
-        <h2 className="homepage-title">Bienvenid@, {nombreDelUsuario}</h2>
-        <p className="homepage-role">Rol: {perfil}</p>
+    <main className={styles['homepage-main']}>
+      <section className={styles['homepage-hero']}>
+        <h2 className={styles['homepage-title']}>Bienvenid@, {nombreDelUsuario}</h2>
+        <p className={styles['homepage-role']}>Rol: {perfil}</p>
 
-        <div className="homepage-intro">
+        <div className={styles['homepage-intro']}>
           <p>
             Desde aquí puedes consultar un resumen de tus responsabilidades,
             permisos y las herramientas disponibles para gestionar BancoSol de
@@ -437,43 +437,43 @@ function Homepage() {
         </div>
       </section>
 
-      <section className="homepage-controls" aria-label="Resumen principal del usuario">
-        <article className="homepage-card panel panel--bordered">
-          <div className="panel__header">
+      <section className={styles['homepage-controls']} aria-label="Resumen principal del usuario">
+        <article className={`${styles['homepage-card']} ${styles['panel']} ${styles['panel--bordered']}`}>
+          <div className={styles['panel__header']}>
             {renderizarIcono(ICONOS_HOME.responsabilidades)}
             <h3>Mis responsabilidades</h3>
           </div>
 
-          <ul className="card-list">
+          <ul className={styles['card-list']}>
             {renderizarLista(contenidoDelPerfil.responsabilidades)}
           </ul>
         </article>
 
-        <article className="homepage-card panel panel--bordered">
-          <div className="panel__header">
+        <article className={`${styles['homepage-card']} ${styles['panel']} ${styles['panel--bordered']}`}>
+          <div className={styles['panel__header']}>
             {renderizarIcono(ICONOS_HOME.permisos)}
             <h3>Mis permisos</h3>
           </div>
 
-          <ul className="card-list">
+          <ul className={styles['card-list']}>
             {renderizarLista(contenidoDelPerfil.permisos)}
           </ul>
         </article>
 
-        <article className="homepage-card panel panel--bordered">
-          <div className="panel__header">
+        <article className={`${styles['homepage-card']} ${styles['panel']} ${styles['panel--bordered']}`}>
+          <div className={styles['panel__header']}>
             {renderizarIcono(ICONOS_HOME.accesosRapidos)}
             <h3>Accesos rápidos</h3>
           </div>
 
-          <div className="quick-access-grid">
+          <div className={styles['quick-access-grid']}>
             {renderizarAccesos()}
           </div>
         </article>
       </section>
 
-      <section className="campaign-summary panel panel--bordered" aria-label="Resumen de la campaña activa">
-        <div className="panel__header">
+      <section className={`${styles['campaign-summary']} ${styles['panel']} ${styles['panel--bordered']}`} aria-label="Resumen de la campaña activa">
+        <div className={styles['panel__header']}>
           {renderizarIcono(ICONOS_HOME.campaniaActiva)}
 
           <div>

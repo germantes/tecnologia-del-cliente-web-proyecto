@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import UsuarioCard from './UsuarioCard.jsx';
-import '../styles/usuarios.css';
+import usuariosStyles from '../styles/usuarios.module.css';
 
 export default function Usuarios() {
     const [usuarios, setUsuarios] = useState([]);
@@ -51,10 +51,10 @@ export default function Usuarios() {
 
     if (cargando) {
         return (
-            <main className="main-error">
+            <main className={usuariosStyles['main-error']}>
                 <div style={{ textAlign: 'center', marginTop: '50px' }}>
                     <h3 style={{ color: '#323266' }}>Cargando usuarios...</h3>
-                    <div className="spinner"></div>
+                    <div className={usuariosStyles['spinner']}></div>
                 </div>
             </main>
         );
@@ -62,33 +62,33 @@ export default function Usuarios() {
 
     if (error) {
         return (
-            <main className="main-error">
-                <h2 className="mensaje-error">{error.message}</h2>
+            <main className={usuariosStyles['main-error']}>
+                <h2 className={usuariosStyles['mensaje-error']}>{error.message}</h2>
             </main>
         );
     }
 
     return (
         <>
-            <main className="usuarios-main">
-                <header className="header-titulo">
+            <main className={usuariosStyles['usuarios-main']}>
+                <header className={usuariosStyles['header-titulo']}>
                     <h1>Gestión de Usuarios</h1>
                 </header>
 
-                <div className="crear-container">
+                <div className={usuariosStyles['crear-container']}>
                     {/* Enlace preparado para la futura pantalla de creación en React */}
                     <Link to="/usuarios/crear" style={{ textDecoration: 'none' }}>
-                        <button type="button" className="btn-crear">Crear Usuario</button>
+                        <button type="button" className={usuariosStyles['btn-crear']}>Crear Usuario</button>
                     </Link>
                 </div>
 
-                <div className="usuarios-grid">
+                <div className={usuariosStyles['usuarios-grid']}>
                     {usuarios.length > 0 ? (
                         usuarios.map(usuario => (
                             <UsuarioCard key={usuario.id_usuario || usuario.idUsuario} usuario={usuario} />
                         ))
                     ) : (
-                        <h3 className="mensaje-vacio">No hay usuarios registrados.</h3>
+                        <h3 className={usuariosStyles['mensaje-vacio']}>No hay usuarios registrados.</h3>
                     )}
                 </div>
             </main>
