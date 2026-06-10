@@ -43,6 +43,29 @@ function RequireAuth({ children }) {
     return children
 }
 
+function RequireAdmin({ children }) {
+    const token = sessionStorage.getItem('token')
+    // Obtenemos el rol guardado en la sesión (comprueba la nota de abajo si tus compañeros usan otro nombre)
+    const rol = sessionStorage.getItem('rol')
+
+    useEffect(() => {
+        if (!token) {
+            window.location.replace('/html/index.html')
+        }
+    }, [token])
+
+    if (!token) {
+        return null
+    }
+
+    // Si está logueado pero NO es administrador, lo redirigimos al homepage de React
+    if (rol !== 'ADMINISTRADOR') {
+        return <Navigate to="/homepage" replace />
+    }
+
+    return children
+}
+
 // Mantenemos ReactHome por si necesitas acceder a tu menú provisional escribiendo /react-home
 function ReactHome() {
     return (
@@ -66,7 +89,7 @@ function App() {
                 {/* ENTRADA PRINCIPAL CON REDIRECCIÓN DE TU EQUIPO */}
                 <Route path="/" element={<LoginRedirect />} />
 
-                {/* PÁGINAS CREADAS POR TUS COMPAÑEROS */}
+                {/* PÁGINAS CREADAS POR TUS COMPAÑEROS (ACCESO GENERAL LOGUEADO) */}
                 <Route
                     path="/homepage"
                     element={
@@ -98,34 +121,34 @@ function App() {
                     }
                 />
 
-                {/* TUS PÁGINAS DE USUARIOS Y CUADRO DE MANDO */}
+                {/* TUS PÁGINAS PROTEGIDAS (SOLO ADMINISTRADORES) */}
                 <Route path="/usuarios" element={
-                    <RequireAuth>
+                    <RequireAdmin>
                         <Header />
                         <Usuarios />
                         <Footer />
-                    </RequireAuth>
+                    </RequireAdmin>
                 } />
                 <Route path="/usuarios/crear" element={
-                    <RequireAuth>
+                    <RequireAdmin>
                         <Header />
                         <UsuarioCrear />
                         <Footer />
-                    </RequireAuth>
+                    </RequireAdmin>
                 } />
                 <Route path="/usuarios/editar/:id" element={
-                    <RequireAuth>
+                    <RequireAdmin>
                         <Header />
                         <UsuarioEditar />
                         <Footer />
-                    </RequireAuth>
+                    </RequireAdmin>
                 } />
                 <Route path="/dashboard" element={
-                    <RequireAuth>
+                    <RequireAdmin>
                         <Header />
                         <CuadroMando />
                         <Footer />
-                    </RequireAuth>
+                    </RequireAdmin>
                 } />
 
                 {/* RUTA AUXILIAR PARA TU MENÚ PROVISIONAL */}
