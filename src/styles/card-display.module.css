@@ -1,3 +1,44 @@
+:root {
+  --twilight-indigo: #323266;
+  --sky-surge: #58b9da;
+  --graphite: #333333;
+  --white: #ffffff;
+  --bg-gray: #f4f6f8;
+  --font-main: "Poppins", sans-serif;
+  --font-alt: "Raleway", sans-serif;
+}
+
+body {
+  font-family: var(--font-main);
+  color: var(--graphite);
+  line-height: 1.6;
+  background-color: var(--white);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  flex: 1;
+}
+
+form {
+  display: flex;
+  background-color: var(--twilight-indigo);
+  width: 80%;
+  color: white;
+  border-radius: 8px;
+  padding: 25px;
+  gap: 20px;
+  display: flex;
+  flex-direction: row;
+}
+
 .filter-group {
   display: flex;
   flex-direction: column;
@@ -6,10 +47,50 @@
   min-width: 200px;
 }
 
+input,
+select {
+  padding: 10px 15px;
+  border: 2px solid var(--twilight-indigo);
+  border-radius: 6px;
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  color: var(--graphite);
+  background-color: var(--white);
+  transition: all 0.3s ease;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--sky-surge);
+  box-shadow: 0 0 8px rgba(88, 185, 218, 0.3);
+}
+
+input::placeholder {
+  color: #999;
+}
+
 .filter-buttons {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+button {
+  padding: 10px 25px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: var(--sky-surge);
+  color: var(--white);
+}
+
+button:hover {
+  background-color: var(--sky-surge);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(88, 185, 218, 0.3);
 }
 
 .grid {
@@ -75,6 +156,36 @@
   display: flex;
   flex-direction: row;
   gap: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+td {
+  border: 3px solid var(--twilight-indigo);
+  padding: 12px 15px;
+}
+
+td {
+  background-color: var(--white);
+  color: var(--twilight-indigo);
+  text-align: center;
+  font-weight: bold;
+}
+
+td:first-child {
+  background-color: var(--twilight-indigo);
+  color: var(--white);
+  font-weight: bold;
+  width: 40%;
+}
+
+@media (max-width: 1024px) {
+  form {
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 1228px) {
