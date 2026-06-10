@@ -24,7 +24,7 @@ function CadenaCard({ cadena, onEdit }) {
                     </div>
                 )}
             </div>
-            <div className={cardStyles['card-buttons']}>
+            <div className={cardStyles['card-buttons']} style={{ justifyContent: 'center' }}>
                 <button type="button" className={cardStyles['btn']} onClick={() => onEdit(cadena)}>
                     Editar
                 </button>

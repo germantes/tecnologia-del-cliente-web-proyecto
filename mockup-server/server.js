@@ -1196,6 +1196,83 @@ app.post(['/zonas', '/api/zonas'], requireAuth, async (req, res) => {
   }
 });
 
+// Endpoint para crear un nuevo CP
+app.post('/api/cp', requireAuth, async (req, res) => {
+  try {
+    const { cp, localidad, zona_geografica, nombre_distrito } = req.body;
+
+    if (!cp) {
+      return res.status(400).json({ success: false, message: 'CP es obligatorio.' });
+    }
+
+    // Buscar o crear zona geográfica
+    let idZonaDestino;
+    const { data: zonas, error: zonaError } = await supabase
+      .from('zona')
+      .select('id_zona')
+      .eq('zona_geografica', zona_geografica)
+      .limit(1);
+
+    if (zonaError) throw zonaError;
+
+    if (zonas && zonas.length > 0) {
+      idZonaDestino = zonas[0].id_zona;
+    } else if (zona_geografica) {
+      const { data: nuevasZonas, error: insertZonaError } = await supabase
+        .from('zona')
+        .insert([{ zona_geografica }])
+        .select();
+      if (insertZonaError) throw insertZonaError;
+      idZonaDestino = nuevasZonas?.[0]?.id_zona;
+    }
+
+    // Resolver distrito: buscar por nombre o crear uno nuevo
+    let idDistritoFinal = null;
+    if (nombre_distrito && nombre_distrito.trim()) {
+      const nombre = nombre_distrito.trim();
+      const { data: distritos, error: distError } = await supabase
+        .from('distrito')
+        .select('*');
+      if (distError) throw distError;
+      const existente = distritos.find(d =>
+        String(d.nombre_distrito).toLowerCase().trim() === nombre.toLowerCase()
+      );
+      if (existente) {
+        idDistritoFinal = existente.distrito;
+      } else {
+        const { data: maxRes } = await supabase
+          .from('distrito')
+          .select('distrito')
+          .order('distrito', { ascending: false })
+          .limit(1);
+        const nextId = (maxRes?.[0]?.distrito || 0) + 1;
+        const { data: nuevos, error: insertError } = await supabase
+          .from('distrito')
+          .insert([{ distrito: nextId, nombre_distrito: nombre }])
+          .select();
+        if (insertError) throw insertError;
+        idDistritoFinal = nuevos?.[0]?.distrito ?? null;
+      }
+    }
+
+    // Insertar el nuevo CP
+    const { error: cpError } = await supabase
+      .from('cp')
+      .insert([{
+        cp: cp,
+        localidad: localidad || null,
+        id_zona: idZonaDestino || null,
+        distrito: idDistritoFinal,
+      }]);
+
+    if (cpError) throw cpError;
+
+    res.status(201).json({ success: true, cp });
+  } catch (error) {
+    sendError(res, error, 'Error creando CP');
+  }
+});
+
 // Endpoint para actualizar la asignación de un CP concreto
 app.put('/api/cp/:cp', requireAuth, async (req, res) => {
   try {

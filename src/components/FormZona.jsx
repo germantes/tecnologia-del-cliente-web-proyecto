@@ -69,11 +69,13 @@ function FormZona({ onClose, existingZonas, onZonaCreated, initialData = null })
     }, [formValues.localidad, existingZonas, distritos]);
 
     const fields = useMemo(() => zonaSchema.fields.map(field => {
+        if (field.name === 'cp') return { ...field, disabled: !!initialData };
+        if (!initialData) return { ...field, type: 'text', options: undefined };
         if (field.name === 'zonaGeografica') return { ...field, options: zonaOptions };
         if (field.name === 'localidad') return { ...field, options: localidadOptions };
         if (field.name === 'nombreDistrito') return { ...field, options: distritoSuggestions };
         return field;
-    }), [zonaOptions, localidadOptions, distritoSuggestions]);
+    }), [zonaOptions, localidadOptions, distritoSuggestions, initialData]);
 
     const handleFieldChange = useCallback((fieldName, newValue, setFieldValue, currentFormData) => {
         setFormValues(prev => ({ ...prev, [fieldName]: newValue }));
@@ -98,13 +100,12 @@ function FormZona({ onClose, existingZonas, onZonaCreated, initialData = null })
         };
     }, [initialData?.id_zona, initialData?.cp]);
 
-    const submitTransform = useCallback((formData) => {
-        return {
-            localidad: formData.localidad,
-            zona_geografica: formData.zonaGeografica,
-            nombre_distrito: (formData.nombreDistrito || '').trim() || null,
-        };
-    }, []);
+    const submitTransform = useCallback((formData) => ({
+        cp: formData.cp,
+        localidad: formData.localidad,
+        zona_geografica: formData.zonaGeografica,
+        nombre_distrito: (formData.nombreDistrito || '').trim() || null,
+    }), []);
 
     return (
         <GenericForm
@@ -113,19 +114,14 @@ function FormZona({ onClose, existingZonas, onZonaCreated, initialData = null })
             apiEndpoint={
                 isEditMode 
                     ? `/api/cp/${initialData.cp}` 
-                    : zonaSchema.apiEndpoint
+                    : '/api/cp'
             }
             method={isEditMode ? 'PUT' : 'POST'}
             initialData={formInitialData}
             onClose={onClose}
             onSuccess={onZonaCreated}
             onFieldChange={handleFieldChange}
-            validate={(formData) => {
-                const recordsToCheck = isEditMode
-                    ? existingZonas.filter(z => z.id_zona !== initialData.id_zona)
-                    : existingZonas;
-                return zonaSchema.validate(formData, recordsToCheck);
-            }}
+            validate={null}
             transformSubmitData={submitTransform}
         />
     );

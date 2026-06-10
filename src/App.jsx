@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, Link } from 'react-router-dom'
-import appStyles from './App.module.css'
 import { Header, Footer } from './components/header_footer'
 import Homepage from './components/homepage'
 import Cadenas from './components/cadenas'
+import Campanias from './components/campanias'
+import Zonas from './components/zonas'
 import EditPage from './components/EditPage'
 
 import Usuarios from './components/Usuarios.jsx'
@@ -106,6 +107,26 @@ function App() {
                         <RequireAuth>
                             <Header />
                             <Cadenas />
+                            <Footer />
+                        </RequireAuth>
+                    }
+                />
+                <Route
+                    path="/campanias"
+                    element={
+                        <RequireAuth>
+                            <Header />
+                            <Campanias />
+                            <Footer />
+                        </RequireAuth>
+                    }
+                />
+                <Route
+                    path="/zonas"
+                    element={
+                        <RequireAuth>
+                            <Header />
+                            <Zonas />
                             <Footer />
                         </RequireAuth>
                     }

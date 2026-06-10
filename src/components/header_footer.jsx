@@ -36,17 +36,17 @@ function Header() {
           Inicio
         </Link>
 
-        <a className={headerStyles['bancosol-header__nav-item']} data-nav="campanias" href="/html/campanias.html">
+        <Link className={headerStyles['bancosol-header__nav-item']} data-nav="campanias" to="/campanias">
           Campañas
-        </a>
+        </Link>
 
         <Link className={headerStyles['bancosol-header__nav-item']} data-nav="cadenas" to="/cadenas">
           Cadenas
         </Link>
 
-        <a className={headerStyles['bancosol-header__nav-item']} data-nav="zonas" href="/html/zonas.html">
+        <Link className={headerStyles['bancosol-header__nav-item']} data-nav="zonas" to="/zonas">
           Zonas
-        </a>
+        </Link>
 
         <a className={headerStyles['bancosol-header__nav-item']} data-nav="tiendas" href="/html/tiendas.html">
           Tiendas

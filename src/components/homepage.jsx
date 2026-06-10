@@ -216,12 +216,14 @@ function Homepage() {
 
   if (!sesion.usuario) {
     return (
-      <main className={styles['homepage-main']}>
-        <section className={styles['homepage-hero']}>
-          <h1 className={styles['homepage-title']}>No hay sesión iniciada.</h1>
-          <p>Inicia sesión para ver tus responsabilidades, permisos y accesos disponibles.</p>
-        </section>
-      </main>
+      <div className={styles['homepage']}>
+        <main className={styles['homepage-main']}>
+          <section className={styles['homepage-hero']}>
+            <h1 className={styles['homepage-title']}>No hay sesión iniciada.</h1>
+            <p>Inicia sesión para ver tus responsabilidades, permisos y accesos disponibles.</p>
+          </section>
+        </main>
+      </div>
     )
   }
 
@@ -423,9 +425,10 @@ function Homepage() {
   }
 
   return (
-    <main className={styles['homepage-main']}>
-      <section className={styles['homepage-hero']}>
-        <h2 className={styles['homepage-title']}>Bienvenid@, {nombreDelUsuario}</h2>
+    <div className={styles['homepage']}>
+      <main className={styles['homepage-main']}>
+        <section className={styles['homepage-hero']}>
+          <h2 className={styles['homepage-title']}>Bienvenid@, {nombreDelUsuario}</h2>
         <p className={styles['homepage-role']}>Rol: {perfil}</p>
 
         <div className={styles['homepage-intro']}>
@@ -487,6 +490,7 @@ function Homepage() {
 
       {renderizarEstadisticas()}
     </main>
+    </div>
   )
 }
 
