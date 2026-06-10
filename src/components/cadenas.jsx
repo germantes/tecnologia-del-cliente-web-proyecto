@@ -50,23 +50,24 @@ function Cadenas() {
     });
 
     return (
-        <main>
+        <main className={cardStyles['page']}>
             <h1>Cadenas</h1>
 
-            <form onSubmit={e => e.preventDefault()}>
+            <form className={cardStyles['filter-form']} onSubmit={e => e.preventDefault()}>
                 <div className={cardStyles['filter-group']}>
                     <label htmlFor="filterSearch">Buscar:</label>
                     <input
                         type="text"
                         id="filterSearch"
+                        className={cardStyles['input']}
                         placeholder="Buscar por código, establecimiento..."
                         value={filter}
                         onChange={e => setFilter(e.target.value)}
                     />
                 </div>
                 <div className={cardStyles['filter-buttons']}>
-                    <button type="reset" onClick={() => setFilter('')}>Limpiar</button>
-                    <button type="button" onClick={handleCreate}>Crear Cadena</button>
+                    <button type="reset" className={cardStyles['btn']} onClick={() => setFilter('')}>Limpiar</button>
+                    <button type="button" className={cardStyles['btn']} onClick={handleCreate}>Crear Cadena</button>
                 </div>
             </form>
 
