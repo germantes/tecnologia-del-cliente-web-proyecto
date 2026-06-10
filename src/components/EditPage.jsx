@@ -1,0 +1,175 @@
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { getAuthHeaders } from './session.js';
+import FormCadena from './FormCadena';
+import FormCampania from './FormCampania';
+import FormZona from './FormZona';
+
+/**
+ * Página de edición genérica que maneja crear/editar para diferentes entidades
+ * URL: /edit/:entityType?id=123
+ * 
+ * entityType: 'cadena', 'campania', 'zona'
+ * id (query param): ID de la entidad a editar (opcional, si no existe es modo crear)
+ */
+function EditPage() {
+    const { entityType } = useParams();
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const id = searchParams.get('id');
+    
+    const [entityData, setEntityData] = useState(null);
+    const [existingRecords, setExistingRecords] = useState([]);
+    const [loading, setLoading] = useState(!!id); // Solo loading si estamos editando
+    const [error, setError] = useState(null);
+
+    // Mapeo de tipos de entidad a endpoints (para GET)
+    const endpointsGet = {
+        cadena: '/api/cadenas',
+        campania: '/api/campanias',
+        zona: '/api/cp',  // GET zonas usa /api/cp
+    };
+
+    // Mapeo de tipos de entidad a endpoints (para POST/PUT)
+    const endpointsWrite = {
+        cadena: '/api/cadenas',
+        campania: '/campanias',  // POST y PUT sin /api/
+        zona: '/zonas',  // POST y PUT sin /api/
+    };
+
+    const endpointGet = endpointsGet[entityType];
+    const endpointWrite = endpointsWrite[entityType];
+
+    useEffect(() => {
+        if (!endpoint) {
+            setError(`Tipo de entidad inválido: ${entityType}`);
+            return;
+        }
+
+        async function fetchData() {
+            try {
+                // Cargar todos los registros
+                const allResponse = await fetch(endpointGet, {
+                    headers: getAuthHeaders(),
+                });
+                if (!allResponse.ok) throw new Error('Error cargando registros');
+                const allData = await allResponse.json();
+                setExistingRecords(allData);
+
+                // Si hay ID, buscar el registro específico en el array
+                if (id) {
+                    const idFields = {
+                        cadena: 'id_cadena',
+                        campania: 'id_campania',
+                        zona: 'id_zona',
+                    };
+                    const idField = idFields[entityType];
+                    const record = allData.find(item => String(item[idField]) === String(id));
+                    
+                    if (!record) {
+                        throw new Error(`No se encontró el registro con ID ${id}`);
+                    }
+                    setEntityData(record);
+                }
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchData();
+    }, [entityType, id, endpointGet]);
+
+    const handleClose = () => {
+        // Volver a la página anterior o a la lista correspondiente
+        if (window.history.length > 1) {
+            navigate(-1);
+        } else {
+            // Fallback según el tipo de entidad
+            const redirects = {
+                cadena: '/cadenas',
+                campania: '/html/campanias.html',
+                zona: '/html/zonas.html',
+            };
+            window.location.href = redirects[entityType] || '/homepage';
+        }
+    };
+
+    const handleSuccess = (savedData) => {
+        // Redirigir después de guardar exitosamente
+        const redirects = {
+            cadena: '/cadenas',
+            campania: '/html/campanias.html',
+            zona: '/html/zonas.html',
+        };
+        window.location.href = redirects[entityType] || '/homepage';
+    };
+
+    if (loading) {
+        return (
+            <main style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+                <div className="loading">
+                    <span className="spinner"></span> Cargando...
+                </div>
+            </main>
+        );
+    }
+
+    if (error) {
+        return (
+            <main style={{ padding: '2rem' }}>
+                <div className="alert alert-error">
+                    Error: {error}
+                </div>
+                <button onClick={handleClose} style={{ marginTop: '1rem' }}>
+                    Volver
+                </button>
+            </main>
+        );
+    }
+
+    // Renderizar el formulario según el tipo de entidad
+    switch (entityType) {
+        case 'cadena':
+            return (
+                <FormCadena
+                    initialData={entityData}
+                    onClose={handleClose}
+                    existingCadenas={existingRecords}
+                    onCadenaCreated={handleSuccess}
+                />
+            );
+        
+        case 'campania':
+            return (
+                <FormCampania
+                    initialData={entityData}
+                    onClose={handleClose}
+                    onCampaniaCreated={handleSuccess}
+                />
+            );
+        
+        case 'zona':
+            return (
+                <FormZona
+                    initialData={entityData}
+                    onClose={handleClose}
+                    existingZonas={existingRecords}
+                    onZonaCreated={handleSuccess}
+                />
+            );
+        
+        default:
+            return (
+                <main style={{ padding: '2rem' }}>
+                    <div className="alert alert-error">
+                        Tipo de entidad no soportado: {entityType}
+                    </div>
+                    <button onClick={handleClose}>Volver</button>
+                </main>
+            );
+    }
+}
+
+export default EditPage;

@@ -1,37 +1,121 @@
-/* src/index.css - Estilos Globales de BancoSol */
+/* src/index.css - Estilos Globales de BancoSol (Fusionados) */
 
 :root {
+  /* TUS VARIABLES (DEVELOP) */
   --twilight-indigo: #323266;
   --sky-surge: #58b9da;
   --graphite: #333333;
   --white: #ffffff;
   --bg-gray: #f4f6f8;
   --font-main: 'Poppins', sans-serif;
+
+  /* VARIABLES DE TUS COMPAÑEROS (MAIN) */
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #aa3bff;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --social-bg: rgba(244, 243, 236, 0.5);
+  --shadow:
+          rgba(0, 0, 0, 0.1) 0 10px 15px -3px,
+          rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-html, body {
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100vh;
   margin: 0 !important;
   padding: 0 !important;
+}
+
+body {
   font-family: var(--font-main);
   color: var(--graphite);
-  /* Tu degradado original del JSP */
+  /* Mantenemos tu degradado de fondo global original */
   background: radial-gradient(circle at top right, rgba(88, 185, 218, 0.28), transparent 34%),
   linear-gradient(135deg, var(--white) 0%, #f4fbfe 45%, rgba(88, 185, 218, 0.22) 100%);
   background-attachment: fixed;
-  min-height: 100vh;
 }
 
-/* Sobrescribimos el contenedor raíz de React para que ocupe todo el ancho */
 #root {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  width: 100%;
-  margin: 0;
-  text-align: left; /* Quitamos el centrado forzado de Vite */
+  box-sizing: border-box;
 }
 
-/* Reseteo básico de márgenes para que coincida con tu JSP */
+h1,
+h2 {
+  font-family: var(--heading);
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+h1 {
+  font-size: 56px;
+  letter-spacing: -1.68px;
+  margin: 32px 0;
+}
+
+h2 {
+  font-size: 24px;
+  line-height: 118%;
+  letter-spacing: -0.24px;
+  margin: 0 0 8px;
+}
+
+p {
+  margin: 0;
+  text-align: left;
+}
+
 * {
   box-sizing: border-box;
+}
+
+code,
+.counter {
+  font-family: var(--mono);
+  display: inline-flex;
+  border-radius: 4px;
+  color: var(--text-h);
+}
+
+code {
+  font-size: 15px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: var(--code-bg);
+}
+
+@media (max-width: 1024px) {
+  :root {
+    font-size: 16px;
+  }
+
+  h1 {
+    font-size: 36px;
+    margin: 20px 0;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
 }

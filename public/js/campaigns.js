@@ -1,6 +1,7 @@
 // campaigns.js — Gestión de campañas
 
 let allCampaigns = [];
+let editingCampaign = null;
 
 // Cargar campañas al iniciar
 async function loadCampaigns() {
@@ -26,30 +27,24 @@ function renderCampaigns(campaigns) {
   }
 
   container.innerHTML = campaigns.map(campaign => `
-    <div class="card">
-      <div class="brand">
-        <h2>${campaign.nombre}</h2>
-      </div>
-      <div class="values">
-        <div class="value">
-          <p>ID:</p>
-          <p>${campaign.id_campania}</p>
-        </div>
-        <div class="value">
-          <p>Inicio:</p>
-          <p>${formatDate(campaign.fecha_inicio)}</p>
-        </div>
-        <div class="value">
-          <p>Fin:</p>
-          <p>${formatDate(campaign.fecha_fin)}</p>
-        </div>
-        <div class="value">
-          <p>Tipo:</p>
-          <p>${campaign.tipo}</p>
-        </div>
+    <div class="cadena-card">
+      <h3 class="titulo-cadena">${campaign.nombre}</h3>
+      
+      <p><strong>Fecha de inicio: </strong>${formatDate(campaign.fecha_inicio)}</p>
+      <p><strong>Fecha del fin: </strong>${formatDate(campaign.fecha_fin)}</p>
+      <p><strong>Tipo: </strong>${campaign.tipo}</p>
+      
+      <div class="card-actions">
+          <button class="btn-editar" type="button" onclick="openEditModal(${campaign.id_campania})">Editar</button>
       </div>
     </div>
   `).join('');
+}
+
+// Abrir modal de edición
+function openEditModal(campaignId) {
+  // Redirigir a la página de edición React
+  window.location.href = `/edit/campania?id=${campaignId}`;
 }
 
 // Formatear fecha
