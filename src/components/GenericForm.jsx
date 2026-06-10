@@ -215,7 +215,7 @@ function GenericForm({
     };
 
     return (
-        <main style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', flex: 1 }}>
+        <main style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '40px', flex: 1 }}>
             <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '700px', margin: '0 auto', padding: '0' }}>
                 <div className={formStyles['total']}>
                     <div className={formStyles['form-header']}>

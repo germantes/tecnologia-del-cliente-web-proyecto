@@ -1,28 +1,3 @@
-:root {
-    --twilight-indigo: #323266;
-    --sky-surge: #58b9da;
-    --white: #ffffff;
-    --font-main: 'Poppins', sans-serif;
-}
-
-body {
-    font-family: var(--font-main);
-    background-color: #f4f6f8;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-/* CLASES DE DISEÑO EXTRAÍDAS DE JSP */
-main {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 40px;
-    flex: 1;
-}
-
 .main-error {
     display: flex;
     justify-content: center;

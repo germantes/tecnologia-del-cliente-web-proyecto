@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, Link } from 'react-router-dom'
-import appStyles from './App.module.css'
 import { Header, Footer } from './components/header_footer'
 import Homepage from './components/homepage'
 import Cadenas from './components/cadenas'
