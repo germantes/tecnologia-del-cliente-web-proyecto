@@ -7,6 +7,9 @@ const path = require('path');
 const supabase = require('./supabase-client');
 const bcrypt = require('bcryptjs');
 
+// REQUISITO: Importamos la librería jsonwebtoken para firmar y verificar tokens JWT.
+const jwt = require('jsonwebtoken');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -78,6 +81,7 @@ function contains(row, text, fields) {
   return fields.some((field) => str(getField(row, field)).toLowerCase().includes(q));
 }
 
+// REQUISITO: Modificamos el middleware requireAuth para soportar JWT y mantener retrocompatibilidad
 async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -85,23 +89,39 @@ async function requireAuth(req, res, next) {
   }
 
   const token = authHeader.replace('Bearer ', '');
-  if (token.startsWith('mock-token-')) {
-    const userId = token.replace('mock-token-', '');
-    try {
-      const usuarios = await fetchAll('usuario');
-      // Buscamos al usuario exacto
-      const user = usuarios.find(u => sameNumberOrString(getField(u, 'id_usuario', 'idUsuario', 'id'), userId));
 
-      if (user) {
-        req.user = {
-          id: getField(user, 'id_usuario', 'idUsuario', 'id'),
-          // Extraemos su rol nativo para que los filtros funcionen
-          puesto: getField(user, 'rol', 'puesto')?.toUpperCase()
-        };
-        return next();
+  try {
+    // REQUISITO: Debe intentar primero verificar el token como un JWT usando jwt.verify.
+    // Esta función decodifica el JWT comprobando la firma con el secreto.
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
+    // REQUISITO: Si tiene éxito, extrae el id y el puesto del payload del token y los inyecta en req.user.
+    req.user = {
+      id: decoded.id,
+      puesto: decoded.puesto
+    };
+    return next();
+  } catch (error) {
+    // REQUISITO: Si falla (porque no es un JWT válido), debe capturar el error (bloque catch) y continuar con la lógica antigua
+    
+    if (token.startsWith('mock-token-')) {
+      const userId = token.replace('mock-token-', '');
+      try {
+        const usuarios = await fetchAll('usuario');
+        // Buscamos al usuario exacto
+        const user = usuarios.find(u => sameNumberOrString(getField(u, 'id_usuario', 'idUsuario', 'id'), userId));
+
+        if (user) {
+          req.user = {
+            id: getField(user, 'id_usuario', 'idUsuario', 'id'),
+            // Extraemos su rol nativo para que los filtros funcionen
+            puesto: getField(user, 'rol', 'puesto')?.toUpperCase()
+          };
+          return next();
+        }
+      } catch (e) {
+        console.error("Error validando token simulado", e);
       }
-    } catch (e) {
-      console.error("Error validando token simulado", e);
     }
   }
 
@@ -367,9 +387,20 @@ app.post('/auth/login', async (req, res) => {
 
     const usuarioSesion = await construirUsuarioSesion(usuario);
 
+    // REQUISITO: En lugar de devolver 'mock-token-' + usuario.id, debe generar un JWT firmado usando jsonwebtoken.
+    // El payload del JWT DEBE incluir el id, el rol (o puesto) normalizado a mayúsculas, y el nombre del usuario.
+    const payload = {
+      id: usuarioSesion.id,
+      puesto: str(usuarioSesion.puesto).toUpperCase(),
+      nombre: usuarioSesion.nombre
+    };
+
+    // Generamos y firmamos el JWT con el secreto y un tiempo de expiración
+    const jwtToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
+
     res.json({
       success: true,
-      token: 'mock-token-' + getField(usuario, 'idUsuario', 'id_usuario', 'id'),
+      token: jwtToken,
       user: usuarioSesion
     });
   } catch (error) {
@@ -1403,7 +1434,7 @@ app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
             id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
             id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
             id_capitan: idCapitan ? parseInt(idCapitan) : null,
-            num_cajas: parseInt(numCajas) || 0,
+            numCajas: parseInt(numCajas) || 0,
             participa: participa === true || participa === 'true'
           })
           .eq('id_tienda', tiendaId)
