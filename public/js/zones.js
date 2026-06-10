@@ -79,7 +79,7 @@ function renderZones(zones) {
           </div>
         </div>
         <div class="card-actions" style="padding: 15px; text-align: center;">
-          <button class="btn-editar" type="button" onclick="openEditModal('${zone.id_zona}')">Editar</button>
+          <button class="btn-editar" type="button" onclick="openEditModal('${zone.cp}')">Editar</button>
         </div>
       </div>
     `;

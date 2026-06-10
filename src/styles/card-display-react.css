@@ -1,0 +1,197 @@
+.card-display-page {
+  --twilight-indigo: #323266;
+  --sky-surge: #58b9da;
+  --graphite: #333333;
+  --white: #ffffff;
+  --bg-gray: #f4f6f8;
+
+  font-family: sans-serif;
+  font-size: 16px;
+  color: var(--graphite);
+  line-height: 1.6;
+}
+
+.card-display-page main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  flex: 1;
+}
+
+.card-display-page h1 {
+  font-size: 2rem;
+  color: var(--twilight-indigo);
+  margin: 32px 0;
+  text-align: center;
+  font-weight: 600;
+}
+
+.card-display-page h2 {
+  font-size: 1.3rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.card-display-page form {
+  display: flex;
+  background-color: var(--twilight-indigo);
+  width: 80%;
+  color: white;
+  border-radius: 8px;
+  padding: 25px;
+  gap: 20px;
+  flex-direction: row;
+}
+
+.card-display-page .filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.card-display-page input,
+.card-display-page select {
+  padding: 10px 15px;
+  border: 2px solid var(--twilight-indigo);
+  border-radius: 6px;
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  color: var(--graphite);
+  background-color: var(--white);
+  transition: all 0.3s ease;
+}
+
+.card-display-page input:focus,
+.card-display-page select:focus {
+  outline: none;
+  border-color: var(--sky-surge);
+  box-shadow: 0 0 8px rgba(88, 185, 218, 0.3);
+}
+
+.card-display-page input::placeholder {
+  color: #999;
+}
+
+.card-display-page .filter-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card-display-page button {
+  padding: 10px 25px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: var(--sky-surge);
+  color: var(--white);
+}
+
+.card-display-page button:hover {
+  background-color: var(--sky-surge);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(88, 185, 218, 0.3);
+}
+
+.card-display-page .grid {
+  width: 80%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 25px;
+  padding: 25px;
+}
+
+.card-display-page .card {
+  flex: 0 1 400px;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 20px;
+  background-color: var(--white);
+  border: 10px solid var(--twilight-indigo);
+  box-sizing: border-box;
+}
+
+.card-display-page .brand {
+  background-color: var(--twilight-indigo);
+  text-align: center;
+  margin: -2px;
+  color: white;
+}
+
+.card-display-page .values {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  justify-content: space-between;
+  flex: 1;
+}
+
+.card-display-page .value {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  text-align: center;
+  border-bottom: 1px solid var(--graphite);
+}
+
+.card-display-page .value p:first-child {
+  font-weight: 600;
+}
+
+.card-display-page .value:last-child {
+  border: none;
+}
+
+.card-display-page .card-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.card-display-page .tables {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.card-display-page table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.card-display-page td {
+  border: 3px solid var(--twilight-indigo);
+  padding: 12px 15px;
+  background-color: var(--white);
+  color: var(--twilight-indigo);
+  text-align: center;
+  font-weight: bold;
+}
+
+.card-display-page td:first-child {
+  background-color: var(--twilight-indigo);
+  color: var(--white);
+  font-weight: bold;
+  width: 40%;
+}
+
+@media (max-width: 1024px) {
+  .card-display-page form {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 1228px) {
+  .card-display-page .tables {
+    flex-direction: column;
+  }
+}

@@ -561,7 +561,7 @@ app.get(['/cp', '/api/cp'], requireAuth, async (req, res) => {
         cp,
         localidad,
         id_zona,
-        distrito(nombre_distrito),
+        distrito(distrito, nombre_distrito),
         zona:id_zona(id_zona, zona_geografica)
       `);
 
@@ -831,10 +831,13 @@ app.delete('/usuarios/:id', requireAuth, requireAdmin, async (req, res) => {
   try { res.json(await deleteRows('usuario', 'id_usuario', req.params.id)); } catch (e) { sendError(res, e, 'Error eliminando usuario'); }
 });
 
-app.post('/campanias', requireAuth, async (req, res) => {
-  try { res.json((await insertRows('campania', [req.body]))[0]); } catch (e) { sendError(res, e, 'Error creando campaña'); }
+app.post(['/campanias', '/api/campanias'], requireAuth, async (req, res) => {
+  try {
+    const rows = await insertRows('campania', [req.body]);
+    res.json(rows[0] || null);
+  } catch (e) { sendError(res, e, 'Error creando campaña'); }
 });
-app.put('/campanias/:id', requireAuth, async (req, res) => {
+app.put(['/campanias/:id', '/api/campanias/:id'], requireAuth, async (req, res) => {
   try {
     const campania = await findById('campania', req.params.id, ['idCampania', 'id_campania', 'id']);
     if (!campania) return res.status(404).json({ success: false, message: 'Campaña no encontrada.' });
@@ -1178,6 +1181,89 @@ app.get('/api/zonas', requireAuth, async (req, res) => {
   res.json(data);
 });
 
+// Endpoint para crear una nueva zona (actualiza zona y cp)
+app.post(['/zonas', '/api/zonas'], requireAuth, async (req, res) => {
+  try {
+    const { zona_geografica } = req.body;
+
+    const rows = await insertRows('zona', [{
+      zona_geografica,
+    }]);
+
+    res.status(201).json(rows[0] || null);
+  } catch (error) {
+    sendError(res, error, 'Error creando zona');
+  }
+});
+
+// Endpoint para actualizar la asignación de un CP concreto
+app.put('/api/cp/:cp', requireAuth, async (req, res) => {
+  try {
+    const { localidad, zona_geografica, nombre_distrito } = req.body;
+
+    // Buscar la zona destino por nombre
+    const { data: zonas, error: zonaError } = await supabase
+      .from('zona')
+      .select('id_zona')
+      .eq('zona_geografica', zona_geografica)
+      .limit(1);
+
+    if (zonaError) throw zonaError;
+    if (!zonas || zonas.length === 0) {
+      return res.status(400).json({ success: false, message: 'Zona geográfica no encontrada.' });
+    }
+
+    const idZonaDestino = zonas[0].id_zona;
+
+    // Resolver distrito: buscar por nombre o crear uno nuevo
+    let idDistritoFinal = null;
+    if (nombre_distrito && nombre_distrito.trim()) {
+      const nombre = nombre_distrito.trim();
+      const { data: distritos, error: distError } = await supabase
+        .from('distrito')
+        .select('*');
+      if (distError) throw distError;
+      const existente = distritos.find(d =>
+        String(d.nombre_distrito).toLowerCase().trim() === nombre.toLowerCase()
+      );
+      if (existente) {
+        idDistritoFinal = existente.distrito;
+      } else {
+        // Obtener el siguiente ID disponible (evitar conflicto con la secuencia)
+        const { data: maxRes } = await supabase
+          .from('distrito')
+          .select('distrito')
+          .order('distrito', { ascending: false })
+          .limit(1);
+        const nextId = (maxRes?.[0]?.distrito || 0) + 1;
+        const { data: nuevos, error: insertError } = await supabase
+          .from('distrito')
+          .insert([{ distrito: nextId, nombre_distrito: nombre }])
+          .select();
+        if (insertError) throw insertError;
+        idDistritoFinal = nuevos?.[0]?.distrito ?? null;
+      }
+    }
+
+    // Actualizar el CP concreto
+    const cpUpdate = { id_zona: idZonaDestino };
+    if (localidad) cpUpdate.localidad = localidad;
+    cpUpdate.distrito = idDistritoFinal;
+
+    const { error: cpError } = await supabase
+      .from('cp')
+      .update(cpUpdate)
+      .eq('cp', req.params.cp);
+
+    if (cpError) throw cpError;
+
+    res.json({ success: true, cp: req.params.cp, id_zona: idZonaDestino, ...cpUpdate });
+  } catch (error) {
+    sendError(res, error, 'Error actualizando zona');
+  }
+});
+
+// Endpoint para obtener zonas asignadas a una campaña específica
 app.get('/api/zonas_por_campania', requireAuth, async (req, res) => {
   try {
     const idCampania = req.query.idCampania;
@@ -1222,6 +1308,15 @@ app.get('/api/cadenas', requireAuth, async (req, res) => {
   }
 });
 
+app.get('/api/distritos', requireAuth, async (req, res) => {
+  try {
+    const distritos = await fetchAll('distrito');
+    res.json(distritos);
+  } catch (error) {
+    sendError(res, error, 'Error obteniendo distritos');
+  }
+});
+
 // Endpoint para crear una nueva cadena
 app.post('/api/cadenas', requireAuth, async (req, res) => {
     try {
@@ -1232,17 +1327,39 @@ app.post('/api/cadenas', requireAuth, async (req, res) => {
             return res.status(400).json({ success: false, message: 'El código y el establecimiento son obligatorios.' });
         }
 
-        const [newCadena] = await insertRows('cadena', [{
+        const rows = await insertRows('cadena', [{
             codigo_cadena,
             establecimiento,
             nombre_particular,
             empresa_cadena: empresa // Aseguramos el mapeo correcto
         }]);
         
-        res.status(201).json(newCadena);
+        res.status(201).json(rows[0] || null);
 
     } catch (error) {
         sendError(res, error, 'Error al crear la cadena');
+    }
+});
+
+// Endpoint para actualizar una cadena existente
+app.put('/api/cadenas/:id', requireAuth, async (req, res) => {
+    try {
+        const { codigo_cadena, establecimiento, nombre_particular, empresa } = req.body;
+
+        const [updated] = await updateRows('cadena', 'id_cadena', req.params.id, {
+            codigo_cadena,
+            establecimiento,
+            nombre_particular,
+            empresa_cadena: empresa
+        });
+
+        if (!updated) {
+            return res.status(404).json({ success: false, message: 'Cadena no encontrada.' });
+        }
+
+        res.json(updated);
+    } catch (error) {
+        sendError(res, error, 'Error actualizando cadena');
     }
 });
 

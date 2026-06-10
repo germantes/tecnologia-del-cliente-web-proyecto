@@ -30,18 +30,17 @@ function EditPage() {
         zona: '/api/cp',  // GET zonas usa /api/cp
     };
 
-    // Mapeo de tipos de entidad a endpoints (para POST/PUT)
     const endpointsWrite = {
         cadena: '/api/cadenas',
-        campania: '/campanias',  // POST y PUT sin /api/
-        zona: '/zonas',  // POST y PUT sin /api/
+        campania: '/api/campanias',
+        zona: '/api/zonas',
     };
 
     const endpointGet = endpointsGet[entityType];
     const endpointWrite = endpointsWrite[entityType];
 
     useEffect(() => {
-        if (!endpoint) {
+        if (!endpointGet) {
             setError(`Tipo de entidad inválido: ${entityType}`);
             return;
         }
@@ -61,7 +60,7 @@ function EditPage() {
                     const idFields = {
                         cadena: 'id_cadena',
                         campania: 'id_campania',
-                        zona: 'id_zona',
+                        zona: 'cp',
                     };
                     const idField = idFields[entityType];
                     const record = allData.find(item => String(item[idField]) === String(id));

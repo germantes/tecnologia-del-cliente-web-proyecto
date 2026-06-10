@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { getAuthHeaders } from './session.js';
 import CadenaCard from './CadenaCard.jsx';
 import '../styles/card-display.css';
-import '../styles/cadenas.css';
+import '../styles/card-display-react.css';
 
 function Cadenas() {
     const [cadenas, setCadenas] = useState([]);
+    const [filter, setFilter] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -33,25 +34,45 @@ function Cadenas() {
     }, []);
 
     const handleEdit = (cadena) => {
-        // Redirigir a la página de edición React
         window.location.href = `/edit/cadena?id=${cadena.id_cadena}`;
     };
 
     const handleCreate = () => {
-        // Redirigir a la página de creación React
         window.location.href = '/edit/cadena';
     };
-// <main className="main" style={{padding: '2rem', flex: 1}}>
-    return (
-        <main>
-            <div className="page-header">
-                <div>
-                    <h1 className="page-title">Cadenas</h1>
-                </div>
-            </div>
 
-            <div style={{ display: 'block', marginBottom: '2rem' }}>
-                <button className="btn-crear" onClick={handleCreate}>
+    const filtered = cadenas.filter(cadena => {
+        if (!filter) return true;
+        const q = filter.toLowerCase();
+        return (cadena.codigo_cadena || '').toLowerCase().includes(q)
+            || (cadena.establecimiento || '').toLowerCase().includes(q)
+            || (cadena.nombre_particular || '').toLowerCase().includes(q)
+            || (cadena.empresa || '').toLowerCase().includes(q);
+    });
+
+    return (
+        <div className="card-display-page">
+        <main>
+            <h1>Cadenas</h1>
+
+            <form className="filter-form" onSubmit={e => e.preventDefault()}>
+                <div className="filter-group">
+                    <label htmlFor="filterSearch">Buscar:</label>
+                    <input
+                        type="text"
+                        id="filterSearch"
+                        placeholder="Buscar por código, establecimiento..."
+                        value={filter}
+                        onChange={e => setFilter(e.target.value)}
+                    />
+                </div>
+                <div className="filter-buttons">
+                    <button type="reset" onClick={() => setFilter('')}>Limpiar</button>
+                </div>
+            </form>
+
+            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                <button onClick={handleCreate}>
                     Crear Cadena
                 </button>
             </div>
@@ -69,10 +90,10 @@ function Cadenas() {
             )}
 
             {!loading && !error && (
-                <div className="cadenas-grid">
-                    {cadenas.map((cadena) => (
-                        <CadenaCard 
-                            key={cadena.id_cadena} 
+                <div className="grid">
+                    {filtered.map((cadena) => (
+                        <CadenaCard
+                            key={cadena.id_cadena}
                             cadena={cadena}
                             onEdit={handleEdit}
                         />
@@ -80,6 +101,7 @@ function Cadenas() {
                 </div>
             )}
         </main>
+        </div>
     );
 }
 

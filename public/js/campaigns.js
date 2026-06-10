@@ -27,14 +27,25 @@ function renderCampaigns(campaigns) {
   }
 
   container.innerHTML = campaigns.map(campaign => `
-    <div class="cadena-card">
-      <h3 class="titulo-cadena">${campaign.nombre}</h3>
-      
-      <p><strong>Fecha de inicio: </strong>${formatDate(campaign.fecha_inicio)}</p>
-      <p><strong>Fecha del fin: </strong>${formatDate(campaign.fecha_fin)}</p>
-      <p><strong>Tipo: </strong>${campaign.tipo}</p>
-      
-      <div class="card-actions">
+    <div class="card">
+      <div class="brand">
+        <h2>${campaign.nombre}</h2>
+      </div>
+      <div class="values">
+        <div class="value">
+          <p>Fecha de inicio:</p>
+          <p>${formatDate(campaign.fecha_inicio)}</p>
+        </div>
+        <div class="value">
+          <p>Fecha del fin:</p>
+          <p>${formatDate(campaign.fecha_fin)}</p>
+        </div>
+        <div class="value">
+          <p>Tipo:</p>
+          <p>${campaign.tipo}</p>
+        </div>
+      </div>
+      <div class="card-actions" style="padding: 15px; text-align: center;">
           <button class="btn-editar" type="button" onclick="openEditModal(${campaign.id_campania})">Editar</button>
       </div>
     </div>

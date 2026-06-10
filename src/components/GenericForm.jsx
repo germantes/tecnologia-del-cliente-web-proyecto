@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { getAuthHeaders } from './session';
 import '../styles/editar_cadena.css';
 
@@ -25,31 +25,52 @@ function GenericForm({
     onClose,
     onSuccess,
     validate,
-    transformSubmitData
+    transformSubmitData,
+    onFieldChange
 }) {
     const [formData, setFormData] = useState({});
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const lastChangedField = useRef(null);
+    const isFirstRender = useRef(true);
 
-    // Inicializar formData con initialData o valores por defecto
+    const setFieldValue = useCallback((name, value) => {
+        setFormData(prev => ({ ...prev, [name]: value }));
+    }, []);
+
+    // Inicializar formData al montar o cuando cambian los datos iniciales
+    // Nota: NO depende de `fields` para evitar resetear el formulario cuando
+    // las opciones de los desplegables cambian (ej: cascada zona → localidad)
     useEffect(() => {
         const defaultValues = {};
         fields.forEach(field => {
-            // Priorizar: initialData[field.name] > field.defaultValue > ''
             const value = initialData[field.name] !== undefined 
                 ? initialData[field.name] 
                 : (field.defaultValue !== undefined ? field.defaultValue : '');
             defaultValues[field.name] = value;
         });
         setFormData(defaultValues);
-        // Debug: mostrar valores iniciales cargados
         if (Object.keys(initialData).length > 0) {
             console.log('Datos iniciales cargados:', defaultValues);
         }
-    }, [initialData, fields]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialData]);
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+        if (onFieldChange && lastChangedField.current) {
+            const fieldName = lastChangedField.current;
+            lastChangedField.current = null;
+            onFieldChange(fieldName, formData[fieldName], setFieldValue, formData);
+        }
+    }, [formData, onFieldChange, setFieldValue]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
+        lastChangedField.current = name;
         setFormData(prevState => ({
             ...prevState,
             [name]: type === 'checkbox' ? checked : value
@@ -94,9 +115,12 @@ function GenericForm({
 
             const result = await response.json();
             
-            // Notificar éxito y cerrar
-            if (onSuccess) onSuccess(result);
-            if (onClose) onClose();
+            // Notificar éxito (onSuccess hace redirect, no llamar también onClose)
+            if (onSuccess) {
+                onSuccess(result);
+            } else if (onClose) {
+                onClose();
+            }
 
         } catch (err) {
             setError(err.message);
@@ -163,18 +187,30 @@ function GenericForm({
                     />
                 );
 
-            default:
+            default: {
+                const listId = type === 'text' && options ? `${name}-list` : undefined;
                 return (
-                    <input
-                        type={type}
-                        name={name}
-                        value={formData[name] || ''}
-                        onChange={handleChange}
-                        required={required}
-                        placeholder={placeholder}
-                        disabled={disabled}
-                    />
+                    <>
+                        <input
+                            type={type}
+                            name={name}
+                            value={formData[name] || ''}
+                            onChange={handleChange}
+                            required={required}
+                            placeholder={placeholder}
+                            disabled={disabled}
+                            list={listId}
+                        />
+                        {listId && (
+                            <datalist id={listId}>
+                                {options.map(opt => (
+                                    <option key={opt.value} value={opt.label} />
+                                ))}
+                            </datalist>
+                        )}
+                    </>
                 );
+            }
         }
     };
 
