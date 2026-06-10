@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getAuthHeaders } from './session.js';
 import CadenaCard from './CadenaCard.jsx';
-import cardStyles from '../styles/card-display.module.css';
 import cardReactStyles from '../styles/card-display-react.module.css';
 
 function Cadenas() {
@@ -55,7 +54,7 @@ function Cadenas() {
         <main>
             <h1>Cadenas</h1>
 
-            <form className="filter-form" onSubmit={e => e.preventDefault()}>
+            <form onSubmit={e => e.preventDefault()}>
                 <div className={cardReactStyles['filter-group']}>
                     <label htmlFor="filterSearch">Buscar:</label>
                     <input
@@ -68,25 +67,16 @@ function Cadenas() {
                 </div>
                 <div className={cardReactStyles['filter-buttons']}>
                     <button type="reset" onClick={() => setFilter('')}>Limpiar</button>
+                    <button type="button" onClick={handleCreate}>Crear Cadena</button>
                 </div>
             </form>
 
-            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                <button onClick={handleCreate}>
-                    Crear Cadena
-                </button>
-            </div>
-
             {loading && (
-                <div className="loading">
-                    <span className="spinner"></span> Cargando cadenas...
-                </div>
+                <p style={{ color: 'var(--twilight-indigo)', marginTop: '1rem' }}>Cargando cadenas...</p>
             )}
 
             {error && (
-                <div className="alert alert-error">
-                    Error: {error}
-                </div>
+                <p style={{ color: '#b00020', marginTop: '1rem' }}>Error: {error}</p>
             )}
 
             {!loading && !error && (
