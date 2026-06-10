@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getAuthHeaders } from './session.js';
 import CadenaCard from './CadenaCard.jsx';
-import cardReactStyles from '../styles/card-display-react.module.css';
+import cardStyles from '../styles/card-display.module.css';
 
 function Cadenas() {
     const [cadenas, setCadenas] = useState([]);
@@ -50,12 +50,11 @@ function Cadenas() {
     });
 
     return (
-        <div className={cardReactStyles['card-display-page']}>
         <main>
             <h1>Cadenas</h1>
 
             <form onSubmit={e => e.preventDefault()}>
-                <div className={cardReactStyles['filter-group']}>
+                <div className={cardStyles['filter-group']}>
                     <label htmlFor="filterSearch">Buscar:</label>
                     <input
                         type="text"
@@ -65,7 +64,7 @@ function Cadenas() {
                         onChange={e => setFilter(e.target.value)}
                     />
                 </div>
-                <div className={cardReactStyles['filter-buttons']}>
+                <div className={cardStyles['filter-buttons']}>
                     <button type="reset" onClick={() => setFilter('')}>Limpiar</button>
                     <button type="button" onClick={handleCreate}>Crear Cadena</button>
                 </div>
@@ -80,7 +79,7 @@ function Cadenas() {
             )}
 
             {!loading && !error && (
-                <div className={cardReactStyles['grid']}>
+                <div className={cardStyles['grid']}>
                     {filtered.map((cadena) => (
                         <CadenaCard
                             key={cadena.id_cadena}
@@ -91,7 +90,6 @@ function Cadenas() {
                 </div>
             )}
         </main>
-        </div>
     );
 }
 
