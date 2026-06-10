@@ -1,0 +1,148 @@
+.sugerencias-page {
+  padding: 2rem;
+}
+
+.sugerencias-page .page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sugerencias-page .page-title {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.sugerencias-page .page-description {
+  margin: 0.4rem 0 0;
+  color: #4a4a4a;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.sugerencias-table,
+.comparacion-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.sugerencias-table th,
+.sugerencias-table td,
+.comparacion-table th,
+.comparacion-table td {
+  border: 1px solid #d8d8d8;
+  padding: 0.75rem 0.9rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.sugerencias-table th,
+.comparacion-table th {
+  background: #f5f5f5;
+  font-weight: 700;
+}
+
+.sugerencias-table tbody tr:nth-child(even) {
+  background: #fcfcfc;
+}
+
+.empty-row {
+  text-align: center;
+  color: #666;
+  padding: 2rem 0;
+}
+
+.btn-detalle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 1rem;
+  border-radius: 0.35rem;
+  background: #0d6efd;
+  color: #ffffff;
+  text-decoration: none;
+  border: 1px solid transparent;
+  font-size: 0.95rem;
+}
+
+.btn-detalle:hover {
+  background: #0b5ed7;
+}
+
+.highlight-diff {
+  background: #fff7d2;
+}
+
+.sugerencia-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sugerencia-meta div {
+  background: #fafafa;
+  padding: 0.9rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.45rem;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  margin: 1rem 0 0.75rem;
+}
+
+.raw-proposed pre,
+.raw-entity pre {
+  background: #f7f7f7;
+  border: 1px solid #e0e0e0;
+  border-radius: 0.45rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+@media (max-width: 820px) {
+  .sugerencias-page .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Estado badges */
+.estado-badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.estado-pendiente {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.estado-aprobada {
+  background: #d1e7dd;
+  color: #0a3622;
+}
+
+.estado-rechazada {
+  background: #f8d7da;
+  color: #58151c;
+}
+
+.comparacion-section {
+  margin-top: 1.5rem;
+}
+
+.detalle-container {
+  max-width: 1100px;
+}

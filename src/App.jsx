@@ -5,6 +5,9 @@ import { Header, Footer } from './components/header_footer'
 import Homepage from './components/homepage'
 import Cadenas from './components/cadenas'
 import EditPage from './components/EditPage'
+import Sugerencias from './components/Sugerencias'
+import SugerenciaDetalle from './components/SugerenciaDetalle'
+import { getPerfil } from './components/session.js'
 
 function LoginRedirect() {
   const token = sessionStorage.getItem('token')
@@ -38,6 +41,22 @@ function RequireAuth({ children }) {
   return children
 }
 
+function RequireAdmin({ children }) {
+  const perfil = getPerfil()
+
+  useEffect(() => {
+    if (perfil !== 'ADMINISTRADOR') {
+      window.location.replace('/homepage')
+    }
+  }, [perfil])
+
+  if (perfil !== 'ADMINISTRADOR') {
+    return null
+  }
+
+  return children
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -61,6 +80,30 @@ function App() {
               <Header />
               <Cadenas />
               <Footer />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/sugerencias"
+          element={
+            <RequireAuth>
+              <RequireAdmin>
+                <Header />
+                <Sugerencias />
+                <Footer />
+              </RequireAdmin>
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/sugerencias/:id"
+          element={
+            <RequireAuth>
+              <RequireAdmin>
+                <Header />
+                <SugerenciaDetalle />
+                <Footer />
+              </RequireAdmin>
             </RequireAuth>
           }
         />

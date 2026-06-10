@@ -29,7 +29,8 @@ const TABLES = {
   distrito: process.env.TABLE_DISTRITO || 'distrito',
   cadena: process.env.TABLE_CADENA || 'cadena',
   tiendaCampania: process.env.TABLE_TIENDA_CAMPANIA || 'tienda_campania',
-  turnoVoluntario: process.env.TABLE_TURNO_VOLUNTARIO || 'turnos_voluntarios'
+  turnoVoluntario: process.env.TABLE_TURNO_VOLUNTARIO || 'turnos_voluntarios',
+  sugerenciaCambio: process.env.TABLE_SUGERENCIA_CAMBIO || 'sugerencia_cambio'
 };
 
 const FALLBACK_TABLE_NAMES = {
@@ -1345,6 +1346,27 @@ app.get('/api/usuarios', requireAuth, async (req, res) => {
     res.json(usuarios);
   } catch (error) {
     sendError(res, error, 'Error obteniendo usuarios');
+  }
+});
+
+app.get('/api/sugerencias', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const sugerencias = await fetchAll('sugerenciaCambio');
+    res.json(sugerencias);
+  } catch (error) {
+    sendError(res, error, 'Error obteniendo sugerencias');
+  }
+});
+
+app.get('/api/sugerencias/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const sugerencia = await findById('sugerenciaCambio', req.params.id, ['id_sugerencia']);
+    if (!sugerencia) {
+      return res.status(404).json({ error: 'Sugerencia no encontrada' });
+    }
+    res.json(sugerencia);
+  } catch (error) {
+    sendError(res, error, 'Error obteniendo la sugerencia');
   }
 });
 
