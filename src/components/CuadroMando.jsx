@@ -76,13 +76,15 @@ export default function CuadroMando() {
         datasets: [{ label: label, data: (datos || []).map(item => item.total), backgroundColor: color }]
     });
 
-    // NUEVO: Opciones para forzar números enteros en el eje Y (sin 0,5)
+    // NUEVO: Opciones para forzar números enteros en el eje Y y frenar el redimensionamiento
     const opcionesEnteros = {
+        responsive: true,
+        maintainAspectRatio: false, // CLAVE: Evita que la gráfica crezca infinitamente
         scales: {
             y: {
                 ticks: {
-                    stepSize: 1, // Fuerza saltos de 1 en 1
-                    precision: 0 // Elimina los decimales
+                    stepSize: 1,
+                    precision: 0
                 }
             }
         }
@@ -93,8 +95,6 @@ export default function CuadroMando() {
 
     return (
         <>
-            <include-html src="/componentes/header.html" active="dashboard"></include-html>
-
             <main className="dashboard-container">
                 <header className="header-titulo" style={{ margin: 0, padding: '30px 0', backgroundColor: 'var(--twilight-indigo)', width: '100%' }}>
                     <h1 style={{ margin: 0, color: 'white', textAlign: 'center' }}>Cuadro de Mando</h1>
@@ -102,38 +102,36 @@ export default function CuadroMando() {
 
                 <div className="dashboard-content">
 
-                    {/* SECCIÓN GENERALES AVANZADAS */}
                     <h2 style={{color: 'var(--twilight-indigo)'}}>Estadísticas Generales</h2>
                     <section className="stats-grid">
                         <div className="stat-card">
                             <h3>Tiendas por Zona</h3>
-                            <Bar data={dataGrafica(statsGenerales.tiendasZona, 'Tiendas', '#58b9da')} options={opcionesEnteros} />
+                            <div className="chart-container"><Bar data={dataGrafica(statsGenerales.tiendasZona, 'Tiendas', '#58b9da')} options={opcionesEnteros} /></div>
                         </div>
                         <div className="stat-card">
                             <h3>Usuarios por Zona</h3>
-                            <Bar data={dataGrafica(statsGenerales.usuariosZona, 'Usuarios', '#323266')} options={opcionesEnteros} />
+                            <div className="chart-container"><Bar data={dataGrafica(statsGenerales.usuariosZona, 'Usuarios', '#323266')} options={opcionesEnteros} /></div>
                         </div>
                         <div className="stat-card">
                             <h3>Entidades por Zona</h3>
-                            <Bar data={dataGrafica(statsGenerales.entidadesZona, 'Entidades', '#ffb347')} options={opcionesEnteros} />
+                            <div className="chart-container"><Bar data={dataGrafica(statsGenerales.entidadesZona, 'Entidades', '#ffb347')} options={opcionesEnteros} /></div>
                         </div>
                         <div className="stat-card">
                             <h3>Top 10 Tiendas por Cadena</h3>
-                            <Bar data={dataGrafica(statsGenerales.tiendasCadena, 'Tiendas', '#8e44ad')} options={opcionesEnteros} />
+                            <div className="chart-container"><Bar data={dataGrafica(statsGenerales.tiendasCadena, 'Tiendas', '#8e44ad')} options={opcionesEnteros} /></div>
                         </div>
                         <div className="stat-card">
                             <h3>Tiendas por Campaña</h3>
-                            <Bar data={dataGrafica(statsGenerales.tiendasCampania, 'Tiendas', '#27ae60')} options={opcionesEnteros} />
+                            <div className="chart-container"><Bar data={dataGrafica(statsGenerales.tiendasCampania, 'Tiendas', '#27ae60')} options={opcionesEnteros} /></div>
                         </div>
                         <div className="stat-card">
                             <h3>Top 10 Voluntarios por Entidad</h3>
-                            <Bar data={dataGrafica(statsGenerales.voluntariosEntidad, 'Voluntarios', '#e74c3c')} options={opcionesEnteros} />
+                            <div className="chart-container"><Bar data={dataGrafica(statsGenerales.voluntariosEntidad, 'Voluntarios', '#e74c3c')} options={opcionesEnteros} /></div>
                         </div>
                     </section>
 
                     <hr style={{margin: '40px 0', borderColor: '#ddd'}}/>
 
-                    {/* FILTROS Y GRANULARIDAD */}
                     <h2 style={{color: 'var(--twilight-indigo)', textAlign: 'center'}}>Estadísticas Específicas</h2>
                     <section className="filter-section">
                         <select className="filter-select" value={selectedCampana} onChange={(e) => { setSelectedCampana(e.target.value); setSelectedZona(''); }}>
@@ -147,18 +145,18 @@ export default function CuadroMando() {
                     </section>
 
                     {(selectedCampana && selectedZona) && (
-                        <section className="stats-grid" style={{gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))'}}>
+                        <section className="granular-grid">
                             <div className="stat-card">
                                 <h2>Tiendas por CP</h2>
-                                {statsGranulares.tiendasPorCp?.length > 0 ? <Bar data={dataGrafica(statsGranulares.tiendasPorCp, 'Tiendas', '#323266')} options={opcionesEnteros} /> : <p>Sin datos</p>}
+                                {statsGranulares.tiendasPorCp?.length > 0 ? <div className="chart-container"><Bar data={dataGrafica(statsGranulares.tiendasPorCp, 'Tiendas', '#323266')} options={opcionesEnteros} /></div> : <p>Sin datos</p>}
                             </div>
                             <div className="stat-card">
                                 <h2>Usuarios Implicados por CP</h2>
-                                {statsGranulares.usuariosPorCp?.length > 0 ? <Bar data={dataGrafica(statsGranulares.usuariosPorCp, 'Usuarios', '#58b9da')} options={opcionesEnteros} /> : <p>Sin datos</p>}
+                                {statsGranulares.usuariosPorCp?.length > 0 ? <div className="chart-container"><Bar data={dataGrafica(statsGranulares.usuariosPorCp, 'Usuarios', '#58b9da')} options={opcionesEnteros} /></div> : <p>Sin datos</p>}
                             </div>
                             <div className="stat-card">
                                 <h2>Distribución de Roles</h2>
-                                {statsGranulares.roles?.length > 0 ? <Bar data={dataGrafica(statsGranulares.roles, 'Usuarios', '#ffb347')} options={opcionesEnteros} /> : <p>Sin roles asignados</p>}
+                                {statsGranulares.roles?.length > 0 ? <div className="chart-container"><Bar data={dataGrafica(statsGranulares.roles, 'Usuarios', '#ffb347')} options={opcionesEnteros} /></div> : <p>Sin roles asignados</p>}
                             </div>
                         </section>
                     )}

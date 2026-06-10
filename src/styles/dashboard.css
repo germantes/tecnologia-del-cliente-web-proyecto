@@ -2,17 +2,38 @@
 
 .dashboard-container {
     background-color: var(--bg-gray);
-    min-height: 100vh;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    box-sizing: border-box;
 }
 
 .dashboard-content {
     padding: 40px;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
 }
 
+/* 2 COLUMNAS ABSOLUTAS: Obliga a cada gráfica a ocupar exactamente el 50% del ancho disponible */
 .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    display: grid !important;
+    grid-template-columns: calc(50% - 10px) calc(50% - 10px) !important;
     gap: 20px;
+    width: 100% !important;
+    margin-bottom: 40px;
+}
+
+/* 3 COLUMNAS ABSOLUTAS: Para las específicas (33.33% cada una) */
+.granular-grid {
+    display: grid !important;
+    grid-template-columns: calc(33.33% - 13.33px) calc(33.33% - 13.33px) calc(33.33% - 13.33px) !important;
+    gap: 20px;
+    width: 100% !important;
     margin-bottom: 40px;
 }
 
@@ -22,19 +43,27 @@
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     border: 1px solid #e0e0e0;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
 }
 
-.stat-card h3 {
+.stat-card h3, .stat-card h2 {
     color: var(--twilight-indigo);
     margin-top: 0;
     text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
 }
 
 .filter-section {
     background-color: var(--white);
     padding: 20px;
     border-radius: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
     display: flex;
     justify-content: center;
     gap: 15px;
@@ -50,9 +79,27 @@
     cursor: pointer;
 }
 
-.granular-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-top: 20px;
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100% !important;
+    min-width: 0;
+    flex-grow: 1;
+}
+
+/* ==========================================================================
+   MEDIA QUERIES (Responsividad Forzada sin perder la estructura)
+   ========================================================================== */
+@media (max-width: 1100px) {
+    /* En pantallas medianas, tanto las generales como las específicas pasan a 2 columnas */
+    .stats-grid, .granular-grid {
+        grid-template-columns: calc(50% - 10px) calc(50% - 10px) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    /* En teléfonos móviles se apilan todas en 1 sola columna */
+    .stats-grid, .granular-grid {
+        grid-template-columns: 100% !important;
+    }
 }

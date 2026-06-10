@@ -70,9 +70,7 @@ export default function Usuarios() {
 
     return (
         <>
-            <include-html src="/componentes/header.html" active="usuarios"></include-html>
-
-            <main>
+            <main className="usuarios-main">
                 <header className="header-titulo">
                     <h1>Gestión de Usuarios</h1>
                 </header>
@@ -94,8 +92,6 @@ export default function Usuarios() {
                     )}
                 </div>
             </main>
-
-            <include-html src="/componentes/footer.html"></include-html>
         </>
     );
 }

@@ -118,7 +118,6 @@ export default function UsuarioEditar() {
 
     return (
         <>
-            <include-html src="/componentes/header.html" active="usuarios"></include-html>
             <main className="form-main">
                 <form onSubmit={handleSubmit} className="form-container">
                     <div className="total-form">
@@ -177,7 +176,6 @@ export default function UsuarioEditar() {
                     </div>
                 </form>
             </main>
-            <include-html src="/componentes/footer.html"></include-html>
         </>
     );
 }

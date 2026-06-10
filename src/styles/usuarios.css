@@ -31,7 +31,10 @@
 }
 
 .crear-container {
-    text-align: center;
+    display: flex;
+    justify-content: center; /* Centrado absoluto horizontal */
+    align-items: center;
+    width: 100%;
     margin-bottom: 40px;
 }
 
@@ -193,6 +196,26 @@
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 20px auto;
+}
+
+.usuarios-main {
+    width: 100%;
+    max-width: 100% !important; /* Rompe el límite de 1400px de tus compañeros */
+    margin: 0 !important;
+    padding: 0 !important; /* Elimina el padding invisible */
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+/* Y asegúrate de que el header-titulo tampoco tenga margen arriba */
+.header-titulo {
+    width: 100%;
+    background-color: var(--twilight-indigo);
+    padding: 40px 20px;
+    margin: 0 0 40px 0 !important; /* Fuerza a que arriba sea 0 */
+    box-sizing: border-box;
+    text-align: center;
 }
 
 @keyframes spin {

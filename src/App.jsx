@@ -8,7 +8,6 @@ import EditPage from './components/EditPage'
 
 import Usuarios from './components/Usuarios.jsx'
 import CuadroMando from './components/CuadroMando.jsx'
-import RutaProtegida from './components/RutaProtegida.jsx'
 import UsuarioCrear from './components/UsuarioCrear.jsx'
 import UsuarioEditar from './components/UsuarioEditar.jsx'
 
@@ -101,24 +100,32 @@ function App() {
 
                 {/* TUS PÁGINAS DE USUARIOS Y CUADRO DE MANDO */}
                 <Route path="/usuarios" element={
-                    <RutaProtegida>
+                    <RequireAuth>
+                        <Header />
                         <Usuarios />
-                    </RutaProtegida>
+                        <Footer />
+                    </RequireAuth>
                 } />
                 <Route path="/usuarios/crear" element={
-                    <RutaProtegida>
+                    <RequireAuth>
+                        <Header />
                         <UsuarioCrear />
-                    </RutaProtegida>
+                        <Footer />
+                    </RequireAuth>
                 } />
                 <Route path="/usuarios/editar/:id" element={
-                    <RutaProtegida>
+                    <RequireAuth>
+                        <Header />
                         <UsuarioEditar />
-                    </RutaProtegida>
+                        <Footer />
+                    </RequireAuth>
                 } />
                 <Route path="/dashboard" element={
-                    <RutaProtegida>
+                    <RequireAuth>
+                        <Header />
                         <CuadroMando />
-                    </RutaProtegida>
+                        <Footer />
+                    </RequireAuth>
                 } />
 
                 {/* RUTA AUXILIAR PARA TU MENÚ PROVISIONAL */}
