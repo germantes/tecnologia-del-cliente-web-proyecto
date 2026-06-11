@@ -6,7 +6,10 @@ async function cargarEntidades() {
     const idCampaniaParam = urlParams.get('idCampania');
     
     // REQUISITO: Reemplazamos la lectura directa del sessionStorage por la nueva función centralizada.
-    const rolUsuario = obtenerRolDeToken();
+    // Usamos la utilidad global si existe, si no, caemos al fallback legacy.
+    const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
+        ? window.obtenerRolDeToken()
+        : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
     console.log('Cargando vista Entidades. Rol del usuario:', rolUsuario); // Log de trazabilidad
 
     if (rolUsuario !== 'ADMINISTRADOR' && !idCampaniaParam) {
@@ -260,7 +263,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // REQUISITO: Usamos la nueva función para controlar la visibilidad del botón.
-    const rolUsuario = obtenerRolDeToken();
+    // Comprobación segura en tiempo de ejecución para evitar ReferenceError si la utilidad
+    // aún no se ha cargado en el orden de scripts.
+    const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
+        ? window.obtenerRolDeToken()
+        : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
     const btnNuevo = document.getElementById('btn-nuevo');
     if (btnNuevo) {
         const canCreate = rolUsuario === 'ADMINISTRADOR' || rolUsuario === 'COORDINADOR';

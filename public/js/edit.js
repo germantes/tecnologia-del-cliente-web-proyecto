@@ -16,7 +16,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         backBtn.href = (typeof SCHEMAS !== 'undefined' && SCHEMAS[type]) ? `/html/${type}.html` : '/html/index.html';
     }
 
-    const perfil = sessionStorage.getItem('perfil');
+    // Obtener rol/perfil usando la utilidad central (si está disponible) o fallback legacy.
+    const perfil = (typeof window.obtenerRolDeToken === 'function') ? window.obtenerRolDeToken() : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
     const isAdmin = perfil === 'ADMINISTRADOR';
     const isManager = perfil === 'COORDINADOR';
     const canAccess = isAdmin || isManager;

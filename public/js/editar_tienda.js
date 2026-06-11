@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const perfil = sessionStorage.getItem('perfil');
+    // Obtener rol/perfil usando la utilidad central (si existe) o fallback legacy.
+    const perfil = (typeof window.obtenerRolDeToken === 'function') ? window.obtenerRolDeToken() : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
     const token = sessionStorage.getItem('token');
 
     if (!perfil || !token || perfil.toUpperCase() !== 'ADMINISTRADOR') {
