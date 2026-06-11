@@ -88,8 +88,8 @@ function EditPage() {
             // Fallback según el tipo de entidad
             const redirects = {
                 cadena: '/cadenas',
-                campania: '/html/campanias.html',
-                zona: '/html/zonas.html',
+                campania: '/campanias',
+                zona: '/zonas',
             };
             window.location.href = redirects[entityType] || '/homepage';
         }
@@ -99,8 +99,8 @@ function EditPage() {
         // Redirigir después de guardar exitosamente
         const redirects = {
             cadena: '/cadenas',
-            campania: '/html/campanias.html',
-            zona: '/html/zonas.html',
+            campania: '/campanias',
+            zona: '/zonas',
         };
         window.location.href = redirects[entityType] || '/homepage';
     };

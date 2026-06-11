@@ -513,10 +513,11 @@ async function obtenerAccesosRapidosPorRol(rol) {
       { texto: 'Tiendas', enlace: '/html/tiendas.html' },
       { texto: 'Entidades', enlace: '/html/entidades.html' },
       { texto: 'Voluntarios', enlace: '/html/voluntarios.html' },
+      { texto: 'Sugerencias', enlace: '/sugerencias' },
     ]
   }
 
-  if (rol === 'CAPITAN' || rol === 'COORDINADOR') {
+  if (rol === 'CAPITAN') {
     return [
       {
         texto: 'Zonas',
@@ -535,6 +536,36 @@ async function obtenerAccesosRapidosPorRol(rol) {
     ]
   }
 
+  if (rol === 'COORDINADOR') {
+    return [
+      {
+        texto: 'Zonas',
+        enlace: construirUrl('/html/zonas.html', {
+          idCampania: idCampaniaActiva,
+          idUsuario,
+        }),
+      },
+      {
+        texto: 'Tiendas',
+        enlace: construirUrl('/html/tiendas.html', {
+          idCampania: idCampaniaActiva,
+          idUsuario,
+        }),
+      },
+      {
+        texto: 'Voluntarios',
+        enlace: construirUrl('/html/voluntarios.html', {
+          idCampania: idCampaniaActiva,
+        }),
+      }, {
+        texto: 'Entidades',
+        enlace: construirUrl('/html/entidades.html', {
+          idCampania: idCampaniaActiva,
+        }),
+      },
+    ]
+  }
+
   if (rol === 'RESPONSABLE-ENTIDAD') {
     const idEntidad = await obtenerIdEntidadDelUsuarioActual()
 
@@ -543,17 +574,17 @@ async function obtenerAccesosRapidosPorRol(rol) {
         texto: 'Mi entidad',
         enlace: idEntidad
           ? construirUrl('/html/edit.html', {
-              type: 'entidades',
-              id: idEntidad,
-            })
+            type: 'entidades',
+            id: idEntidad,
+          })
           : '/html/entidades.html',
       },
       {
         texto: 'Voluntarios',
         enlace: idEntidad
           ? construirUrl('/html/voluntarios.html', {
-              idEntidad,
-            })
+            idEntidad,
+          })
           : '/html/voluntarios.html',
       },
       {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import '../styles/usuario_formulario.css';
+import formStyles from '../styles/usuario_formulario.module.css';
 
 export default function UsuarioEditar() {
     const { id } = useParams(); // Obtenemos la ID de la URL
@@ -113,34 +113,34 @@ export default function UsuarioEditar() {
         }
     };
 
-    if (cargando) return <main className="form-main"><h2 style={{color: '#323266'}}>Cargando datos...</h2></main>;
-    if (errorMensaje && !formData.email) return <main className="form-main"><h2 className="mensaje-error">{errorMensaje}</h2></main>;
+    if (cargando) return <main className={formStyles['form-main']}><h2 style={{color: '#323266'}}>Cargando datos...</h2></main>;
+    if (errorMensaje && !formData.email) return <main className={formStyles['form-main']}><h2 className="mensaje-error">{errorMensaje}</h2></main>;
 
     return (
         <>
-            <main className="form-main">
-                <form onSubmit={handleSubmit} className="form-container">
-                    <div className="total-form">
-                        <div className="form-header">
+            <main className={formStyles['form-main']}>
+                <form onSubmit={handleSubmit} className={formStyles['form-container']}>
+                    <div className={formStyles['total-form']}>
+                        <div className={formStyles['form-header']}>
                             <h1>Editando a {formData.nombre_completo}</h1>
                         </div>
 
-                        {errorMensaje && <div className="error-banner">{errorMensaje}</div>}
+                        {errorMensaje && <div className={formStyles['error-banner']}>{errorMensaje}</div>}
 
-                        <div className="tablas-form">
+                        <div className={formStyles['tablas-form']}>
                             <table>
                                 <tbody>
-                                <tr><td className="etiqueta-campo">Nombre Completo</td><td><input type="text" name="nombre_completo" value={formData.nombre_completo} className="form-input" required onChange={handleChange} /></td></tr>
-                                <tr><td className="etiqueta-campo">Email</td><td><input type="email" name="email" value={formData.email} className="form-input" required onChange={handleChange} /></td></tr>
-                                <tr><td className="etiqueta-campo">Teléfono</td><td><input type="text" name="telefono" value={formData.telefono} className="form-input" onChange={handleChange} /></td></tr>
-                                <tr><td className="etiqueta-campo">Domicilio</td><td><textarea name="domicilio" rows="3" value={formData.domicilio} className="form-input" onChange={handleChange}></textarea></td></tr>
+                                <tr><td className={formStyles['etiqueta-campo']}>Nombre Completo</td><td><input type="text" name="nombre_completo" value={formData.nombre_completo} className={formStyles['form-input']} required onChange={handleChange} /></td></tr>
+                                <tr><td className={formStyles['etiqueta-campo']}>Email</td><td><input type="email" name="email" value={formData.email} className={formStyles['form-input']} required onChange={handleChange} /></td></tr>
+                                <tr><td className={formStyles['etiqueta-campo']}>Teléfono</td><td><input type="text" name="telefono" value={formData.telefono} className={formStyles['form-input']} onChange={handleChange} /></td></tr>
+                                <tr><td className={formStyles['etiqueta-campo']}>Domicilio</td><td><textarea name="domicilio" rows="3" value={formData.domicilio} className={formStyles['form-input']} onChange={handleChange}></textarea></td></tr>
                                 <tr>
-                                    <td className="etiqueta-campo">Cód. Postal / Localidad</td>
+                                    <td className={formStyles['etiqueta-campo']}>Cód. Postal / Localidad</td>
                                     <td>
                                         <select
                                             name="idCp"
                                             value={formData.idCp}
-                                            className="form-input"
+                                            className={formStyles['form-input']}
                                             required
                                             onChange={handleChange}
                                         >
@@ -154,9 +154,9 @@ export default function UsuarioEditar() {
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className="etiqueta-campo">Rol</td>
+                                    <td className={formStyles['etiqueta-campo']}>Rol</td>
                                     <td>
-                                        <select name="rol" value={formData.rol} className="form-input" required onChange={handleChange}>
+                                        <select name="rol" value={formData.rol} className={formStyles['form-input']} required onChange={handleChange}>
                                             <option value="ADMINISTRADOR">Administrador</option>
                                             <option value="COORDINADOR">Coordinador</option>
                                             <option value="CAPITAN">Capitán</option>
@@ -168,10 +168,10 @@ export default function UsuarioEditar() {
                                 </tbody>
                             </table>
                         </div>
-                        <div className="botones-form">
-                            <button type="button" onClick={handleDelete} className="btn-eliminar">Eliminar</button>
-                            <Link to="/usuarios" className="btn-cerrar">Cancelar</Link>
-                            <button type="submit" className="btn-guardar">Guardar</button>
+                        <div className={formStyles['botones-form']}>
+                            <button type="button" onClick={handleDelete} className={formStyles['btn-eliminar']}>Eliminar</button>
+                            <Link to="/usuarios" className={formStyles['btn-cerrar']}>Cancelar</Link>
+                            <button type="submit" className={formStyles['btn-guardar']}>Guardar</button>
                         </div>
                     </div>
                 </form>

@@ -32,12 +32,23 @@ const TABLES = {
   distrito: process.env.TABLE_DISTRITO || 'distrito',
   cadena: process.env.TABLE_CADENA || 'cadena',
   tiendaCampania: process.env.TABLE_TIENDA_CAMPANIA || 'tienda_campania',
-  turnoVoluntario: process.env.TABLE_TURNO_VOLUNTARIO || 'turnos_voluntarios'
+  turnoVoluntario: process.env.TABLE_TURNO_VOLUNTARIO || 'turnos_voluntarios',
+  sugerenciaCambio: process.env.TABLE_SUGERENCIA_CAMBIO || 'sugerencia_cambio'
 };
 
 const FALLBACK_TABLE_NAMES = {
   turnoVoluntario: ['turnos_voluntarios', 'turno_voluntario', 'TurnosVoluntarios', 'TurnoVoluntario'],
   tiendaCampania: ['tienda_campania', 'tiendas_campanias', 'TiendaCampania'],
+};
+
+// Mapa de tipo de entidad a su clave primaria
+const PK_MAP = {
+  usuario: 'id_usuario',
+  campania: 'id_campania',
+  tienda: 'id_tienda',
+  voluntario: 'id_voluntario',
+  entidad: 'id_entidad',
+  turno: 'id_turno',
 };
 
 const tableNameCache = new Map();
@@ -94,7 +105,7 @@ async function requireAuth(req, res, next) {
     // REQUISITO: Debe intentar primero verificar el token como un JWT usando jwt.verify.
     // Esta función decodifica el JWT comprobando la firma con el secreto.
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
+
     // REQUISITO: Si tiene éxito, extrae el id y el puesto del payload del token y los inyecta en req.user.
     req.user = {
       id: decoded.id,
@@ -103,7 +114,7 @@ async function requireAuth(req, res, next) {
     return next();
   } catch (error) {
     // REQUISITO: Si falla (porque no es un JWT válido), debe capturar el error (bloque catch) y continuar con la lógica antigua
-    
+
     if (token.startsWith('mock-token-')) {
       const userId = token.replace('mock-token-', '');
       try {
@@ -246,9 +257,9 @@ async function getIdsVoluntariosByTurno(idTurno) {
   try {
     const rows = await fetchAll('turnoVoluntario');
     return rows
-        .filter((row) => sameNumberOrString(row.id_turno, idTurno))
-        .map((row) => row.id_voluntario)
-        .filter((id) => id !== undefined && id !== null);
+      .filter((row) => sameNumberOrString(row.id_turno, idTurno))
+      .map((row) => row.id_voluntario)
+      .filter((id) => id !== undefined && id !== null);
   } catch (error) {
     console.warn('No se pudo leer la tabla de turnos_voluntarios:', error.message);
     return [];
@@ -282,8 +293,8 @@ async function filtrarTiendasPorZona(tiendas, idZona) {
   try {
     const cps = await fetchAll('cp');
     const cpsDeZona = cps
-        .filter((cp) => sameNumberOrString(getField(cp, 'idZona', 'id_zona'), idZona))
-        .map((cp) => getField(cp, 'cp', 'codigo_postal', 'codigoPostal', 'id_cp', 'idCP'));
+      .filter((cp) => sameNumberOrString(getField(cp, 'idZona', 'id_zona'), idZona))
+      .map((cp) => getField(cp, 'cp', 'codigo_postal', 'codigoPostal', 'id_cp', 'idCP'));
 
     return tiendas.filter((tienda) => cpsDeZona.some((cp) => sameNumberOrString(getField(tienda, 'cp', 'codigo_postal', 'id_cp', 'idCP'), cp)));
   } catch {
@@ -587,8 +598,8 @@ app.get('/tienda_editar', requireAuth, async (req, res) => {
 app.get(['/cp', '/api/cp'], requireAuth, async (req, res) => {
   try {
     const { data, error } = await supabase
-        .from('cp')
-        .select(`
+      .from('cp')
+      .select(`
         cp,
         localidad,
         id_zona,
@@ -618,7 +629,7 @@ app.get('/api/tienda_turnos', requireAuth, async (req, res) => {
 
     const tiendaCampanias = await fetchAll('tiendaCampania').catch(() => []);
     const tiendaCampania = tiendaCampanias.find((row) =>
-        sameNumberOrString(getIdTienda(row), idTienda) && sameNumberOrString(getIdCampania(row), idCampania)
+      sameNumberOrString(getIdTienda(row), idTienda) && sameNumberOrString(getIdCampania(row), idCampania)
     );
 
     const turnos = filterTurnos(await fetchAll('turno'), { idTienda, idCampania });
@@ -626,29 +637,29 @@ app.get('/api/tienda_turnos', requireAuth, async (req, res) => {
     const voluntarios = await fetchAll('voluntario').catch(() => []);
 
     const turnosTienda = turnos
-        .map((turno) => {
-          const idsVoluntarios = relacionesTurnoVoluntario
-              .filter((relacion) => sameNumberOrString(relacion.id_turno, getIdTurno(turno)))
-              .map((relacion) => relacion.id_voluntario);
+      .map((turno) => {
+        const idsVoluntarios = relacionesTurnoVoluntario
+          .filter((relacion) => sameNumberOrString(relacion.id_turno, getIdTurno(turno)))
+          .map((relacion) => relacion.id_voluntario);
 
-          return {
-            ...turno,
-            voluntarios: voluntarios.filter((voluntario) =>
-                idsVoluntarios.some((id) => sameNumberOrString(getIdVoluntario(voluntario), id))
-            )
-          };
-        })
-        .sort((a, b) => {
-          const compFecha = str(getFecha(a)).localeCompare(str(getFecha(b)));
-          if (compFecha !== 0) return compFecha;
-          return normalizeTurno(getTipoTurno(a)).localeCompare(normalizeTurno(getTipoTurno(b)));
-        });
+        return {
+          ...turno,
+          voluntarios: voluntarios.filter((voluntario) =>
+            idsVoluntarios.some((id) => sameNumberOrString(getIdVoluntario(voluntario), id))
+          )
+        };
+      })
+      .sort((a, b) => {
+        const compFecha = str(getFecha(a)).localeCompare(str(getFecha(b)));
+        if (compFecha !== 0) return compFecha;
+        return normalizeTurno(getTipoTurno(a)).localeCompare(normalizeTurno(getTipoTurno(b)));
+      });
 
     const { data: tiendaDetalle } = await supabase
-        .from('tienda')
-        .select(`id_tienda, domicilio, cadena (id_cadena, establecimiento, nombre_particular), cp (cp, localidad, municipio, zona (id_zona, zona_geografica))`)
-        .eq('id_tienda', idTienda)
-        .single();
+      .from('tienda')
+      .select(`id_tienda, domicilio, cadena (id_cadena, establecimiento, nombre_particular), cp (cp, localidad, municipio, zona (id_zona, zona_geografica))`)
+      .eq('id_tienda', idTienda)
+      .single();
 
     const campania = await findById('campania', idCampania, ['id_campania']).catch(() => null);
     const idResponsable = tiendaCampania ? tiendaCampania.id_responsable_tienda : null;
@@ -723,7 +734,7 @@ app.get('/api/turno_voluntarios', requireAuth, async (req, res) => {
       idTurno: getIdTurno(turno),
       idsVoluntariosSeleccionados,
       voluntarios: voluntarios.filter((voluntario) =>
-          idsVoluntariosSeleccionados.some((idVoluntario) => sameNumberOrString(getIdVoluntario(voluntario), idVoluntario))
+        idsVoluntariosSeleccionados.some((idVoluntario) => sameNumberOrString(getIdVoluntario(voluntario), idVoluntario))
       )
     });
   } catch (error) { sendError(res, error, 'Error obteniendo voluntarios del turno'); }
@@ -1023,8 +1034,8 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
     }
 
     let query = supabase
-        .from('tienda')
-        .select(`
+      .from('tienda')
+      .select(`
                 id_tienda, 
                 domicilio,
                 cadena (id_cadena, establecimiento, nombre_particular),
@@ -1096,8 +1107,8 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
     const tiendaId = req.params.id;
 
     const { data: tienda, error } = await supabase
-        .from('tienda')
-        .select(`
+      .from('tienda')
+      .select(`
                 id_tienda, 
                 domicilio,
                 cadena (id_cadena, establecimiento, nombre_particular),
@@ -1117,8 +1128,8 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
                     num_cajas
                 )
             `)
-        .eq('id_tienda', tiendaId)
-        .single();
+      .eq('id_tienda', tiendaId)
+      .single();
 
     if (error) throw error;
     res.json(tienda);
@@ -1138,13 +1149,13 @@ app.post('/api/tiendas', requireAuth, async (req, res) => {
     } = req.body;
 
     const { data: resultTienda, error: errorTienda } = await supabase
-        .from('tienda')
-        .insert([{
-          domicilio: domicilio || null,
-          cp: idCp || null,
-          id_cadena: idCadena ? parseInt(idCadena) : null
-        }])
-        .select();
+      .from('tienda')
+      .insert([{
+        domicilio: domicilio || null,
+        cp: idCp || null,
+        id_cadena: idCadena ? parseInt(idCadena) : null
+      }])
+      .select();
 
     if (errorTienda) throw errorTienda;
 
@@ -1152,16 +1163,16 @@ app.post('/api/tiendas', requireAuth, async (req, res) => {
 
     if (participa && idCampania) {
       const { error: errorCampania } = await supabase
-          .from('tienda_campania')
-          .insert([{
-            id_tienda: nuevaTiendaId,
-            id_campania: parseInt(idCampania),
-            num_cajas: parseInt(numCajas) || 0,
-            id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
-            id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
-            id_capitan: idCapitan ? parseInt(idCapitan) : null,
-            participa: participa === true || participa === 'true'
-          }]);
+        .from('tienda_campania')
+        .insert([{
+          id_tienda: nuevaTiendaId,
+          id_campania: parseInt(idCampania),
+          num_cajas: parseInt(numCajas) || 0,
+          id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
+          id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
+          id_capitan: idCapitan ? parseInt(idCapitan) : null,
+          participa: participa === true || participa === 'true'
+        }]);
 
       if (errorCampania) throw errorCampania;
     }
@@ -1224,6 +1235,83 @@ app.post(['/zonas', '/api/zonas'], requireAuth, async (req, res) => {
     res.status(201).json(rows[0] || null);
   } catch (error) {
     sendError(res, error, 'Error creando zona');
+  }
+});
+
+// Endpoint para crear un nuevo CP
+app.post('/api/cp', requireAuth, async (req, res) => {
+  try {
+    const { cp, localidad, zona_geografica, nombre_distrito } = req.body;
+
+    if (!cp) {
+      return res.status(400).json({ success: false, message: 'CP es obligatorio.' });
+    }
+
+    // Buscar o crear zona geográfica
+    let idZonaDestino;
+    const { data: zonas, error: zonaError } = await supabase
+      .from('zona')
+      .select('id_zona')
+      .eq('zona_geografica', zona_geografica)
+      .limit(1);
+
+    if (zonaError) throw zonaError;
+
+    if (zonas && zonas.length > 0) {
+      idZonaDestino = zonas[0].id_zona;
+    } else if (zona_geografica) {
+      const { data: nuevasZonas, error: insertZonaError } = await supabase
+        .from('zona')
+        .insert([{ zona_geografica }])
+        .select();
+      if (insertZonaError) throw insertZonaError;
+      idZonaDestino = nuevasZonas?.[0]?.id_zona;
+    }
+
+    // Resolver distrito: buscar por nombre o crear uno nuevo
+    let idDistritoFinal = null;
+    if (nombre_distrito && nombre_distrito.trim()) {
+      const nombre = nombre_distrito.trim();
+      const { data: distritos, error: distError } = await supabase
+        .from('distrito')
+        .select('*');
+      if (distError) throw distError;
+      const existente = distritos.find(d =>
+        String(d.nombre_distrito).toLowerCase().trim() === nombre.toLowerCase()
+      );
+      if (existente) {
+        idDistritoFinal = existente.distrito;
+      } else {
+        const { data: maxRes } = await supabase
+          .from('distrito')
+          .select('distrito')
+          .order('distrito', { ascending: false })
+          .limit(1);
+        const nextId = (maxRes?.[0]?.distrito || 0) + 1;
+        const { data: nuevos, error: insertError } = await supabase
+          .from('distrito')
+          .insert([{ distrito: nextId, nombre_distrito: nombre }])
+          .select();
+        if (insertError) throw insertError;
+        idDistritoFinal = nuevos?.[0]?.distrito ?? null;
+      }
+    }
+
+    // Insertar el nuevo CP
+    const { error: cpError } = await supabase
+      .from('cp')
+      .insert([{
+        cp: cp,
+        localidad: localidad || null,
+        id_zona: idZonaDestino || null,
+        distrito: idDistritoFinal,
+      }]);
+
+    if (cpError) throw cpError;
+
+    res.status(201).json({ success: true, cp });
+  } catch (error) {
+    sendError(res, error, 'Error creando CP');
   }
 });
 
@@ -1303,15 +1391,15 @@ app.get('/api/zonas_por_campania', requireAuth, async (req, res) => {
     }
 
     const { data, error } = await supabase
-        .from('asignacion_zona')
-        .select(`
+      .from('asignacion_zona')
+      .select(`
         id_zona,
         zona:id_zona (
           id_zona,
           zona_geografica
         )
       `)
-        .eq('id_campania', idCampania);
+      .eq('id_campania', idCampania);
 
     if (error) throw error;
     res.json(data || []);
@@ -1350,48 +1438,70 @@ app.get('/api/distritos', requireAuth, async (req, res) => {
 
 // Endpoint para crear una nueva cadena
 app.post('/api/cadenas', requireAuth, async (req, res) => {
-    try {
-        const { codigo_cadena, establecimiento, nombre_particular, empresa } = req.body;
+  try {
+    const { codigo_cadena, establecimiento, nombre_particular, empresa } = req.body;
 
-        // Validación básica
-        if (!codigo_cadena || !establecimiento) {
-            return res.status(400).json({ success: false, message: 'El código y el establecimiento son obligatorios.' });
-        }
-
-        const rows = await insertRows('cadena', [{
-            codigo_cadena,
-            establecimiento,
-            nombre_particular,
-            empresa_cadena: empresa // Aseguramos el mapeo correcto
-        }]);
-        
-        res.status(201).json(rows[0] || null);
-
-    } catch (error) {
-        sendError(res, error, 'Error al crear la cadena');
+    // Validación básica
+    if (!codigo_cadena || !establecimiento) {
+      return res.status(400).json({ success: false, message: 'El código y el establecimiento son obligatorios.' });
     }
+
+    const rows = await insertRows('cadena', [{
+      codigo_cadena,
+      establecimiento,
+      nombre_particular,
+      empresa_cadena: empresa // Aseguramos el mapeo correcto
+    }]);
+
+    res.status(201).json(rows[0] || null);
+
+  } catch (error) {
+    sendError(res, error, 'Error al crear la cadena');
+  }
 });
 
 // Endpoint para actualizar una cadena existente
 app.put('/api/cadenas/:id', requireAuth, async (req, res) => {
-    try {
-        const { codigo_cadena, establecimiento, nombre_particular, empresa } = req.body;
+  try {
+    const { codigo_cadena, establecimiento, nombre_particular, empresa } = req.body;
 
-        const [updated] = await updateRows('cadena', 'id_cadena', req.params.id, {
-            codigo_cadena,
-            establecimiento,
-            nombre_particular,
-            empresa_cadena: empresa
-        });
+    const [updated] = await updateRows('cadena', 'id_cadena', req.params.id, {
+      codigo_cadena,
+      establecimiento,
+      nombre_particular,
+      empresa_cadena: empresa
+    });
 
-        if (!updated) {
-            return res.status(404).json({ success: false, message: 'Cadena no encontrada.' });
-        }
-
-        res.json(updated);
-    } catch (error) {
-        sendError(res, error, 'Error actualizando cadena');
+    if (!updated) {
+      return res.status(404).json({ success: false, message: 'Cadena no encontrada.' });
     }
+
+    res.json(updated);
+  } catch (error) {
+    sendError(res, error, 'Error actualizando cadena');
+  }
+});
+
+// Endpoint para actualizar una cadena existente
+app.put('/api/cadenas/:id', requireAuth, async (req, res) => {
+  try {
+    const { codigo_cadena, establecimiento, nombre_particular, empresa } = req.body;
+
+    const [updated] = await updateRows('cadena', 'id_cadena', req.params.id, {
+      codigo_cadena,
+      establecimiento,
+      nombre_particular,
+      empresa_cadena: empresa
+    });
+
+    if (!updated) {
+      return res.status(404).json({ success: false, message: 'Cadena no encontrada.' });
+    }
+
+    res.json(updated);
+  } catch (error) {
+    sendError(res, error, 'Error actualizando cadena');
+  }
 });
 
 app.get('/api/usuarios', requireAuth, async (req, res) => {
@@ -1400,6 +1510,83 @@ app.get('/api/usuarios', requireAuth, async (req, res) => {
     res.json(usuarios);
   } catch (error) {
     sendError(res, error, 'Error obteniendo usuarios');
+  }
+});
+
+app.get('/api/sugerencias', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const sugerencias = await fetchAll('sugerenciaCambio');
+    res.json(sugerencias);
+  } catch (error) {
+    sendError(res, error, 'Error obteniendo sugerencias');
+  }
+});
+
+app.get('/api/sugerencias/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const sugerencia = await findById('sugerenciaCambio', req.params.id, ['id_sugerencia']);
+    if (!sugerencia) {
+      return res.status(404).json({ error: 'Sugerencia no encontrada' });
+    }
+    res.json(sugerencia);
+  } catch (error) {
+    sendError(res, error, 'Error obteniendo la sugerencia');
+  }
+});
+
+// =========================================================================
+// ENDPOINT: APROBAR/RECHAZAR SUGERENCIA
+// =========================================================================
+app.put('/api/sugerencias/:id', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { estado } = req.body; // 'APROBADA' o 'RECHAZADA'
+    const userId = req.user.id;
+
+    if (!['APROBADA', 'RECHAZADA'].includes(estado)) {
+      return res.status(400).json({ error: 'El estado proporcionado no es válido.' });
+    }
+
+    const sugerencia = await findById('sugerenciaCambio', id, ['id_sugerencia']);
+    if (!sugerencia) {
+      return res.status(404).json({ error: 'Sugerencia no encontrada.' });
+    }
+    if (sugerencia.estado !== 'PENDIENTE') {
+      return res.status(409).json({ error: `La sugerencia ya ha sido procesada (estado: ${sugerencia.estado}).` });
+    }
+
+    // Si se aprueba, aplicamos los cambios a la entidad original
+    if (estado === 'APROBADA') {
+      const tipoEntidad = sugerencia.tipo_entidad;
+      const idEntidadOriginal = sugerencia.id_entidad_original;
+      const pkField = PK_MAP[tipoEntidad];
+
+      if (!tipoEntidad || !idEntidadOriginal || !pkField) {
+        throw new Error(`Configuración de entidad no encontrada para el tipo: ${tipoEntidad}`);
+      }
+
+      let datosPropuestos;
+      try {
+        datosPropuestos = JSON.parse(sugerencia.datos_propuestos);
+      } catch (e) {
+        return res.status(400).json({ error: 'Los datos propuestos no son un JSON válido y no se pueden aplicar automáticamente.' });
+      }
+
+      await updateRows(tipoEntidad, pkField, idEntidadOriginal, datosPropuestos);
+    }
+
+    // Finalmente, actualizamos el estado de la sugerencia
+    const patchSugerencia = {
+      estado,
+      id_revisado_por: userId,
+      fecha_revision: new Date().toISOString(),
+    };
+
+    const [updatedSugerencia] = await updateRows('sugerenciaCambio', 'id_sugerencia', id, patchSugerencia);
+
+    res.json(updatedSugerencia);
+  } catch (error) {
+    sendError(res, error, 'Error al procesar la sugerencia');
   }
 });
 
@@ -1417,28 +1604,28 @@ app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
     } = req.body;
 
     const { error: errorTienda } = await supabase
-        .from('tienda')
-        .update({
-          domicilio: domicilio || null,
-          cp: idCp || null,
-          id_cadena: idCadena ? parseInt(idCadena) : null
-        })
-        .eq('id_tienda', tiendaId);
+      .from('tienda')
+      .update({
+        domicilio: domicilio || null,
+        cp: idCp || null,
+        id_cadena: idCadena ? parseInt(idCadena) : null
+      })
+      .eq('id_tienda', tiendaId);
 
     if (errorTienda) throw errorTienda;
 
     if (idCampania) {
       const { error: errorCampania } = await supabase
-          .from('tienda_campania')
-          .update({
-            id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
-            id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
-            id_capitan: idCapitan ? parseInt(idCapitan) : null,
-            numCajas: parseInt(numCajas) || 0,
-            participa: participa === true || participa === 'true'
-          })
-          .eq('id_tienda', tiendaId)
-          .eq('id_campania', idCampania);
+        .from('tienda_campania')
+        .update({
+          id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
+          id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
+          id_capitan: idCapitan ? parseInt(idCapitan) : null,
+          num_cajas: parseInt(numCajas) || 0,
+          participa: participa === true || participa === 'true'
+        })
+        .eq('id_tienda', tiendaId)
+        .eq('id_campania', idCampania);
 
       if (errorCampania) throw errorCampania;
     }
@@ -1459,8 +1646,8 @@ app.get('/api/campanias_por_zona', requireAuth, async (req, res) => {
     }
 
     const { data, error } = await supabase
-        .from('asignacion_zona')
-        .select(`
+      .from('asignacion_zona')
+      .select(`
         id_campania,
         campania:id_campania (
           id_campania,
@@ -1470,7 +1657,7 @@ app.get('/api/campanias_por_zona', requireAuth, async (req, res) => {
           tipo
         )
       `)
-        .eq('id_zona', idZona);
+      .eq('id_zona', idZona);
 
     if (error) throw error;
     res.json(data || []);
@@ -1546,13 +1733,13 @@ app.get('/api/stats/tiendas-por-cp', requireAuth, async (req, res) => {
 
     // Filtramos tiendas que participen en la campaña Y que estén en la zona
     const { data, error } = await supabase
-        .from('tienda')
-        .select(`
+      .from('tienda')
+      .select(`
             cp!inner (cp, id_zona),
             tienda_campania!inner (id_campania)
         `)
-        .eq('tienda_campania.id_campania', idCampania)
-        .eq('cp.id_zona', idZona);
+      .eq('tienda_campania.id_campania', idCampania)
+      .eq('cp.id_zona', idZona);
 
     if (error) throw error;
 
@@ -1573,11 +1760,11 @@ app.get('/api/stats/usuarios-por-cp', requireAuth, async (req, res) => {
     const { idZona } = req.query;
 
     const { data, error } = await supabase
-        .from('usuario')
-        .select(`
+      .from('usuario')
+      .select(`
             cp!inner (cp, id_zona)
         `)
-        .eq('cp.id_zona', idZona);
+      .eq('cp.id_zona', idZona);
 
     if (error) throw error;
 
@@ -1598,22 +1785,22 @@ app.get('/api/stats/usuarios-por-cp', requireAuth, async (req, res) => {
 
 // 1. Entidades por Zona (Entidad -> CP -> Zona)
 app.get('/api/stats/entidades-por-zona', requireAuth, async (req, res) => {
-    try {
-        const entidades = await fetchAll('entidad');
-        const cps = await fetchAll('cp');
-        const zonas = await fetchAll('zona');
+  try {
+    const entidades = await fetchAll('entidad');
+    const cps = await fetchAll('cp');
+    const zonas = await fetchAll('zona');
 
-        const cpToZona = {};
-        cps.forEach(cp => { cpToZona[cp.cp] = getField(cp, 'idZona', 'id_zona'); });
+    const cpToZona = {};
+    cps.forEach(cp => { cpToZona[cp.cp] = getField(cp, 'idZona', 'id_zona'); });
 
-        const conteo = entidades.reduce((acc, ent) => {
-            const idZona = cpToZona[ent.cp];
-            if (idZona) acc[idZona] = (acc[idZona] || 0) + 1;
-            return acc;
-        }, {});
+    const conteo = entidades.reduce((acc, ent) => {
+      const idZona = cpToZona[ent.cp];
+      if (idZona) acc[idZona] = (acc[idZona] || 0) + 1;
+      return acc;
+    }, {});
 
-        res.json(zonas.map(z => ({ nombre: z.zona_geografica || z.nombre, total: conteo[z.id_zona] || 0 })));
-    } catch (e) { sendError(res, e, 'Error stats entidades'); }
+    res.json(zonas.map(z => ({ nombre: z.zona_geografica || z.nombre, total: conteo[z.id_zona] || 0 })));
+  } catch (e) { sendError(res, e, 'Error stats entidades'); }
 });
 
 // 2. Tiendas por Cadena (Top 10)
@@ -1628,9 +1815,9 @@ app.get('/api/stats/tiendas-por-cadena', requireAuth, async (req, res) => {
     }, {});
 
     const resultado = cadenas
-        .map(c => ({ nombre: c.nombre_particular || c.establecimiento || 'Cadena ' + c.id_cadena, total: conteo[c.id_cadena] || 0 }))
-        .sort((a, b) => b.total - a.total)
-        .slice(0, 10); // Ordenamos de mayor a menor y nos quedamos con el Top 10
+      .map(c => ({ nombre: c.nombre_particular || c.establecimiento || 'Cadena ' + c.id_cadena, total: conteo[c.id_cadena] || 0 }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 10); // Ordenamos de mayor a menor y nos quedamos con el Top 10
 
     res.json(resultado);
   } catch (e) { sendError(res, e, 'Error stats cadenas'); }
@@ -1638,116 +1825,116 @@ app.get('/api/stats/tiendas-por-cadena', requireAuth, async (req, res) => {
 
 // 3. Tiendas por Campaña
 app.get('/api/stats/tiendas-por-campania', requireAuth, async (req, res) => {
-    try {
-        const tc = await fetchAll('tiendaCampania');
-        const campanias = await fetchAll('campania');
+  try {
+    const tc = await fetchAll('tiendaCampania');
+    const campanias = await fetchAll('campania');
 
-        const conteo = tc.reduce((acc, t) => {
-            if (t.id_campania) acc[t.id_campania] = (acc[t.id_campania] || 0) + 1;
-            return acc;
-        }, {});
+    const conteo = tc.reduce((acc, t) => {
+      if (t.id_campania) acc[t.id_campania] = (acc[t.id_campania] || 0) + 1;
+      return acc;
+    }, {});
 
-        res.json(campanias.map(c => ({ nombre: c.nombre, total: conteo[c.id_campania] || 0 })));
-    } catch (e) { sendError(res, e, 'Error stats tiendas campaña'); }
+    res.json(campanias.map(c => ({ nombre: c.nombre, total: conteo[c.id_campania] || 0 })));
+  } catch (e) { sendError(res, e, 'Error stats tiendas campaña'); }
 });
 
 // 4. Voluntarios por Entidad (Top 10 para no saturar la gráfica)
 app.get('/api/stats/voluntarios-por-entidad', requireAuth, async (req, res) => {
-    try {
-        const voluntarios = await fetchAll('voluntario');
-        const entidades = await fetchAll('entidad');
+  try {
+    const voluntarios = await fetchAll('voluntario');
+    const entidades = await fetchAll('entidad');
 
-        const conteo = voluntarios.reduce((acc, v) => {
-            if (v.id_entidad) acc[v.id_entidad] = (acc[v.id_entidad] || 0) + 1;
-            return acc;
-        }, {});
+    const conteo = voluntarios.reduce((acc, v) => {
+      if (v.id_entidad) acc[v.id_entidad] = (acc[v.id_entidad] || 0) + 1;
+      return acc;
+    }, {});
 
-        const resultado = entidades
-            .map(e => ({ nombre: e.nombre || 'Entidad ' + e.id_entidad, total: conteo[e.id_entidad] || 0 }))
-            .sort((a, b) => b.total - a.total)
-            .slice(0, 10); // Solo las 10 con más voluntarios
+    const resultado = entidades
+      .map(e => ({ nombre: e.nombre || 'Entidad ' + e.id_entidad, total: conteo[e.id_entidad] || 0 }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 10); // Solo las 10 con más voluntarios
 
-        res.json(resultado);
-    } catch (e) { sendError(res, e, 'Error stats voluntarios'); }
+    res.json(resultado);
+  } catch (e) { sendError(res, e, 'Error stats voluntarios'); }
 });
 
 // =========================================================================
 // GRÁFICAS GRANULARES (Reemplaza a los dos endpoints anteriores)
 // =========================================================================
 app.get('/api/stats/detalle-granular', requireAuth, async (req, res) => {
-    try {
-        const { idCampania, idZona } = req.query;
+  try {
+    const { idCampania, idZona } = req.query;
 
-        // 1. Obtener CPs de la zona
-        const cpsData = await fetchAll('cp');
-        const cpsZona = cpsData.filter(c => sameNumberOrString(getField(c, 'idZona', 'id_zona'), idZona)).map(c => c.cp);
+    // 1. Obtener CPs de la zona
+    const cpsData = await fetchAll('cp');
+    const cpsZona = cpsData.filter(c => sameNumberOrString(getField(c, 'idZona', 'id_zona'), idZona)).map(c => c.cp);
 
-        // 2. Tiendas de esos CPs
-        const tiendas = await fetchAll('tienda');
-        const tiendasZona = tiendas.filter(t => cpsZona.includes(getField(t, 'cp', 'idCp', 'codigo_postal')));
-        const idsTiendas = tiendasZona.map(t => t.id_tienda);
+    // 2. Tiendas de esos CPs
+    const tiendas = await fetchAll('tienda');
+    const tiendasZona = tiendas.filter(t => cpsZona.includes(getField(t, 'cp', 'idCp', 'codigo_postal')));
+    const idsTiendas = tiendasZona.map(t => t.id_tienda);
 
-        // 3. Filtros Supabase Directos (Más rápidos)
-        const { data: tcZona } = await supabase.from('tienda_campania').select('*').eq('id_campania', idCampania).in('id_tienda', idsTiendas.length ? idsTiendas : [0]);
-        const { data: asignacionTienda } = await supabase.from('asignacion_tienda').select('*').eq('id_campania', idCampania);
-        const { data: asignacionZona } = await supabase.from('asignacion_zona').select('*').eq('id_campania', idCampania).eq('id_zona', idZona);
-        const { data: contactosAdicionales } = await supabase.from('contacto_adicional').select('*');
-        const entidades = await fetchAll('entidad');
+    // 3. Filtros Supabase Directos (Más rápidos)
+    const { data: tcZona } = await supabase.from('tienda_campania').select('*').eq('id_campania', idCampania).in('id_tienda', idsTiendas.length ? idsTiendas : [0]);
+    const { data: asignacionTienda } = await supabase.from('asignacion_tienda').select('*').eq('id_campania', idCampania);
+    const { data: asignacionZona } = await supabase.from('asignacion_zona').select('*').eq('id_campania', idCampania).eq('id_zona', idZona);
+    const { data: contactosAdicionales } = await supabase.from('contacto_adicional').select('*');
+    const entidades = await fetchAll('entidad');
 
-        // Estructuras de datos (Usamos Sets para no contar al mismo usuario dos veces en un CP)
-        const tiendasPorCp = {};
-        const usuariosPorCp = {};
-        const rolesCount = { coordinadores: new Set(), capitanes: new Set(), responsablesTienda: new Set(), responsablesEntidad: new Set() };
+    // Estructuras de datos (Usamos Sets para no contar al mismo usuario dos veces en un CP)
+    const tiendasPorCp = {};
+    const usuariosPorCp = {};
+    const rolesCount = { coordinadores: new Set(), capitanes: new Set(), responsablesTienda: new Set(), responsablesEntidad: new Set() };
 
-        cpsZona.forEach(cp => { tiendasPorCp[cp] = 0; usuariosPorCp[cp] = new Set(); });
+    cpsZona.forEach(cp => { tiendasPorCp[cp] = 0; usuariosPorCp[cp] = new Set(); });
 
-        // LÓGICA DE TIENDAS Y RESPONSABLES ASOCIADOS A TIENDA
-        (tcZona || []).forEach(tc => {
-            const tienda = tiendasZona.find(t => t.id_tienda === tc.id_tienda);
-            if (!tienda) return;
-            const cp = getField(tienda, 'cp', 'idCp', 'codigo_postal');
-            tiendasPorCp[cp]++;
+    // LÓGICA DE TIENDAS Y RESPONSABLES ASOCIADOS A TIENDA
+    (tcZona || []).forEach(tc => {
+      const tienda = tiendasZona.find(t => t.id_tienda === tc.id_tienda);
+      if (!tienda) return;
+      const cp = getField(tienda, 'cp', 'idCp', 'codigo_postal');
+      tiendasPorCp[cp]++;
 
-            if (tc.id_coordinador) { usuariosPorCp[cp].add(tc.id_coordinador); rolesCount.coordinadores.add(tc.id_coordinador); }
-            if (tc.id_capitan) { usuariosPorCp[cp].add(tc.id_capitan); rolesCount.capitanes.add(tc.id_capitan); }
-            if (tc.id_responsable_tienda) { usuariosPorCp[cp].add(tc.id_responsable_tienda); rolesCount.responsablesTienda.add(tc.id_responsable_tienda); }
+      if (tc.id_coordinador) { usuariosPorCp[cp].add(tc.id_coordinador); rolesCount.coordinadores.add(tc.id_coordinador); }
+      if (tc.id_capitan) { usuariosPorCp[cp].add(tc.id_capitan); rolesCount.capitanes.add(tc.id_capitan); }
+      if (tc.id_responsable_tienda) { usuariosPorCp[cp].add(tc.id_responsable_tienda); rolesCount.responsablesTienda.add(tc.id_responsable_tienda); }
 
-            // Responsable de Entidad
-            const at = (asignacionTienda || []).find(a => a.id_tienda === tc.id_tienda);
-            if (at && at.id_entidad) {
-                const entidad = entidades.find(e => e.id_entidad === at.id_entidad);
-                if (entidad && entidad.id_usuario_contacto) {
-                    usuariosPorCp[cp].add(entidad.id_usuario_contacto);
-                    rolesCount.responsablesEntidad.add(entidad.id_usuario_contacto);
-                }
-                (contactosAdicionales || []).filter(ca => ca.id_entidad === at.id_entidad && ca.id_usuario).forEach(c => {
-                    usuariosPorCp[cp].add(c.id_usuario);
-                    rolesCount.responsablesEntidad.add(c.id_usuario);
-                });
-            }
+      // Responsable de Entidad
+      const at = (asignacionTienda || []).find(a => a.id_tienda === tc.id_tienda);
+      if (at && at.id_entidad) {
+        const entidad = entidades.find(e => e.id_entidad === at.id_entidad);
+        if (entidad && entidad.id_usuario_contacto) {
+          usuariosPorCp[cp].add(entidad.id_usuario_contacto);
+          rolesCount.responsablesEntidad.add(entidad.id_usuario_contacto);
+        }
+        (contactosAdicionales || []).filter(ca => ca.id_entidad === at.id_entidad && ca.id_usuario).forEach(c => {
+          usuariosPorCp[cp].add(c.id_usuario);
+          rolesCount.responsablesEntidad.add(c.id_usuario);
         });
+      }
+    });
 
-        // LÓGICA DE ASIGNACIÓN A ZONA (Añadimos al primer CP de la zona para que figuren en la gráfica)
-        const firstCp = cpsZona[0];
-        (asignacionZona || []).forEach(az => {
-            if (az.rol_en_campania === 'COORDINADOR') rolesCount.coordinadores.add(az.id_usuario);
-            if (az.rol_en_campania === 'CAPITAN') rolesCount.capitanes.add(az.id_usuario);
-            if (firstCp && az.id_usuario) usuariosPorCp[firstCp].add(az.id_usuario);
-        });
+    // LÓGICA DE ASIGNACIÓN A ZONA (Añadimos al primer CP de la zona para que figuren en la gráfica)
+    const firstCp = cpsZona[0];
+    (asignacionZona || []).forEach(az => {
+      if (az.rol_en_campania === 'COORDINADOR') rolesCount.coordinadores.add(az.id_usuario);
+      if (az.rol_en_campania === 'CAPITAN') rolesCount.capitanes.add(az.id_usuario);
+      if (firstCp && az.id_usuario) usuariosPorCp[firstCp].add(az.id_usuario);
+    });
 
-        // Mapeo final para React
-        res.json({
-            tiendasPorCp: Object.keys(tiendasPorCp).map(cp => ({ cp, total: tiendasPorCp[cp] })).filter(x => x.total > 0),
-            usuariosPorCp: Object.keys(usuariosPorCp).map(cp => ({ cp, total: usuariosPorCp[cp].size })).filter(x => x.total > 0),
-            roles: [
-                { nombre: 'Coordinadores', total: rolesCount.coordinadores.size },
-                { nombre: 'Capitanes', total: rolesCount.capitanes.size },
-                { nombre: 'Resp. Tienda', total: rolesCount.responsablesTienda.size },
-                { nombre: 'Resp. Entidad', total: rolesCount.responsablesEntidad.size }
-            ]
-        });
+    // Mapeo final para React
+    res.json({
+      tiendasPorCp: Object.keys(tiendasPorCp).map(cp => ({ cp, total: tiendasPorCp[cp] })).filter(x => x.total > 0),
+      usuariosPorCp: Object.keys(usuariosPorCp).map(cp => ({ cp, total: usuariosPorCp[cp].size })).filter(x => x.total > 0),
+      roles: [
+        { nombre: 'Coordinadores', total: rolesCount.coordinadores.size },
+        { nombre: 'Capitanes', total: rolesCount.capitanes.size },
+        { nombre: 'Resp. Tienda', total: rolesCount.responsablesTienda.size },
+        { nombre: 'Resp. Entidad', total: rolesCount.responsablesEntidad.size }
+      ]
+    });
 
-    } catch (error) { sendError(res, error, 'Error en detalle granular'); }
+  } catch (error) { sendError(res, error, 'Error en detalle granular'); }
 });
 
 app.all([

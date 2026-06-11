@@ -1,15 +1,18 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, Link } from 'react-router-dom'
-import './App.css'
 import { Header, Footer } from './components/header_footer'
 import Homepage from './components/homepage'
 import Cadenas from './components/cadenas'
+import Campanias from './components/campanias'
+import Zonas from './components/zonas'
 import EditPage from './components/EditPage'
 
 import Usuarios from './components/Usuarios.jsx'
 import CuadroMando from './components/CuadroMando.jsx'
 import UsuarioCrear from './components/UsuarioCrear.jsx'
 import UsuarioEditar from './components/UsuarioEditar.jsx'
+import Sugerencias from './components/Sugerencias'
+import SugerenciaDetalle from './components/SugerenciaDetalle'
 
 // Importar la función getPerfil desde session.js
 import { getPerfil } from './components/session.js'
@@ -76,11 +79,11 @@ function RequireAdmin({ children }) {
 // Mantenemos ReactHome por si necesitas acceder a tu menú provisional escribiendo /react-home
 function ReactHome() {
     return (
-        <main className="react-shell">
-            <header className="react-header">
+        <main className={appStyles['react-shell']}>
+            <header className={appStyles['react-header']}>
                 <h1>BancoSol React</h1>
                 <p>Esta página React sirve como punto de entrada provisional a tus pantallas.</p>
-                <nav className="react-nav" style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '20px' }}>
+                <nav className={appStyles['react-nav']} style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '20px' }}>
                     <Link to="/usuarios" className="btn-react-nav">Gestión de Usuarios</Link>
                     <Link to="/dashboard" className="btn-react-nav">Cuadro de Mando</Link>
                 </nav>
@@ -114,6 +117,50 @@ function App() {
                             <Header />
                             <Cadenas />
                             <Footer />
+                        </RequireAuth>
+                    }
+                />
+                <Route
+                    path="/campanias"
+                    element={
+                        <RequireAuth>
+                            <Header />
+                            <Campanias />
+                            <Footer />
+                        </RequireAuth>
+                    }
+                />
+                <Route
+                    path="/zonas"
+                    element={
+                        <RequireAuth>
+                            <Header />
+                            <Zonas />
+                            <Footer />
+                        </RequireAuth>
+                    }
+                />
+                <Route
+                    path="/sugerencias"
+                    element={
+                        <RequireAuth>
+                            <RequireAdmin>
+                                <Header />
+                                <Sugerencias />
+                                <Footer />
+                            </RequireAdmin>
+                        </RequireAuth>
+                    }
+                />
+                <Route
+                    path="/sugerencias/:id"
+                    element={
+                        <RequireAuth>
+                            <RequireAdmin>
+                                <Header />
+                                <SugerenciaDetalle />
+                                <Footer />
+                            </RequireAdmin>
                         </RequireAuth>
                     }
                 />

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getAuthHeaders } from './session';
-import '../styles/editar_cadena.css';
+import formStyles from '../styles/editar_cadena.module.css';
 
 /**
  * Componente de formulario genérico para crear/editar entidades
@@ -215,10 +215,10 @@ function GenericForm({
     };
 
     return (
-        <main style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', flex: 1 }}>
+        <main style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '40px', flex: 1 }}>
             <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '700px', margin: '0 auto', padding: '0' }}>
-                <div className="total">
-                    <div className="form-header">
+                <div className={formStyles['total']}>
+                    <div className={formStyles['form-header']}>
                         <h1>{title}</h1>
                     </div>
 
@@ -236,12 +236,12 @@ function GenericForm({
                         </div>
                     )}
 
-                    <div className="tablas">
+                    <div className={formStyles['tablas']}>
                         <table>
                             <tbody>
                                 {fields.map(field => (
                                     <tr key={field.name}>
-                                        <td className="etiqueta-campo">{field.label}</td>
+                                        <td className={formStyles['etiqueta-campo']}>{field.label}</td>
                                         <td>{renderField(field)}</td>
                                     </tr>
                                 ))}
@@ -249,10 +249,10 @@ function GenericForm({
                         </table>
                     </div>
 
-                    <div className="botones">
+                    <div className={formStyles['botones']}>
                         <button 
                             type="button" 
-                            className="btn-cerrar" 
+                            className={formStyles['btn-cerrar']} 
                             onClick={onClose} 
                             disabled={isSubmitting}
                         >
@@ -260,7 +260,7 @@ function GenericForm({
                         </button>
                         <button 
                             type="submit" 
-                            className="btn-guardar" 
+                            className={formStyles['btn-guardar']} 
                             disabled={isSubmitting}
                         >
                             {isSubmitting ? 'Guardando...' : (method === 'POST' ? 'Crear' : 'Guardar')}

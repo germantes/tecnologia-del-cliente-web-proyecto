@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
 import { getAuthHeaders } from './session.js';
-import CadenaCard from './CadenaCard.jsx';
+import CampaniaCard from './CampaniaCard.jsx';
 import cardStyles from '../styles/card-display.module.css';
 
-function Cadenas() {
-    const [cadenas, setCadenas] = useState([]);
+function Campanias() {
+    const [campanias, setCampanias] = useState([]);
     const [filter, setFilter] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        async function fetchCadenas() {
+        async function fetchCampanias() {
             try {
-                const response = await fetch('/api/cadenas', {
+                const response = await fetch('/api/campanias', {
                     method: 'GET',
                     headers: getAuthHeaders(),
                 });
@@ -22,36 +22,34 @@ function Cadenas() {
                 }
 
                 const data = await response.json();
-                setCadenas(data);
+                setCampanias(data);
             } catch (error) {
                 setError(error.message);
             } finally {
                 setLoading(false);
             }
         }
-        fetchCadenas();
+        fetchCampanias();
     }, []);
 
-    const handleEdit = (cadena) => {
-        window.location.href = `/edit/cadena?id=${cadena.id_cadena}`;
+    const handleEdit = (campania) => {
+        window.location.href = `/edit/campania?id=${campania.id_campania}`;
     };
 
     const handleCreate = () => {
-        window.location.href = '/edit/cadena';
+        window.location.href = '/edit/campania';
     };
 
-    const filtered = cadenas.filter(cadena => {
+    const filtered = campanias.filter(campania => {
         if (!filter) return true;
         const q = filter.toLowerCase();
-        return (cadena.codigo_cadena || '').toLowerCase().includes(q)
-            || (cadena.establecimiento || '').toLowerCase().includes(q)
-            || (cadena.nombre_particular || '').toLowerCase().includes(q)
-            || (cadena.empresa || '').toLowerCase().includes(q);
+        return (campania.nombre || '').toLowerCase().includes(q)
+            || (campania.tipo || '').toLowerCase().includes(q);
     });
 
     return (
         <main className={cardStyles['page']}>
-            <h1>Cadenas</h1>
+            <h1>Campañas</h1>
 
             <form className={cardStyles['filter-form']} onSubmit={e => e.preventDefault()}>
                 <div className={cardStyles['filter-group']}>
@@ -60,19 +58,19 @@ function Cadenas() {
                         type="text"
                         id="filterSearch"
                         className={cardStyles['input']}
-                        placeholder="Buscar por código, establecimiento..."
+                        placeholder="Buscar por nombre, tipo..."
                         value={filter}
                         onChange={e => setFilter(e.target.value)}
                     />
                 </div>
                 <div className={cardStyles['filter-buttons']}>
                     <button type="reset" className={cardStyles['btn']} onClick={() => setFilter('')}>Limpiar</button>
-                    <button type="button" className={cardStyles['btn']} onClick={handleCreate}>Crear Cadena</button>
+                    <button type="button" className={cardStyles['btn']} onClick={handleCreate}>Crear Campaña</button>
                 </div>
             </form>
 
             {loading && (
-                <p style={{ color: 'var(--twilight-indigo)', marginTop: '1rem' }}>Cargando cadenas...</p>
+                <p style={{ color: 'var(--twilight-indigo)', marginTop: '1rem' }}>Cargando campañas...</p>
             )}
 
             {error && (
@@ -81,10 +79,10 @@ function Cadenas() {
 
             {!loading && !error && (
                 <div className={cardStyles['grid']}>
-                    {filtered.map((cadena) => (
-                        <CadenaCard
-                            key={cadena.id_cadena}
-                            cadena={cadena}
+                    {filtered.map((campania) => (
+                        <CampaniaCard
+                            key={campania.id_campania}
+                            campania={campania}
                             onEdit={handleEdit}
                         />
                     ))}
@@ -94,4 +92,4 @@ function Cadenas() {
     );
 }
 
-export default Cadenas;
+export default Campanias;
