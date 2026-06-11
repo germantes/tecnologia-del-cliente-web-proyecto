@@ -171,7 +171,7 @@ function renderizarVoluntarios(voluntarios) {
 
     const btnEditar = document.createElement('a');
     btnEditar.className = 'btn btn-primary';
-    btnEditar.href = `/edit.html?type=voluntarios&id=${idVoluntario}`;
+    btnEditar.href = `/html/edit.html?type=voluntarios&id=${idVoluntario}`;
     btnEditar.textContent = 'Editar';
 
     botonesDiv.append(btnInfo, btnEditar);

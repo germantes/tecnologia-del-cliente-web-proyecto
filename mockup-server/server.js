@@ -75,6 +75,19 @@ function normalizeTurno(value) {
   return str(value).trim().toLowerCase();
 }
 
+async function getIdCampaniaActiva() {
+  const campanias = await fetchAll('campania');
+  const hoy = new Date();
+  const activa = campanias.find(c => {
+    if (!c.fecha_inicio || !c.fecha_fin) return false;
+    const inicio = new Date(c.fecha_inicio);
+    const fin = new Date(c.fecha_fin);
+    fin.setHours(23, 59, 59, 999);
+    return hoy >= inicio && hoy <= fin;
+  });
+  return activa ? getIdCampania(activa) : null;
+}
+
 function normalizeRow(row) {
   return row;
 }
@@ -442,8 +455,29 @@ app.get('/api/entidades', requireAuth, async (req, res) => {
   try {
     let rows = await fetchAll('entidad');
     const { idEntidad, idUsuarioContacto, id_usuario_contacto, vinculadoBancosol, busqueda, q } = req.query;
+    let { idCampania } = req.query; // Hacemos idCampania mutable
     const usuarioContacto = idUsuarioContacto || id_usuario_contacto;
+    const rolUsuario = req.user?.puesto;
 
+    if (rolUsuario === 'COORDINADOR') {
+      // Un coordinador SÓLO puede ver la campaña activa. Ignoramos el parámetro de la URL.
+      idCampania = await getIdCampaniaActiva();
+    }
+
+    if (idCampania) { // Ahora este idCampania será el activo si es COORDINADOR, o el de la query para otros roles
+      const turnos = await fetchAll('turno');
+      const turnosCampania = turnos.filter(t => sameNumberOrString(getIdCampania(t), idCampania));
+      const idsEntidadesCampania = new Set(
+        turnosCampania
+          .filter(t => getIdEntidad(t))
+          .map(t => getIdEntidad(t))
+      );
+      rows = rows.filter(e => idsEntidadesCampania.has(getIdEntidad(e)));
+    } else if (rolUsuario === 'COORDINADOR') { // Si es coordinador y no hay campaña activa (o no se encontró), no ve nada.
+      rows = [];
+    }
+
+    // El resto de filtros se aplican sobre el resultado ya filtrado (o vaciado).
     rows = rows.filter((row) => {
       if (idEntidad && !sameNumberOrString(getIdEntidad(row), idEntidad)) return false;
       if (usuarioContacto && !sameNumberOrString(row.id_usuario_contacto, usuarioContacto)) return false;
@@ -459,6 +493,31 @@ app.get('/api/voluntarios', requireAuth, async (req, res) => {
   try {
     let rows = await fetchAll('voluntario');
     const { idVoluntario, idEntidad, busqueda, q } = req.query;
+    let { idCampania } = req.query; // Hacemos idCampania mutable
+    const rolUsuario = req.user?.puesto;
+
+    if (rolUsuario === 'COORDINADOR') {
+      // Un coordinador SÓLO puede ver la campaña activa. Ignoramos el parámetro de la URL.
+      idCampania = await getIdCampaniaActiva();
+    }
+
+    if (idCampania) { // Ahora este idCampania será el activo si es COORDINADOR, o el de la query para otros roles
+      const turnos = await fetchAll('turno');
+      const turnosCampania = turnos.filter(t => sameNumberOrString(getIdCampania(t), idCampania));
+      const idsTurnosCampania = turnosCampania.map(t => getIdTurno(t));
+
+      const turnoVoluntarios = await fetchAll('turnoVoluntario');
+      const idsVoluntariosCampania = new Set(
+        turnoVoluntarios
+          .filter(tv => idsTurnosCampania.some(idTurno => sameNumberOrString(tv.id_turno, idTurno)))
+          .map(tv => getIdVoluntario(tv))
+      );
+
+      rows = rows.filter(v => idsVoluntariosCampania.has(getIdVoluntario(v)));
+    } else if (rolUsuario === 'COORDINADOR') { // Si es coordinador y no hay campaña activa (o no se encontró), no ve nada.
+      rows = [];
+    }
+
     rows = rows.filter((row) => {
       if (idVoluntario && !sameNumberOrString(getIdVoluntario(row), idVoluntario)) return false;
       if (idEntidad && !sameNumberOrString(getIdEntidad(row), idEntidad)) return false;
