@@ -139,6 +139,17 @@ async function requireAuth(req, res, next) {
   return res.status(401).json({ success: false, message: 'Token inválido o expirado' });
 }
 
+/*
+// Los GET de consulta se dejan públicos para poder probarlos directamente en navegador.
+if (req.method === 'GET' && PUBLIC_GET_PATHS.has(req.path)) return next();
+
+const user = verifyToken(req.headers.authorization);
+if (!user) {
+  return res.status(401).json({ success: false, message: 'Acceso no autorizado. Inicia sesión.' });
+}
+req.user = user;
+next();
+*/
 function requireAdmin(req, res, next) {
   // --- BYPASS TEMPORAL DE ADMIN ---
   return next();
@@ -1129,7 +1140,7 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
                 )
             `)
       .eq('id_tienda', tiendaId)
-      .single();
+      .single(); // Le decimos a Supabase que devuelva 1 solo objeto, no un array
 
     if (error) throw error;
     res.json(tienda);
@@ -1143,7 +1154,7 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
 app.post('/api/tiendas', requireAuth, async (req, res) => {
   try {
     const {
-      domicilio, idCp, idCadena,
+      domicilio, idCp, id_cp, id_cadena,
       idCampania, participa, numCajas,
       idResponsable, idCoordinador, idCapitan
     } = req.body;
@@ -1152,8 +1163,8 @@ app.post('/api/tiendas', requireAuth, async (req, res) => {
       .from('tienda')
       .insert([{
         domicilio: domicilio || null,
-        cp: idCp || null,
-        id_cadena: idCadena ? parseInt(idCadena) : null
+        cp: (idCp || id_cp) || null,
+        id_cadena: id_cadena ? parseInt(id_cadena) : null
       }])
       .select();
 
@@ -1418,7 +1429,7 @@ app.get('/api/cps', requireAuth, async (req, res) => {
   }
 });
 
-app.get('/api/cadenas', requireAuth, async (req, res) => {
+app.get(['/cadenas', '/api/cadenas'], requireAuth, async (req, res) => {
   try {
     const cadenas = await fetchAll('cadena');
     res.json(cadenas);
@@ -1598,7 +1609,7 @@ app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
 
     const tiendaId = req.params.id;
     const {
-      domicilio, idCp, idCadena,
+      domicilio, idCp, id_cp, id_cadena,
       idResponsable, idCoordinador, idCapitan,
       numCajas, participa, idCampania
     } = req.body;
@@ -1607,8 +1618,8 @@ app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
       .from('tienda')
       .update({
         domicilio: domicilio || null,
-        cp: idCp || null,
-        id_cadena: idCadena ? parseInt(idCadena) : null
+        cp: (idCp || id_cp) || null,
+        id_cadena: (idCadena || id_cadena) ? parseInt(idCadena || id_cadena) : null
       })
       .eq('id_tienda', tiendaId);
 
@@ -1957,7 +1968,10 @@ app.all([
 
 // Catch-all absoluto para la SPA
 app.get('*', (req, res) => {
-  res.sendFile(path.join(publicPath, 'html', 'index.html'));
+  const indexPath = process.env.NODE_ENV === 'development'
+    ? '/public/html/index.html'
+    : path.join(__dirname, '..', 'public', 'html', 'index.html');
+  res.sendFile(indexPath);
 });
 
 app.listen(PORT, '0.0.0.0', () => {

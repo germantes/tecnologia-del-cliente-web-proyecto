@@ -11,13 +11,13 @@ async function loadZones() {
   try {
     const data = await getZones();
     allZones = data.data || data;
-    
+
     const campaigns = await getCampanias();
     allCampaigns = campaigns.data || campaigns;
-    
+
     // Cargar relaciones de zonas por campaña
     await loadZonesByCampaign();
-    
+
     renderZones(allZones);
     populateCampaignFilter();
     populateZoneFilter();
@@ -33,7 +33,7 @@ async function loadZonesByCampaign() {
     try {
       const zonesData = await getZonesByCompany(campaign.id_campania);
       zonesByCampaign[campaign.id_campania] = zonesData.map(z => z.id_zona);
-      
+
       // Si la campaña tiene zonas asignadas, agregarla al set
       if (zonesData.length > 0) {
         campaignsWithZones.add(campaign.id_campania);
@@ -48,7 +48,9 @@ async function loadZonesByCampaign() {
 // Renderizar zonas en el grid
 function renderZones(zones) {
   const container = document.getElementById('container');
-  
+  const perfil = sessionStorage.getItem('perfil');
+  const canEdit = perfil === 'ADMINISTRADOR' || perfil === 'COORDINADOR';
+
   if (zones.length === 0) {
     container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No hay zonas disponibles</p>';
     return;
@@ -58,7 +60,7 @@ function renderZones(zones) {
     // Extraer valores de las relaciones anidadas
     const nombreDistrito = zone.distrito?.nombre_distrito || '-';
     const zonaGeografica = zone.zona?.zona_geografica || '-';
-    
+
     return `
       <div class="card">
         <div class="brand">
@@ -78,9 +80,11 @@ function renderZones(zones) {
             <p>${zonaGeografica}</p>
           </div>
         </div>
-        <div class="card-actions" style="padding: 15px; text-align: center;">
-          <button class="btn-editar" type="button" onclick="openEditModal('${zone.cp}')">Editar</button>
+        ${canEdit ? `
+        <div style="padding: 15px; text-align: center; border-top: 1px solid var(--bg-gray, #f4f6f8);">
+          <a href="/html/edit.html?type=cp&id=${zone.cp}" style="display: inline-block; padding: 8px 20px; background-color: var(--sky-surge, #58b9da); color: white; text-decoration: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s ease;">Editar</a>
         </div>
+        ` : ''}
       </div>
     `;
   }).join('');
@@ -96,11 +100,11 @@ function openEditModal(zoneId) {
 function populateCampaignFilter() {
   const campaignSelect = document.getElementById('filterCampaign');
   if (!campaignSelect) return;
-  
+
   const currentValue = campaignSelect.value;
-  
+
   campaignSelect.innerHTML = '<option value="">Todas las campañas</option>';
-  
+
   // Filtrar campañas que tienen zonas asignadas y ordenarlas por nombre
   allCampaigns
     .filter(campaign => campaignsWithZones.has(campaign.id_campania))
@@ -125,10 +129,10 @@ function populateZoneFilter() {
 
   const zoneSelect = document.getElementById('filterZone');
   const currentValue = zoneSelect.value;
-  
+
   // Limpiar opciones excepto la primera
   zoneSelect.innerHTML = '<option value="">Todas las zonas</option>';
-  
+
   // Agregar zonas ordenadas
   Array.from(zones).sort().forEach(zone => {
     const option = document.createElement('option');
@@ -147,20 +151,20 @@ function filterZones() {
   const campaignFilter = document.getElementById('filterCampaign')?.value || '';
 
   const filtered = allZones.filter(zone => {
-    const matchSearch = !searchFilter || 
+    const matchSearch = !searchFilter ||
       (zone.localidad && zone.localidad.toLowerCase().includes(searchFilter)) ||
       zone.cp.toLowerCase().includes(searchFilter);
-    
+
     const zonaGeografica = zone.zona?.zona_geografica;
     const matchZone = !zoneFilter || zonaGeografica === zoneFilter;
-    
+
     // Filtrar por campaña si está seleccionada
     let matchCampaign = !campaignFilter;
     if (campaignFilter && zonesByCampaign[campaignFilter]) {
       const zoneId = zone.id_zona;
       matchCampaign = zoneId && zonesByCampaign[campaignFilter].includes(zoneId);
     }
-    
+
     return matchSearch && matchZone && matchCampaign;
   });
 
@@ -183,4 +187,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Exportar a CSV
   document.getElementById('exportBtn').addEventListener('click', exportZonesCSV);
+
+  // Configurar el botón "Nuevo" si existiera en la cabecera del HTML
+  const perfil = sessionStorage.getItem('perfil');
+  const btnNuevo = document.getElementById('btn-nuevo');
+  if (btnNuevo) {
+    const canCreate = perfil === 'ADMINISTRADOR';
+    if (!canCreate) {
+      btnNuevo.style.display = 'none';
+    } else {
+      btnNuevo.addEventListener('click', () => window.location.href = '/html/edit.html?type=zonas');
+    }
+  }
 });

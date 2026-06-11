@@ -175,10 +175,13 @@ function renderizarVoluntarios(voluntarios) {
       abrirInfoVoluntario(idVoluntario);
     });
 
-    const btnEditar = document.createElement('a');
+    const btnEditar = document.createElement('button');
+    btnEditar.type = 'button';
     btnEditar.className = 'btn btn-primary';
-    btnEditar.href = `/edit.html?type=voluntarios&id=${idVoluntario}`;
     btnEditar.textContent = 'Editar';
+    btnEditar.addEventListener('click', () => {
+      window.location.href = `edit.html?type=voluntarios&id=${idVoluntario}`;
+    });
 
     botonesDiv.append(btnInfo, btnEditar);
     bloqueTurno.append(h3, filaEntidad, filaEmail, botonesDiv);

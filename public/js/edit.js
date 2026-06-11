@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const isAdmin = perfil === 'ADMINISTRADOR';
     const isManager = perfil === 'COORDINADOR';
     const canAccess = isAdmin || isManager;
-    const allowedResources = new Set(['usuarios', 'entidades', 'campanias', 'tiendas', 'turnos', 'voluntarios']);
+    const allowedResources = new Set(['usuarios', 'entidades', 'campanias', 'tiendas', 'turnos', 'voluntarios', 'zonas']);
 
     // Al quitar la verificación de "!id", permitimos usar este script para la Creación.
     if (!canAccess || !type || !allowedResources.has(type)) {
@@ -61,6 +61,47 @@ document.addEventListener('DOMContentLoaded', async () => {
             try { entidadesDisponibles = await getEntidades(); } catch (e) { console.warn('No se pudieron cargar entidades'); }
         }
 
+        let tiendasDisponibles = [];
+        if (schema.some(field => field.type === 'select_tienda')) {
+            try { tiendasDisponibles = typeof getTiendas === 'function' ? await getTiendas() : await getRecords('tiendas'); } catch (e) { console.warn('No se pudieron cargar tiendas'); }
+        }
+
+        let campaniasDisponibles = [];
+        if (schema.some(field => field.type === 'select_campania')) {
+            try { campaniasDisponibles = typeof getCampanias === 'function' ? await getCampanias() : await getRecords('campanias'); } catch (e) { console.warn('No se pudieron cargar campañas'); }
+        }
+
+        let zonasDisponibles = [];
+        if (schema.some(field => field.type === 'select_zona')) {
+            try { zonasDisponibles = typeof getZonas === 'function' ? await getZonas() : await getRecords('cp'); } catch (e) { console.warn('No se pudieron cargar zonas'); }
+        }
+
+        let cadenasDisponibles = [];
+        if (schema.some(field => field.type === 'select_cadena')) {
+            try {
+                const dataCadenas = typeof getCadenas === 'function' ? await getCadenas() : await getRecords('cadenas');
+                cadenasDisponibles = Array.from(new Map(dataCadenas.map(cad => [cad.establecimiento, cad])).values());
+            } catch (e) { console.warn('No se pudieron cargar cadenas'); }
+        }
+
+        let localidadesDisponibles = [];
+        if (schema.some(field => field.type === 'select_localidad')) {
+            try {
+                const cps = await getRecords('api/cp');
+                localidadesDisponibles = [...new Set(cps.map(c => c.localidad).filter(Boolean))].sort();
+            } catch (e) { console.warn('No se pudieron cargar localidades'); }
+        }
+
+        let distritosDisponibles = [];
+        if (schema.some(field => field.type === 'select_distrito')) {
+            try { distritosDisponibles = await getRecords('api/distritos'); } catch (e) { console.warn('No se pudieron cargar distritos'); }
+        }
+
+        // Los roles los voy a hardcodear aqui porque en un principio no habría otros aparte de estos.
+        // No puedo hacer un fetch porque no hay un endpoint como tal para recuperar los roles ya que no son una tabla.
+
+        let rolesDisponibles = ["ADMINISTRADOR", "COORDINADOR", "CAPITAN", "RESPONSABLE-ENTIDAD", "RESPONSABLE-TIENDA"];
+
         for (const field of schema) {
             const value = originalData[field.key] !== undefined ? originalData[field.key] : '';
             const fieldDiv = document.createElement('div');
@@ -89,42 +130,59 @@ document.addEventListener('DOMContentLoaded', async () => {
                 select.append(optTrue, optFalse);
                 fieldDiv.appendChild(select);
 
-            } else if (field.type === 'select_usuario') {
-                const select = document.createElement('select');
-                select.id = field.key; select.name = field.key;
-                if (isReadOnly) { select.disabled = true; select.style.background = 'var(--color-surface-2)'; }
-
-                const defaultOpt = document.createElement('option');
-                defaultOpt.value = ''; defaultOpt.textContent = 'Sin contacto';
-                select.appendChild(defaultOpt);
-
-                usuariosDisponibles.forEach(u => {
-                    const uid = u.id_usuario || u.idUsuario || u.id;
-                    const unombre = u.nombre_completo || u.nombre || u.nombreUsuario || 'Sin nombre';
-                    const option = document.createElement('option');
-                    option.value = uid; option.textContent = unombre;
-                    if (String(uid) === String(value)) option.selected = true;
-                    select.appendChild(option);
-                });
-                fieldDiv.appendChild(select);
-
-            } else if (field.type === 'select_entidad') {
+            } else if (field.type && field.type.startsWith('select_')) {
                 const select = document.createElement('select');
                 select.id = field.key; select.name = field.key;
                 if (isReadOnly) { select.disabled = true; select.style.background = 'var(--color-surface-2)'; }
                 if (field.required && !isReadOnly) select.required = true;
 
                 const defaultOpt = document.createElement('option');
-                defaultOpt.value = ''; defaultOpt.textContent = 'Seleccione una entidad...';
+                defaultOpt.value = ''; defaultOpt.textContent = `Seleccione ${field.label}...`;
                 if (!value) defaultOpt.selected = true;
                 select.appendChild(defaultOpt);
 
-                entidadesDisponibles.forEach(e => {
-                    const eid = e.id_entidad || e.idEntidad || e.id;
-                    const enombre = e.nombre || e.nombre_completo || 'Sin nombre';
+                let optionsData = [];
+                if (field.type === 'select_usuario') optionsData = usuariosDisponibles;
+                else if (field.type === 'select_entidad') optionsData = entidadesDisponibles;
+                else if (field.type === 'select_tienda') optionsData = tiendasDisponibles;
+                else if (field.type === 'select_campania') optionsData = campaniasDisponibles;
+                else if (field.type === 'select_zona') optionsData = zonasDisponibles;
+                else if (field.type === 'select_rol') optionsData = rolesDisponibles;
+                else if (field.type === 'select_cadena') optionsData = cadenasDisponibles;
+                else if (field.type === 'select_localidad') optionsData = localidadesDisponibles;
+                else if (field.type === 'select_distrito') optionsData = distritosDisponibles;
+
+                optionsData.forEach(item => {
+                    const resourceType = field.type.replace('select_', '');
+                    let itemId, itemName;
+                    // Esto voy a intentar refactorizarlo luego, seguro que se puede hacer de otra forma
+                    if (resourceType === 'rol') {
+                        itemId = item;
+                        itemName = item;
+                        // SI ES COORDINADOR O CAPI, ENTONCES HAY ZONA, SI NO, NO (o eso creo).
+                    } else if (resourceType === 'zona') {
+                        itemId = item.cp || item.id_cp || item;
+                        itemName = item.localidad ? `${itemId} - ${item.localidad}` : String(itemId);
+                        // else if (resourceType === 'cadena') {
+                        //     itemId = item.id_cadena || item.idCadena || item.id;
+                        //     itemName = item.establecimiento || `ID: ${itemId}`;
+                    } else {
+                        itemId = item[`id_${resourceType}`] || item[`id${resourceType.charAt(0).toUpperCase() + resourceType.slice(1)}`] || item.id || Object.values(item)[0];
+                        itemName = item.nombre_completo || item.nombre || item.domicilio || item.localidad || item.establecimiento || `ID: ${itemId}`;
+                        if (resourceType === 'tienda') itemName = `${item.domicilio || ''}`;
+                    }
+
                     const option = document.createElement('option');
-                    option.value = eid; option.textContent = enombre;
-                    if (String(eid) === String(value)) option.selected = true;
+                    option.value = itemId;
+                    option.textContent = itemName;
+
+                    // Evitar fallos de selección si el valor devuelto por la API es un objeto (ej. un JOIN de Supabase)
+                    let safeValue = value;
+                    if (value !== null && typeof value === 'object') {
+                        safeValue = value.id_distrito || value.distrito || value.id_cadena || value.idCadena || value.cp || value.id_cp || value.id_zona || value.id || Object.values(value)[0];
+                    }
+
+                    if (String(itemId) === String(safeValue)) option.selected = true;
                     select.appendChild(option);
                 });
                 fieldDiv.appendChild(select);
@@ -132,19 +190,45 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 const inputType = field.type || (typeof value === 'number' && value !== '' ? 'number' : 'text');
                 const input = document.createElement('input');
-                input.type = inputType; input.id = field.key; input.name = field.key; input.value = String(value);
+                input.type = inputType; input.id = field.key; input.name = field.key;
                 if (isReadOnly) { input.readOnly = true; input.style.background = 'var(--color-surface-2)'; }
                 // Al crear, mostrar un texto de ayuda en el placeholder del campo ID
                 if (!id && (field.key.startsWith('id_') || field.key === 'id')) {
                     input.placeholder = 'Autogenerado';
                 }
+
+                if (inputType === 'password') {
+                    input.value = ''; // Nunca mostramos el hash de la BD
+                    if (id) input.placeholder = 'Dejar en blanco para mantener la actual';
+                } else {
+                    input.value = String(value);
+                }
+
                 if (field.required && !isReadOnly) input.required = true;
+                if (id && inputType === 'password') input.required = false; // No obligar a rellenar si estamos editando
                 fieldDiv.appendChild(input);
             }
 
             formFields.appendChild(fieldDiv);
         }
         saveBtn.disabled = false;
+
+        // Lógica condicional específica para Zonas (CP)
+        const localidadInput = document.getElementById('localidad');
+        const distritoInput = document.getElementById('distrito');
+
+        if (localidadInput && distritoInput) {
+            const toggleDistrito = () => {
+                const loc = (localidadInput.value || '').trim().toLowerCase();
+                // Aceptamos "Málaga" con o sin tilde
+                const isMalaga = loc === 'málaga' || loc === 'malaga';
+                distritoInput.disabled = !isMalaga;
+                if (!isMalaga) distritoInput.value = '';
+            };
+
+            localidadInput.addEventListener('change', toggleDistrito);
+            toggleDistrito(); // Ejecutamos al inicio para establecer el estado correcto
+        }
 
         // Agregar botón de eliminar si es admin y estamos editando un registro existente
         if (isAdmin && id) {
@@ -221,6 +305,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (val === '') {
                 // Al crear, omitimos los campos ID vacíos para evitar errores de llave primaria
                 if (!id && (key.startsWith('id_') || key === 'id')) continue;
+                // Si estamos editando y la contraseña está vacía, la omitimos para no borrar la actual
+                if (id && key === 'password') continue;
                 parsedVal = null; // Convierte campos vacíos a null para que Supabase no dé error de tipo
             } else if (val === 'true') parsedVal = true;
             else if (val === 'false') parsedVal = false;
