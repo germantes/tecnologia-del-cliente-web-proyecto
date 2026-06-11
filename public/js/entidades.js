@@ -4,9 +4,15 @@ let usuariosCache = [];
 async function cargarEntidades() {
     const urlParams = new URLSearchParams(window.location.search);
     const idCampaniaParam = urlParams.get('idCampania');
-    const perfil = sessionStorage.getItem('perfil');
+    
+    // REQUISITO: Reemplazamos la lectura directa del sessionStorage por la nueva función centralizada.
+    // Usamos la utilidad global si existe, si no, caemos al fallback legacy.
+    const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
+        ? window.obtenerRolDeToken()
+        : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
+    console.log('Cargando vista Entidades. Rol del usuario:', rolUsuario); // Log de trazabilidad
 
-    if (perfil !== 'ADMINISTRADOR' && !idCampaniaParam) {
+    if (rolUsuario !== 'ADMINISTRADOR' && !idCampaniaParam) {
         const grid = document.getElementById('entidadesGrid');
         if (grid) {
             grid.textContent = '';
@@ -256,11 +262,15 @@ document.addEventListener("DOMContentLoaded", function () {
         if (event.key === "Escape") cerrarInfoEntidad();
     });
 
-    // Control de visibilidad para el botón de creación ("Nuevo")
-    const perfil = sessionStorage.getItem('perfil');
+    // REQUISITO: Usamos la nueva función para controlar la visibilidad del botón.
+    // Comprobación segura en tiempo de ejecución para evitar ReferenceError si la utilidad
+    // aún no se ha cargado en el orden de scripts.
+    const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
+        ? window.obtenerRolDeToken()
+        : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
     const btnNuevo = document.getElementById('btn-nuevo');
     if (btnNuevo) {
-        const canCreate = perfil === 'ADMINISTRADOR' || perfil === 'COORDINADOR';
+        const canCreate = rolUsuario === 'ADMINISTRADOR' || rolUsuario === 'COORDINADOR';
         if (!canCreate) {
             btnNuevo.style.display = 'none'; // Ocultamos el botón si no tiene permisos
         }

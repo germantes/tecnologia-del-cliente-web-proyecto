@@ -4,9 +4,15 @@ let entidadesCache = [];
 async function cargarVoluntarios() {
   const urlParams = new URLSearchParams(window.location.search);
   const idCampaniaParam = urlParams.get('idCampania');
-  const perfil = sessionStorage.getItem('perfil');
 
-  if (perfil !== 'ADMINISTRADOR' && !idCampaniaParam) {
+  // REQUISITO: Reemplazamos la lectura directa del sessionStorage por la nueva función centralizada.
+  // Comprobación segura para evitar ReferenceError si la utilidad no está disponible.
+  const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
+    ? window.obtenerRolDeToken()
+    : (function () { const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
+  console.log('Cargando vista Voluntarios. Rol del usuario:', rolUsuario); // Log de trazabilidad
+
+  if (rolUsuario !== 'ADMINISTRADOR' && !idCampaniaParam) {
     const grid = document.getElementById('voluntariosGrid');
     if (grid) {
       grid.textContent = '';
@@ -169,10 +175,13 @@ function renderizarVoluntarios(voluntarios) {
       abrirInfoVoluntario(idVoluntario);
     });
 
-    const btnEditar = document.createElement('a');
+    const btnEditar = document.createElement('button');
+    btnEditar.type = 'button';
     btnEditar.className = 'btn btn-primary';
-    btnEditar.href = `/html/edit.html?type=voluntarios&id=${idVoluntario}`;
     btnEditar.textContent = 'Editar';
+    btnEditar.addEventListener('click', () => {
+      window.location.href = `edit.html?type=voluntarios&id=${idVoluntario}`;
+    });
 
     botonesDiv.append(btnInfo, btnEditar);
     bloqueTurno.append(h3, filaEntidad, filaEmail, botonesDiv);
@@ -258,11 +267,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.key === "Escape") cerrarInfoVoluntario();
   });
 
-  // Control de visibilidad para el botón de creación ("Nuevo")
-  const perfil = sessionStorage.getItem('perfil');
+  // REQUISITO: Usamos la nueva función para controlar la visibilidad del botón.
+  // Comprobación segura en tiempo de ejecución.
+  const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
+    ? window.obtenerRolDeToken()
+    : (function () { const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
   const btnNuevo = document.getElementById('btn-nuevo');
   if (btnNuevo) {
-    const canCreate = perfil === 'ADMINISTRADOR' || perfil === 'COORDINADOR';
+    const canCreate = rolUsuario === 'ADMINISTRADOR' || rolUsuario === 'COORDINADOR';
     if (!canCreate) {
       btnNuevo.style.display = 'none'; // Ocultamos el botón si no tiene permisos
     }

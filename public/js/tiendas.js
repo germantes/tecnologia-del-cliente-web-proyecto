@@ -1,13 +1,18 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const perfil = sessionStorage.getItem('perfil');
-    const token = sessionStorage.getItem('token');
+    // REQUISITO: Usamos la nueva función para obtener el rol y el token.
+    // Obtener rol de forma segura: preferir la utilidad global y, si no está
+    // disponible (por orden de carga), usar el fallback legacy en sessionStorage.
+    const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
+        ? window.obtenerRolDeToken()
+        : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
+    const token = sessionStorage.getItem('token'); // El token se sigue leyendo igual.
+    console.log('Cargando vista Tiendas. Rol del usuario:', rolUsuario); // Log de trazabilidad
 
-    if (!perfil || !token) {
+    if (!rolUsuario || !token) {
         window.location.href = 'index.html';
         return;
     }
 
-    const usuarioRol = perfil.toUpperCase();
     const API_BASE = window.API_URL || "http://localhost:3000";
 
     const tiendasContainer = document.getElementById('tiendasContainer');
@@ -24,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await cargarTiendas();
 
     async function configurarInterfazPorRol() {
-        if (usuarioRol === 'ADMINISTRADOR') {
+        if (rolUsuario === 'ADMINISTRADOR') {
             adminFilters.style.display = 'flex';
 
             document.getElementById('adminAcciones').style.display = 'block';
@@ -71,7 +76,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 });
 
-                if (usuarioRol === 'ADMINISTRADOR' && selectCampania) {
+                if (rolUsuario === 'ADMINISTRADOR' && selectCampania) {
                     limpiarContenedor(selectCampania);
                     const optVacia = document.createElement('option');
                     optVacia.value = "0";
@@ -98,7 +103,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             let url = '/api/tiendas';
             let idCampaniaBuscada = null;
 
-            if (usuarioRol === 'ADMINISTRADOR') {
+            if (rolUsuario === 'ADMINISTRADOR') {
                 const zonaId = selectZona.value;
                 const campaniaId = selectCampania.value;
 
@@ -186,7 +191,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         card.appendChild(crearParrafoDato('Localidad: ', localidad));
         card.appendChild(crearParrafoDato('Domicilio: ', tienda.domicilio || 'N/A'));
 
-        const mostrarContextoCampania = (usuarioRol !== 'ADMINISTRADOR') || (idCampaniaBuscada && idCampaniaBuscada > 0);
+        const mostrarContextoCampania = (rolUsuario !== 'ADMINISTRADOR') || (idCampaniaBuscada && idCampaniaBuscada > 0);
 
         if (mostrarContextoCampania) {
             card.appendChild(crearParrafoDato('Participa: ', participaTexto));
@@ -197,12 +202,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         let contextoURL = idCampaniaBuscada ? `&idCampania=${idCampaniaBuscada}` : '';
 
-        if (usuarioRol === 'ADMINISTRADOR') {
+        if (rolUsuario === 'ADMINISTRADOR') {
             divBotones.appendChild(crearBoton('Editar', 'btn-editar', `editar_tienda.html?id=${tienda.id_tienda}${contextoURL}`));
         }
 
         let verificarBotonTurnos = false;
-        if (usuarioRol === 'ADMINISTRADOR') {
+        if (rolUsuario === 'ADMINISTRADOR') {
             verificarBotonTurnos = (participaTexto === 'Sí' && idCampaniaBuscada !== null && parseInt(idCampaniaBuscada) === idCampaniaActiva);
         } else {
             verificarBotonTurnos = (participaTexto === 'Sí' && idCampaniaPintar === idCampaniaActiva);

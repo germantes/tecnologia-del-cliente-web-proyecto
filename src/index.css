@@ -1,3 +1,18 @@
+html {
+    height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
 h1, h2, h3, h4 {
   font-family: var(--font-alt);
   color: var(--twilight-indigo);

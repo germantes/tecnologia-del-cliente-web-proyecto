@@ -7,6 +7,9 @@ const path = require('path');
 const supabase = require('./supabase-client');
 const bcrypt = require('bcryptjs');
 
+// REQUISITO: Importamos la librería jsonwebtoken para firmar y verificar tokens JWT.
+const jwt = require('jsonwebtoken');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -102,6 +105,7 @@ function contains(row, text, fields) {
   return fields.some((field) => str(getField(row, field)).toLowerCase().includes(q));
 }
 
+// REQUISITO: Modificamos el middleware requireAuth para soportar JWT y mantener retrocompatibilidad
 async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -109,29 +113,56 @@ async function requireAuth(req, res, next) {
   }
 
   const token = authHeader.replace('Bearer ', '');
-  if (token.startsWith('mock-token-')) {
-    const userId = token.replace('mock-token-', '');
-    try {
-      const usuarios = await fetchAll('usuario');
-      // Buscamos al usuario exacto
-      const user = usuarios.find(u => sameNumberOrString(getField(u, 'id_usuario', 'idUsuario', 'id'), userId));
 
-      if (user) {
-        req.user = {
-          id: getField(user, 'id_usuario', 'idUsuario', 'id'),
-          // Extraemos su rol nativo para que los filtros funcionen
-          puesto: getField(user, 'rol', 'puesto')?.toUpperCase()
-        };
-        return next();
+  try {
+    // REQUISITO: Debe intentar primero verificar el token como un JWT usando jwt.verify.
+    // Esta función decodifica el JWT comprobando la firma con el secreto.
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // REQUISITO: Si tiene éxito, extrae el id y el puesto del payload del token y los inyecta en req.user.
+    req.user = {
+      id: decoded.id,
+      puesto: decoded.puesto
+    };
+    return next();
+  } catch (error) {
+    // REQUISITO: Si falla (porque no es un JWT válido), debe capturar el error (bloque catch) y continuar con la lógica antigua
+
+    if (token.startsWith('mock-token-')) {
+      const userId = token.replace('mock-token-', '');
+      try {
+        const usuarios = await fetchAll('usuario');
+        // Buscamos al usuario exacto
+        const user = usuarios.find(u => sameNumberOrString(getField(u, 'id_usuario', 'idUsuario', 'id'), userId));
+
+        if (user) {
+          req.user = {
+            id: getField(user, 'id_usuario', 'idUsuario', 'id'),
+            // Extraemos su rol nativo para que los filtros funcionen
+            puesto: getField(user, 'rol', 'puesto')?.toUpperCase()
+          };
+          return next();
+        }
+      } catch (e) {
+        console.error("Error validando token simulado", e);
       }
-    } catch (e) {
-      console.error("Error validando token simulado", e);
     }
   }
 
   return res.status(401).json({ success: false, message: 'Token inválido o expirado' });
 }
 
+/*
+// Los GET de consulta se dejan públicos para poder probarlos directamente en navegador.
+if (req.method === 'GET' && PUBLIC_GET_PATHS.has(req.path)) return next();
+
+const user = verifyToken(req.headers.authorization);
+if (!user) {
+  return res.status(401).json({ success: false, message: 'Acceso no autorizado. Inicia sesión.' });
+}
+req.user = user;
+next();
+*/
 function requireAdmin(req, res, next) {
   // --- BYPASS TEMPORAL DE ADMIN ---
   return next();
@@ -391,9 +422,20 @@ app.post('/auth/login', async (req, res) => {
 
     const usuarioSesion = await construirUsuarioSesion(usuario);
 
+    // REQUISITO: En lugar de devolver 'mock-token-' + usuario.id, debe generar un JWT firmado usando jsonwebtoken.
+    // El payload del JWT DEBE incluir el id, el rol (o puesto) normalizado a mayúsculas, y el nombre del usuario.
+    const payload = {
+      id: usuarioSesion.id,
+      puesto: str(usuarioSesion.puesto).toUpperCase(),
+      nombre: usuarioSesion.nombre
+    };
+
+    // Generamos y firmamos el JWT con el secreto y un tiempo de expiración
+    const jwtToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
+
     res.json({
       success: true,
-      token: 'mock-token-' + getField(usuario, 'idUsuario', 'id_usuario', 'id'),
+      token: jwtToken,
       user: usuarioSesion
     });
   } catch (error) {
@@ -1157,7 +1199,7 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
                 )
             `)
       .eq('id_tienda', tiendaId)
-      .single();
+      .single(); // Le decimos a Supabase que devuelva 1 solo objeto, no un array
 
     if (error) throw error;
     res.json(tienda);
@@ -1171,7 +1213,7 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
 app.post('/api/tiendas', requireAuth, async (req, res) => {
   try {
     const {
-      domicilio, idCp, idCadena,
+      domicilio, idCp, id_cp, id_cadena,
       idCampania, participa, numCajas,
       idResponsable, idCoordinador, idCapitan
     } = req.body;
@@ -1180,8 +1222,8 @@ app.post('/api/tiendas', requireAuth, async (req, res) => {
       .from('tienda')
       .insert([{
         domicilio: domicilio || null,
-        cp: idCp || null,
-        id_cadena: idCadena ? parseInt(idCadena) : null
+        cp: (idCp || id_cp) || null,
+        id_cadena: id_cadena ? parseInt(id_cadena) : null
       }])
       .select();
 
@@ -1263,6 +1305,31 @@ app.post(['/zonas', '/api/zonas'], requireAuth, async (req, res) => {
     res.status(201).json(rows[0] || null);
   } catch (error) {
     sendError(res, error, 'Error creando zona');
+  }
+});
+
+// Endpoint para obtener un CP individual por su código postal
+app.get('/api/cp/:cp', requireAuth, async (req, res) => {
+  try {
+    const cpCode = req.params.cp;
+    const { data, error } = await supabase
+      .from('cp')
+      .select(`
+        cp,
+        localidad,
+        id_zona,
+        distrito(distrito, nombre_distrito),
+        zona:id_zona(id_zona, zona_geografica)
+      `)
+      .eq('cp', cpCode)
+      .single();
+
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: 'CP no encontrado' });
+    res.json(data);
+  } catch (error) {
+    console.error('Error obteniendo CP:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -1446,7 +1513,7 @@ app.get('/api/cps', requireAuth, async (req, res) => {
   }
 });
 
-app.get('/api/cadenas', requireAuth, async (req, res) => {
+app.get(['/cadenas', '/api/cadenas'], requireAuth, async (req, res) => {
   try {
     const cadenas = await fetchAll('cadena');
     res.json(cadenas);
@@ -1626,7 +1693,7 @@ app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
 
     const tiendaId = req.params.id;
     const {
-      domicilio, idCp, idCadena,
+      domicilio, idCp, id_cp, id_cadena,
       idResponsable, idCoordinador, idCapitan,
       numCajas, participa, idCampania
     } = req.body;
@@ -1635,8 +1702,8 @@ app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
       .from('tienda')
       .update({
         domicilio: domicilio || null,
-        cp: idCp || null,
-        id_cadena: idCadena ? parseInt(idCadena) : null
+        cp: (idCp || id_cp) || null,
+        id_cadena: (idCadena || id_cadena) ? parseInt(idCadena || id_cadena) : null
       })
       .eq('id_tienda', tiendaId);
 
@@ -1985,7 +2052,10 @@ app.all([
 
 // Catch-all absoluto para la SPA
 app.get('*', (req, res) => {
-  res.sendFile(path.join(publicPath, 'html', 'index.html'));
+  const indexPath = process.env.NODE_ENV === 'development'
+    ? '/public/html/index.html'
+    : path.join(__dirname, '..', 'public', 'html', 'index.html');
+  res.sendFile(indexPath);
 });
 
 app.listen(PORT, '0.0.0.0', () => {

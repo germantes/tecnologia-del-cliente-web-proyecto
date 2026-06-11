@@ -5,7 +5,8 @@ var ROL_RESPONSABLE_ENTIDAD = "RESPONSABLE-ENTIDAD";
 var ROL_RESPONSABLE_TIENDA = "RESPONSABLE-TIENDA";
 
 function obtenerPerfilTurnos() {
-    var perfil = sessionStorage.getItem("perfil");
+    // Intentar obtener rol a través de la utilidad global y mantener fallback legacy.
+    var perfil = (typeof window.obtenerRolDeToken === 'function') ? window.obtenerRolDeToken() : (sessionStorage.getItem('perfil') || sessionStorage.getItem('rol')) || '';
 
     if (!perfil) {
         redirigirLoginTurnos();

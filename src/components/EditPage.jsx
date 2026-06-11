@@ -16,7 +16,7 @@ function EditPage() {
     const { entityType } = useParams();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    const id = searchParams.get('id');
+    const id = searchParams.get('id') || searchParams.get('cp');
     
     const [entityData, setEntityData] = useState(null);
     const [existingRecords, setExistingRecords] = useState([]);

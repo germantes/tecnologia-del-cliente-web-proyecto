@@ -162,7 +162,8 @@ async function login(email, password) {
 
 async function inicializarVistaCapitanes() {
   const user = JSON.parse(sessionStorage.getItem('usuario'));
-  const perfil = sessionStorage.getItem('perfil');
+  // Obtener rol/perfil de forma segura: preferir la utilidad global si está disponible
+  const perfil = (typeof window.obtenerRolDeToken === 'function') ? window.obtenerRolDeToken() : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
 
   let capitanes;
   if (perfil === 'ADMINISTRADOR') {
