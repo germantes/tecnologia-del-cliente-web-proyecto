@@ -77,8 +77,10 @@ async function handleLoginSubmit(e) {
 
 // Store session data
 function storeSessionData(data) {
+  // REQUISITO: Limpieza en el login.
+  // Ahora solo guardamos el token JWT de forma segura.
+  // Eliminamos el guardado de "perfil" ya que lo leeremos desde el token.
   sessionStorage.setItem("token", data.token);
-  sessionStorage.setItem("perfil", data.user.puesto);
   sessionStorage.setItem("usuario", JSON.stringify(data.user));
 }
 

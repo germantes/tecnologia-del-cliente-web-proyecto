@@ -4,9 +4,12 @@ let usuariosCache = [];
 async function cargarEntidades() {
     const urlParams = new URLSearchParams(window.location.search);
     const idCampaniaParam = urlParams.get('idCampania');
-    const perfil = sessionStorage.getItem('perfil');
+    
+    // REQUISITO: Reemplazamos la lectura directa del sessionStorage por la nueva función centralizada.
+    const rolUsuario = obtenerRolDeToken();
+    console.log('Cargando vista Entidades. Rol del usuario:', rolUsuario); // Log de trazabilidad
 
-    if (perfil !== 'ADMINISTRADOR' && !idCampaniaParam) {
+    if (rolUsuario !== 'ADMINISTRADOR' && !idCampaniaParam) {
         const grid = document.getElementById('entidadesGrid');
         if (grid) {
             grid.textContent = '';
@@ -256,11 +259,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (event.key === "Escape") cerrarInfoEntidad();
     });
 
-    // Control de visibilidad para el botón de creación ("Nuevo")
-    const perfil = sessionStorage.getItem('perfil');
+    // REQUISITO: Usamos la nueva función para controlar la visibilidad del botón.
+    const rolUsuario = obtenerRolDeToken();
     const btnNuevo = document.getElementById('btn-nuevo');
     if (btnNuevo) {
-        const canCreate = perfil === 'ADMINISTRADOR' || perfil === 'COORDINADOR';
+        const canCreate = rolUsuario === 'ADMINISTRADOR' || rolUsuario === 'COORDINADOR';
         if (!canCreate) {
             btnNuevo.style.display = 'none'; // Ocultamos el botón si no tiene permisos
         }
