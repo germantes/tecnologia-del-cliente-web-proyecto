@@ -39,6 +39,12 @@ const SCHEMAS = {
         { key: 'fecha_fin', label: 'Fecha Fin', type: 'date', required: true },
         { key: 'tipo', label: 'Tipo', type: 'text' }
     ],
+    cp: [
+        { key: 'cp', label: 'Código Postal', type: 'text', readonly: true },
+        { key: 'localidad', label: 'Localidad', type: 'select_localidad', required: true },
+        { key: 'distrito', label: 'Distrito', type: 'select_distrito' },
+        { key: 'id_zona', label: 'Zona Geográfica', type: 'select_zona', required: true }
+    ],
     zonas: [
         { key: 'cp', label: 'Código Postal', type: 'text', readonly: true },
         { key: 'localidad', label: 'Localidad', type: 'select_localidad', required: true },

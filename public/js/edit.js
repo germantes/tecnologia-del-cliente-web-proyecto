@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const isAdmin = perfil === 'ADMINISTRADOR';
     const isManager = perfil === 'COORDINADOR';
     const canAccess = isAdmin || isManager;
-    const allowedResources = new Set(['usuarios', 'entidades', 'campanias', 'tiendas', 'turnos', 'voluntarios', 'zonas']);
+    const allowedResources = new Set(['usuarios', 'entidades', 'campanias', 'tiendas', 'turnos', 'voluntarios', 'zonas', 'cp']);
 
     // Al quitar la verificación de "!id", permitimos usar este script para la Creación.
     if (!canAccess || !type || !allowedResources.has(type)) {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getAuthHeaders } from './session';
-import formStyles from '../styles/editar_cadena.module.css';
+import formStyles from '../styles/edit.module.css';
 
 /**
  * Componente de formulario genérico para crear/editar entidades
@@ -215,23 +215,15 @@ function GenericForm({
     };
 
     return (
-        <main style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '40px', flex: 1 }}>
-            <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '700px', margin: '0 auto', padding: '0' }}>
+        <main className={formStyles['form-wrapper']}>
+            <form onSubmit={handleSubmit} className={formStyles['form-element']}>
                 <div className={formStyles['total']}>
                     <div className={formStyles['form-header']}>
                         <h1>{title}</h1>
                     </div>
 
                     {error && (
-                        <div style={{ 
-                            backgroundColor: '#ffe6e6', 
-                            color: '#d46262', 
-                            textAlign: 'center', 
-                            fontSize: '1.1rem', 
-                            fontWeight: 'bold', 
-                            padding: '15px', 
-                            borderBottom: '2px solid #d46262' 
-                        }}>
+                        <div className={formStyles['error-banner']}>
                             {error}
                         </div>
                     )}

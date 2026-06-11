@@ -1249,6 +1249,31 @@ app.post(['/zonas', '/api/zonas'], requireAuth, async (req, res) => {
   }
 });
 
+// Endpoint para obtener un CP individual por su código postal
+app.get('/api/cp/:cp', requireAuth, async (req, res) => {
+  try {
+    const cpCode = req.params.cp;
+    const { data, error } = await supabase
+      .from('cp')
+      .select(`
+        cp,
+        localidad,
+        id_zona,
+        distrito(distrito, nombre_distrito),
+        zona:id_zona(id_zona, zona_geografica)
+      `)
+      .eq('cp', cpCode)
+      .single();
+
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: 'CP no encontrado' });
+    res.json(data);
+  } catch (error) {
+    console.error('Error obteniendo CP:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Endpoint para crear un nuevo CP
 app.post('/api/cp', requireAuth, async (req, res) => {
   try {
