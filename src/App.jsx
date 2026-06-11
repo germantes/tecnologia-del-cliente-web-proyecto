@@ -49,7 +49,7 @@ function RequireAuth({ children }) {
 function RequireAdmin({ children }) {
     const token = sessionStorage.getItem('token')
     // Obtenemos el rol guardado en la sesión (comprueba la nota de abajo si tus compañeros usan otro nombre)
-    const rol = sessionStorage.getItem('rol')
+    const rol = sessionStorage.getItem('perfil')
 
     useEffect(() => {
         if (!token) {

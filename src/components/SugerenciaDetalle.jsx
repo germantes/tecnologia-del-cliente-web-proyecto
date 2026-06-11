@@ -462,15 +462,15 @@ function SugerenciaDetalle() {
         : '-'
 
     return (
-        <main className="sugerencias-page">
+        <main className="main">
             <div className="page-header">
                 <div>
-                    <h1 className="page-title">Detalle de sugerencia</h1>
-                    <p className="page-description">
+                    <h1 className="page-title">Detalle de Sugerencia</h1>
+                    <p className="page-sub">
                         Comparación entre el registro original y la propuesta de cambio. Los valores distintos aparecen resaltados.
                     </p>
                 </div>
-                <Link to="/sugerencias" className="btn-detalle">
+                <Link to="/sugerencias" className="btn btn-outline">
                     Volver a sugerencias
                 </Link>
             </div>
@@ -522,7 +522,7 @@ function SugerenciaDetalle() {
 
                     <div className="comparacion-section">
                         <h2 className="section-title">Comparación de campos</h2>
-                        <table className="comparacion-table">
+                        <table className="table">
                             <thead>
                                 <tr>
                                     <th>Campo</th>

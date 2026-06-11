@@ -8,13 +8,13 @@ import '../styles/sugerencias.css'
 // ─────────────────────────────────────────────────────────────────────────────
 
 const ENTITY_CONFIG = {
-    cadena:     { endpoint: '/api/cadenas',    idField: 'id_cadena',    nameFields: ['nombre_particular','establecimiento'], label: 'Cadena' },
-    campania:   { endpoint: '/api/campanias',  idField: 'id_campania',  nameFields: ['nombre'],                             label: 'Campaña' },
-    zona:       { endpoint: '/api/cp',         idField: 'id_zona',      nameFields: ['zona_geografica'],                    label: 'Zona' },
-    entidad:    { endpoint: '/api/entidades',  idField: 'id_entidad',   nameFields: ['nombre'],                             label: 'Entidad' },
-    tienda:     { endpoint: '/api/tiendas',    idField: 'id_tienda',    nameFields: ['domicilio'],                          label: 'Tienda' },
-    usuario:    { endpoint: '/api/usuarios',   idField: 'id_usuario',   nameFields: ['nombre_completo','nombre'],           label: 'Usuario' },
-    voluntario: { endpoint: '/api/voluntarios',idField: 'id_voluntario',nameFields: ['nombre','apellido_1'],                label: 'Voluntario' },
+    cadena: { endpoint: '/api/cadenas', idField: 'id_cadena', nameFields: ['nombre_particular', 'establecimiento'], label: 'Cadena' },
+    campania: { endpoint: '/api/campanias', idField: 'id_campania', nameFields: ['nombre'], label: 'Campaña' },
+    zona: { endpoint: '/api/cp', idField: 'id_zona', nameFields: ['zona_geografica'], label: 'Zona' },
+    entidad: { endpoint: '/api/entidades', idField: 'id_entidad', nameFields: ['nombre'], label: 'Entidad' },
+    tienda: { endpoint: '/api/tiendas', idField: 'id_tienda', nameFields: ['domicilio'], label: 'Tienda' },
+    usuario: { endpoint: '/api/usuarios', idField: 'id_usuario', nameFields: ['nombre_completo', 'nombre'], label: 'Usuario' },
+    voluntario: { endpoint: '/api/voluntarios', idField: 'id_voluntario', nameFields: ['nombre', 'apellido_1'], label: 'Voluntario' },
 }
 
 function formatDate(value) {
@@ -133,12 +133,12 @@ function Sugerencias() {
     }
 
     return (
-        <main className="sugerencias-page">
+        <main className="main">
             <div className="page-header">
                 <div>
-                    <h1 className="page-title">Sugerencias de cambio</h1>
-                    <p className="page-description">
-                        Listado de sugerencias registradas en la base de datos.
+                    <h1 className="page-title">Sugerencias de Cambio</h1>
+                    <p className="page-sub">
+                        Listado de sugerencias de cambio registradas en la base de datos.
                     </p>
                 </div>
             </div>
@@ -152,8 +152,8 @@ function Sugerencias() {
             {error && <div className="alert alert-error">Error: {error}</div>}
 
             {!loading && !error && (
-                <div className="table-container">
-                    <table className="sugerencias-table">
+                <div className="table-wrap">
+                    <table className="table">
                         <thead>
                             <tr>
                                 <th>Tipo</th>
@@ -188,7 +188,7 @@ function Sugerencias() {
                                         <td>{renderUserName(sug.id_revisado_por)}</td>
                                         <td>{formatDate(sug.fecha_revision)}</td>
                                         <td>
-                                            <Link to={`/sugerencias/${sug.id_sugerencia}`} className="btn-detalle">
+                                            <Link to={`/sugerencias/${sug.id_sugerencia}`} className="btn btn-sm btn-outline">
                                                 Ver detalles
                                             </Link>
                                         </td>
