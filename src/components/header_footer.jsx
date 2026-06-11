@@ -16,7 +16,7 @@ function Header() {
       </Link>
 
       <div className={headerStyles['bancosol-header__actions']}>
-        <a className={headerStyles['bancosol-header__profile']} href="/perfil" aria-label="Ir al perfil">
+        <a className={headerStyles['bancosol-header__profile']} href="/html/perfil.html" aria-label="Ir al perfil">
           <svg className={headerStyles['bancosol-header__profile-icon']} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path fill="currentColor" d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5Zm0 2c-3.31 0-10 1.67-10 5v3h20v-3c0-3.33-6.69-5-10-5Z"/>
           </svg>
@@ -48,15 +48,15 @@ function Header() {
           Zonas
         </Link>
 
-        <a className={headerStyles['bancosol-header__nav-item']} data-nav="tiendas" href="/tiendas">
+        <a className={headerStyles['bancosol-header__nav-item']} data-nav="tiendas" href="/html/tiendas.html">
           Tiendas
         </a>
 
-        <a className={headerStyles['bancosol-header__nav-item']} data-nav="entidades" href="/entidades">
+        <a className={headerStyles['bancosol-header__nav-item']} data-nav="entidades" href="/html/entidades.html">
           Entidades
         </a>
 
-        <a className={headerStyles['bancosol-header__nav-item']} data-nav="voluntarios" href="/voluntarios">
+        <a className={headerStyles['bancosol-header__nav-item']} data-nav="voluntarios" href="/html/voluntarios.html">
           Voluntarios
         </a>
       </nav>
