@@ -11,6 +11,9 @@ import CuadroMando from './components/CuadroMando.jsx'
 import UsuarioCrear from './components/UsuarioCrear.jsx'
 import UsuarioEditar from './components/UsuarioEditar.jsx'
 
+// Importar la función getPerfil desde session.js
+import { getPerfil } from './components/session.js'
+
 function LoginRedirect() {
     const token = sessionStorage.getItem('token')
 
@@ -43,10 +46,13 @@ function RequireAuth({ children }) {
     return children
 }
 
+// Localizar el componente guardián RequireAdmin
 function RequireAdmin({ children }) {
     const token = sessionStorage.getItem('token')
-    // Obtenemos el rol guardado en la sesión (comprueba la nota de abajo si tus compañeros usan otro nombre)
-    const rol = sessionStorage.getItem('rol')
+    
+    // Eliminar la obtención directa con sessionStorage
+    // y reemplazarla por la llamada a getPerfil() que gestiona JWT y fallbacks.
+    const rol = getPerfil()
 
     useEffect(() => {
         if (!token) {
@@ -58,6 +64,7 @@ function RequireAdmin({ children }) {
         return null
     }
 
+    // No cambiar el resto de la lógica (redirección)
     // Si está logueado pero NO es administrador, lo redirigimos al homepage de React
     if (rol !== 'ADMINISTRADOR') {
         return <Navigate to="/homepage" replace />
