@@ -12,7 +12,8 @@ async function cargarVoluntarios() {
     : (function () { const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
   console.log('Cargando vista Voluntarios. Rol del usuario:', rolUsuario); // Log de trazabilidad
 
-  if (rolUsuario !== 'ADMINISTRADOR' && !idCampaniaParam) {
+  // Un coordinador puede acceder sin idCampania (el backend le dará la activa). Otros roles no-admin, no.
+  if (rolUsuario !== 'ADMINISTRADOR' && rolUsuario !== 'COORDINADOR' && !idCampaniaParam) {
     const grid = document.getElementById('voluntariosGrid');
     if (grid) {
       grid.textContent = '';
@@ -274,7 +275,7 @@ document.addEventListener("DOMContentLoaded", function () {
     : (function () { const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
   const btnNuevo = document.getElementById('btn-nuevo');
   if (btnNuevo) {
-    const canCreate = rolUsuario === 'ADMINISTRADOR' || rolUsuario === 'COORDINADOR';
+    const canCreate = rolUsuario === 'ADMINISTRADOR';
     if (!canCreate) {
       btnNuevo.style.display = 'none'; // Ocultamos el botón si no tiene permisos
     }

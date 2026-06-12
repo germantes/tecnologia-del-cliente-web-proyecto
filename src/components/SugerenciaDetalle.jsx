@@ -67,7 +67,7 @@ function formatValue(value) {
 
 function getFirstValue(obj, fields) {
     for (const f of fields) {
-        if (obj[f] !== undefined && obj[f] !== null && obj[f] !== '') return String(obj[f])
+        if (obj[f] !== undefined && obj[f] !== null && obj[f] !== '') return String(obj[f]).trim()
     }
     return null
 }
@@ -144,12 +144,6 @@ const ENTITY_FIELD_SETS = {
 // Parseo de datos_propuestos
 // ─────────────────────────────────────────────────────────────────────────────
 
-function normalizeProposedText(value) {
-    if (typeof value === 'object' && value !== null) return JSON.stringify(value);
-    if (typeof value !== 'string' || !value) return '';
-    return value.trim();
-}
-
 function parseProposedData(value) {
     if (!value) return null;
     if (typeof value === 'object') return value;
@@ -159,7 +153,7 @@ function parseProposedData(value) {
     const trimmed = value.trim();
     // Intentar parsear como JSON primero
     try { if (trimmed.startsWith('{') || trimmed.startsWith('[')) return JSON.parse(trimmed) } catch { /* No es JSON */ }
-    const lines = trimmed.split(/\r?\n/)
+    const lines = trimmed.split(/\\n|\r?\n/)
     const result = {}
     let canParse = true
 
@@ -306,7 +300,7 @@ function buildComparisonRows(tipoEntidad, original, proposed, resolvers) {
                 label: getFieldLabel(key),
                 originalDisplay: origDisplay,
                 proposedDisplay: propDisplay,
-                changed: String(origRaw ?? '') !== String(propRaw ?? ''),
+                changed: String(origRaw ?? '').trim() !== String(propRaw ?? '').trim(),
             }
         })
     }

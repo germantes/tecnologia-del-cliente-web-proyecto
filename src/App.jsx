@@ -13,6 +13,7 @@ import UsuarioCrear from './components/UsuarioCrear.jsx'
 import UsuarioEditar from './components/UsuarioEditar.jsx'
 import Sugerencias from './components/Sugerencias'
 import SugerenciaDetalle from './components/SugerenciaDetalle'
+import CrearSugerencia from './components/CrearSugerencia'
 
 // Importar la función getPerfil desde session.js
 import { getPerfil } from './components/session.js'
@@ -161,6 +162,16 @@ function App() {
                                 <SugerenciaDetalle />
                                 <Footer />
                             </RequireAdmin>
+                        </RequireAuth>
+                    }
+                />
+                <Route
+                    path="/sugerencias/crear"
+                    element={
+                        <RequireAuth>
+                            <Header />
+                            <CrearSugerencia />
+                            <Footer />
                         </RequireAuth>
                     }
                 />

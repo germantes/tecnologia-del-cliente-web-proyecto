@@ -1685,6 +1685,42 @@ app.put('/api/sugerencias/:id', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
+// =========================================================================
+// ENDPOINT: CREAR SUGERENCIA (accesible por coordinadores y otros roles)
+// =========================================================================
+app.post('/api/sugerencias', requireAuth, async (req, res) => {
+  try {
+    const { tipo_entidad, id_entidad_original, datos_propuestos } = req.body;
+    const userId = req.user.id;
+
+    if (!tipo_entidad || id_entidad_original === undefined || id_entidad_original === null || !datos_propuestos) {
+      return res.status(400).json({ error: 'Faltan campos requeridos: tipo_entidad, id_entidad_original, datos_propuestos' });
+    }
+
+    if (!PK_MAP[tipo_entidad]) {
+      return res.status(400).json({ error: `Tipo de entidad no válido: ${tipo_entidad}` });
+    }
+
+    if (typeof datos_propuestos !== 'object' || Array.isArray(datos_propuestos)) {
+      return res.status(400).json({ error: 'datos_propuestos debe ser un objeto JSON' });
+    }
+
+    const newSugerencia = {
+      tipo_entidad,
+      id_entidad_original,
+      datos_propuestos: JSON.stringify(datos_propuestos),
+      id_propuesto_por: userId,
+      fecha_propuesta: new Date().toISOString(),
+      estado: 'PENDIENTE',
+    };
+
+    const [created] = await insertRows('sugerenciaCambio', newSugerencia);
+    res.status(201).json(created);
+  } catch (error) {
+    sendError(res, error, 'Error al crear la sugerencia');
+  }
+});
+
 app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
   try {
     if (req.user.puesto?.toUpperCase() !== 'ADMINISTRADOR') {

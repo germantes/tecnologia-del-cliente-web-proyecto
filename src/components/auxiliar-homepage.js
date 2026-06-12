@@ -563,6 +563,10 @@ async function obtenerAccesosRapidosPorRol(rol) {
           idCampania: idCampaniaActiva,
         }),
       },
+      {
+        texto: 'Sugerir cambio',
+        enlace: '/sugerencias/crear',
+      },
     ]
   }
 

@@ -29,7 +29,7 @@ function formatDate(value) {
 
 function getFirstValue(obj, fields) {
     for (const f of fields) {
-        if (obj[f] !== undefined && obj[f] !== null && obj[f] !== '') return String(obj[f])
+        if (obj[f] !== undefined && obj[f] !== null && obj[f] !== '') return String(obj[f]).trim()
     }
     return null
 }

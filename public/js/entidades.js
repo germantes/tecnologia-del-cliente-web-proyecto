@@ -4,15 +4,16 @@ let usuariosCache = [];
 async function cargarEntidades() {
     const urlParams = new URLSearchParams(window.location.search);
     const idCampaniaParam = urlParams.get('idCampania');
-    
+
     // REQUISITO: Reemplazamos la lectura directa del sessionStorage por la nueva función centralizada.
     // Usamos la utilidad global si existe, si no, caemos al fallback legacy.
     const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
         ? window.obtenerRolDeToken()
-        : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
+        : (function () { const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
     console.log('Cargando vista Entidades. Rol del usuario:', rolUsuario); // Log de trazabilidad
 
-    if (rolUsuario !== 'ADMINISTRADOR' && !idCampaniaParam) {
+    // Un coordinador puede acceder sin idCampania (el backend le dará la activa). Otros roles no-admin, no.
+    if (rolUsuario !== 'ADMINISTRADOR' && rolUsuario !== 'COORDINADOR' && !idCampaniaParam) {
         const grid = document.getElementById('entidadesGrid');
         if (grid) {
             grid.textContent = '';
@@ -267,10 +268,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // aún no se ha cargado en el orden de scripts.
     const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
         ? window.obtenerRolDeToken()
-        : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
+        : (function () { const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
     const btnNuevo = document.getElementById('btn-nuevo');
     if (btnNuevo) {
-        const canCreate = rolUsuario === 'ADMINISTRADOR' || rolUsuario === 'COORDINADOR';
+        const canCreate = rolUsuario === 'ADMINISTRADOR';
         if (!canCreate) {
             btnNuevo.style.display = 'none'; // Ocultamos el botón si no tiene permisos
         }
