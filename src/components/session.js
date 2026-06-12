@@ -2,10 +2,6 @@ function getToken() {
   return sessionStorage.getItem('token')
 }
 
-/**
- * Intenta decodificar el JWT almacenado en sessionStorage.
- * Devuelve el payload parseado como objeto JSON si es válido, de lo contrario devuelve null.
- */
 function getDecodedToken() {
   const token = getToken();
   
@@ -14,12 +10,15 @@ function getDecodedToken() {
   }
 
   try {
+    // Header.Payload.Signature (lo separamos para obtener payload)
     const base64Url = token.split('.')[1];
     if (!base64Url) return null;
 
+    // cambiar el formato de payload
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     
     const jsonPayload = decodeURIComponent(
+        // primero se convierte en texto, y luego se corrige para caracteres especiales
       window.atob(base64)
         .split('')
         .map(function(c) {
@@ -38,14 +37,12 @@ function getPerfil() {
   const decodedToken = getDecodedToken();
 
   if (decodedToken && decodedToken.puesto) {
-    // REQUISITO: Log de trazabilidad para éxito en React.
-    console.log('Auth (React): Rol obtenido desde JWT. ¡Funcionaaaaa!');
+    console.log('Auth (React): Rol obtenido desde JWT. Funcionaaaaa!');
     return decodedToken.puesto;
   }
 
-  // REQUISITO: Log de advertencia para el fallback en React.
-  console.warn('Auth (React): Fallo al decodificar JWT, usando fallback a mock-token.');
-  return sessionStorage.getItem('perfil') || sessionStorage.getItem('rol');
+  console.warn('Auth (React): Fallo al decodificar JWT');
+  return null;
 }
 
 function getUsuario() {
@@ -60,6 +57,17 @@ function getUsuario() {
   } catch (error) {
     return null
   }
+}
+
+function getId() {
+  const decodedToken = getDecodedToken();
+
+  if (decodedToken && decodedToken.id) {
+    return decodedToken.id;
+  }
+
+  console.warn('Fallo al decodificar JWT');
+  return null;
 }
 
 function estaAutenticado() {
@@ -105,4 +113,5 @@ export {
   getSesion,
   cerrarSesion,
   getAuthHeaders,
+  getId
 }

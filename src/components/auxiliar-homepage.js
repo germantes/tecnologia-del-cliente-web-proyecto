@@ -1,4 +1,4 @@
-import { getAuthHeaders, getUsuario } from './session.js'
+import {getAuthHeaders, getUsuario, estaAutenticado, getId} from './session.js'
 import {
   faArrowRight,
   faBuilding,
@@ -144,15 +144,7 @@ function contarElementosUnicos(lista, camposId) {
 }
 
 function obtenerIdUsuarioActual() {
-  const usuario = getUsuario()
-
-  return convertirANumero(
-    obtenerPrimerValorDisponible(usuario, [
-      'id_usuario',
-      'idUsuario',
-      'id',
-    ])
-  )
+  return getId();
 }
 
 function obtenerIdEntidad(entidad) {
@@ -193,24 +185,13 @@ async function obtenerIdEntidadPorUsuario(idUsuario) {
 }
 
 async function obtenerIdEntidadDelUsuarioActual() {
-  const usuario = getUsuario()
+  const autenticado = estaAutenticado()
 
-  if (!usuario) {
+  if (!autenticado) {
     return null
   }
 
-  const idEntidadGuardado = convertirANumero(
-    obtenerPrimerValorDisponible(usuario, [
-      'id_entidad',
-      'idEntidad',
-    ])
-  )
-
-  if (idEntidadGuardado) {
-    return idEntidadGuardado
-  }
-
-  return await obtenerIdEntidadPorUsuario(obtenerIdUsuarioActual())
+  return await obtenerIdEntidadPorUsuario(getId());
 }
 
 function parsearFechaLocal(fecha) {
