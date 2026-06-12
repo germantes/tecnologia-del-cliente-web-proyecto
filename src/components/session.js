@@ -37,7 +37,7 @@ function getPerfil() {
   const decodedToken = getDecodedToken();
 
   if (decodedToken && decodedToken.puesto) {
-    console.log('Auth (React): Rol obtenido desde JWT. Funcionaaaaa!');
+    // console.log('Auth (React): Rol obtenido desde JWT. Funcionaaaaa!');
     return decodedToken.puesto;
   }
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getAuthHeaders } from './session.js';
+import {getAuthHeaders, getPerfil} from './session.js';
 import CampaniaCard from './CampaniaCard.jsx';
 import cardStyles from '../styles/card-display.module.css';
 
@@ -11,11 +11,20 @@ function Campanias() {
 
     useEffect(() => {
         async function fetchCampanias() {
+            const rol = getPerfil();
             try {
-                const response = await fetch('/api/campanias', {
-                    method: 'GET',
-                    headers: getAuthHeaders(),
-                });
+                let response;
+                if (rol === 'ADMINISTRADOR') {
+                    response = await fetch('/api/campanias', {
+                        method: 'GET',
+                        headers: getAuthHeaders(),
+                    });
+                } else {
+                    response = await fetch('/api/campania_activa', {
+                        method: 'GET',
+                        headers: getAuthHeaders(),
+                    });
+                }
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);

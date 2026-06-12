@@ -447,6 +447,20 @@ app.get('/api/campanias', requireAuth, async (req, res) => {
   }
 });
 
+app.get('/api/campania_activa', requireAuth, async (req, res) => {
+  console.log("campania activa request.....")
+  try {
+    const campanias = await fetchAll('campania');
+    const idActiva = await getIdCampaniaActiva();
+    // aplicar el filtrado a campanias para quedarse solo con la activa si la hay
+    const rows = campanias.filter(c => c.id_campania === idActiva);
+
+    res.json(rows);
+  } catch (error) {
+    sendError(res, error, 'Error obteniendo campañas desde /api');
+  }
+});
+
 // ─── RUTAS PARA SERVIR PÁGINAS HTML (FRONTEND) ───────────────────────────────
 app.get('/entidades', (req, res) => {
   res.sendFile(path.join(publicPath, 'html', 'entidades.html'));
