@@ -45,25 +45,22 @@ function getPerfil() {
   return null;
 }
 
-function getUsuario() {
-  const usuarioTexto = sessionStorage.getItem('usuario')
-
-  if (!usuarioTexto) {
-    return null
-  }
-
-  try {
-    return JSON.parse(usuarioTexto)
-  } catch (error) {
-    return null
-  }
-}
-
 function getId() {
   const decodedToken = getDecodedToken();
 
   if (decodedToken && decodedToken.id) {
     return decodedToken.id;
+  }
+
+  console.warn('Fallo al decodificar JWT');
+  return null;
+}
+
+function getNombre() {
+  const decodedToken = getDecodedToken();
+
+  if (decodedToken && decodedToken.nombre) {
+    return decodedToken.nombre;
   }
 
   console.warn('Fallo al decodificar JWT');
@@ -78,7 +75,7 @@ function getSesion() {
   return {
     token: getToken(),
     perfil: getPerfil(),
-    usuario: getUsuario(),
+    nombre: getNombre()
   }
 }
 
@@ -108,10 +105,10 @@ export {
   getToken,
   getDecodedToken,
   getPerfil,
-  getUsuario,
   estaAutenticado,
   getSesion,
   cerrarSesion,
   getAuthHeaders,
-  getId
+  getId,
+  getNombre
 }

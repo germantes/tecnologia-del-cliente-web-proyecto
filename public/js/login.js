@@ -68,7 +68,7 @@ async function handleLoginSubmit(e) {
     const data = await login(email, password);
 
     storeSessionData(data);
-    redirectToDashboard(data.user.puesto);
+    redirectToDashboard(obtenerRolDeToken());
   } catch (err) {
     showError(errorEl, err.message);
     setLoadingState(submitBtn, btnText, spinner, false);
@@ -81,7 +81,7 @@ function storeSessionData(data) {
   // Ahora solo guardamos el token JWT de forma segura.
   // Eliminamos el guardado de "perfil" ya que lo leeremos desde el token.
   sessionStorage.setItem("token", data.token);
-  sessionStorage.setItem("usuario", JSON.stringify(data.user));
+  //sessionStorage.setItem("usuario", JSON.stringify(data.user));
 }
 
 // Redirect to appropriate dashboard

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import styles from '../styles/homepage.module.css'
-import { getSesion } from './session.js'
+import {estaAutenticado, getSesion} from './session.js'
 import {
   ICONOS_HOME,
   obtenerAccesosRapidosPorRol,
@@ -100,13 +100,9 @@ const CONTENIDO_DEFECTO = {
 function Homepage() {
   const sesion = getSesion()
 
-  const perfil = sesion.usuario
-    ? sesion.perfil
-    : null
+  const perfil = sesion.perfil;
 
-  const nombreDelUsuario = sesion.usuario
-    ? sesion.usuario.nombre || sesion.usuario.nombreUsuario || sesion.usuario.email || 'usuario'
-    : 'usuario'
+  const nombreDelUsuario = sesion.nombre;
 
   const contenidoDelPerfil = CONTENIDO_POR_ROL[perfil] || CONTENIDO_DEFECTO
 
@@ -214,7 +210,7 @@ function Homepage() {
     }
   }, [])
 
-  if (!sesion.usuario) {
+  if (!estaAutenticado()) {
     return (
       <div className={styles['homepage']}>
         <main className={styles['homepage-main']}>

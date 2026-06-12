@@ -415,9 +415,10 @@ app.post('/auth/login', async (req, res) => {
 
     res.json({
       success: true,
-      token: jwtToken,
-      user: usuarioSesion
+      token: jwtToken
+
     });
+    // user: usuarioSesion
   } catch (error) {
     sendError(res, error, 'Error en login contra Supabase');
   }

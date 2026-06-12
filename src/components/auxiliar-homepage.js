@@ -1,4 +1,4 @@
-import {getAuthHeaders, getUsuario, estaAutenticado, getId} from './session.js'
+import {getAuthHeaders, estaAutenticado, getId} from './session.js'
 import {
   faArrowRight,
   faBuilding,
