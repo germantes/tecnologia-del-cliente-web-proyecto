@@ -160,8 +160,12 @@ function Zonas() {
         exportToCSV(flatData, `zonas_${timestamp}`, columns);
     };
 
+    const handleEdit = (zona) => {
+        window.location.href = `/edit/zona?cp=${zona.cp}`;
+    };
+
     const handleCreate = () => {
-        window.location.href = '/html/edit.html?type=zonas';
+        window.location.href = '/edit/zona';
     };
 
     const perfil = getPerfil();
@@ -212,6 +216,7 @@ function Zonas() {
 
                 <div className={cardStyles['filter-buttons']}>
                     <button type="reset" onClick={() => { setFilter(''); setCampaignFilter(''); setZoneFilter(''); }}>Limpiar</button>
+                    <button type="button" onClick={handleCreate}>Crear Zona</button>
                     <button type="button" onClick={handleExport}>Exportar</button>
                 </div>
             </form>
@@ -225,7 +230,7 @@ function Zonas() {
                         <ZonaCard
                             key={zona.cp}
                             zona={zona}
-                            onEdit={(z) => window.location.href = `/html/edit.html?type=cp&id=${z.cp}`}
+                            onEdit={handleEdit}
                         />
                     ))}
                 </div>
