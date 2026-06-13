@@ -1603,6 +1603,46 @@ app.get('/api/usuarios', requireAuth, async (req, res) => {
   }
 });
 
+app.get('/api/usuarios/:id', requireAuth, async (req, res) => {
+  try {
+    const usuario = await findById('usuario', req.params.id, ['idUsuario', 'id_usuario', 'id']);
+    if (!usuario) return res.status(404).json({ success: false, message: 'Usuario no encontrado.' });
+    res.json(usuario);
+  } catch (error) { sendError(res, error, 'Error obteniendo usuario'); }
+});
+
+app.put('/api/usuarios/:id', requireAuth, async (req, res) => {
+  try {
+    const datosUsuario = { ...req.body };
+
+    if (datosUsuario.idCp !== undefined) {
+      datosUsuario.cp = datosUsuario.idCp;
+      delete datosUsuario.idCp;
+      delete datosUsuario.id_cp;
+    }
+    if (datosUsuario.nombreCompleto !== undefined) {
+      datosUsuario.nombre_completo = datosUsuario.nombreCompleto;
+      delete datosUsuario.nombreCompleto;
+    }
+
+    if (datosUsuario.confirmContrasenia !== undefined) {
+      delete datosUsuario.confirmContrasenia;
+    }
+
+    const updated = (await updateRows('usuario', 'id_usuario', req.params.id, datosUsuario))[0];
+
+    const usuarioSesion = await construirUsuarioSesion(updated);
+    const payload = {
+      id: usuarioSesion.id,
+      puesto: str(usuarioSesion.puesto).toUpperCase(),
+      nombre: usuarioSesion.nombre
+    };
+    const jwtToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
+
+    res.json({ usuario: updated, token: jwtToken });
+  } catch (e) { sendError(res, e, 'Error actualizando usuario'); }
+});
+
 app.get('/api/sugerencias', requireAuth, requireAdmin, async (req, res) => {
   try {
     const sugerencias = await fetchAll('sugerenciaCambio');

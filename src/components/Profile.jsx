@@ -86,6 +86,11 @@ function Profile() {
                 throw new Error(errData.message || 'Error al actualizar el perfil');
             }
 
+            const data = await res.json();
+            if (data.token) {
+                sessionStorage.setItem('token', data.token);
+            }
+
             navigate('/homepage');
         } catch (err) {
             setError(err.message);
