@@ -15,6 +15,7 @@ import Sugerencias from './components/Sugerencias'
 import SugerenciaDetalle from './components/SugerenciaDetalle'
 import CrearSugerencia from './components/CrearSugerencia'
 import Profile from './components/Profile'
+import InfoEntidad from './components/infoEntidad'
 
 // Importar la función getPerfil desde session.js
 import { getPerfil } from './components/session.js'
@@ -72,6 +73,14 @@ function RequireAdmin({ children }) {
     // No cambiar el resto de la lógica (redirección)
     // Si está logueado pero NO es administrador, lo redirigimos al homepage de React
     if (rol !== 'ADMINISTRADOR') {
+        return <Navigate to="/homepage" replace />
+    }
+
+    return children
+}
+
+function RequireResponsableEntidad({ children }) {
+    if (getPerfil() !== 'RESPONSABLE-ENTIDAD') {
         return <Navigate to="/homepage" replace />
     }
 
@@ -173,6 +182,18 @@ function App() {
                             <Header />
                             <CrearSugerencia />
                             <Footer />
+                        </RequireAuth>
+                    }
+                />
+                <Route
+                    path="/entidad"
+                    element={
+                        <RequireAuth>
+                            <RequireResponsableEntidad>
+                                <Header />
+                                <InfoEntidad />
+                                <Footer />
+                            </RequireResponsableEntidad>
                         </RequireAuth>
                     }
                 />

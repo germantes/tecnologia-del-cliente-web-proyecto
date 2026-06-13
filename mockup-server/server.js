@@ -33,6 +33,7 @@ const TABLES = {
   cadena: process.env.TABLE_CADENA || 'cadena',
   tiendaCampania: process.env.TABLE_TIENDA_CAMPANIA || 'tienda_campania',
   turnoVoluntario: process.env.TABLE_TURNO_VOLUNTARIO || 'turnos_voluntarios',
+  contactoAdicional: process.env.TABLE_CONTACTO_ADICIONAL || 'contacto_adicional',
   sugerenciaCambio: process.env.TABLE_SUGERENCIA_CAMBIO || 'sugerencia_cambio'
 };
 
@@ -2134,4 +2135,13 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`   Health: http://localhost:${PORT}/health`);
   console.log(`   Supabase URL: ${process.env.SUPABASE_URL ? 'configurada' : 'NO configurada'}`);
   console.log(`   GET de datos públicos para pruebas en navegador; POST/PUT/DELETE con token.\n`);
+});
+
+app.get('/api/contactos-adicionales', requireAuth, async (req, res) => {
+  try {
+    const todasLasRelaciones = await fetchAll('contactoAdicional');
+    res.json(todasLasRelaciones);
+  } catch (error) {
+    sendError(res, error, 'Error obteniendo contactos adicionales');
+  }
 });
