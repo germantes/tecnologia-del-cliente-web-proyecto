@@ -1,6 +1,8 @@
 import cardStyles from '../styles/card-display.module.css';
+import {getPerfil} from "./session.js";
 
 function CadenaCard({ cadena, onEdit }) {
+    const rol = getPerfil();
     return (
         <div className={cardStyles['card']}>
             <div className={cardStyles['brand']}>
@@ -24,11 +26,13 @@ function CadenaCard({ cadena, onEdit }) {
                     </div>
                 )}
             </div>
-            <div className={cardStyles['card-buttons']} style={{ justifyContent: 'center' }}>
-                <button type="button" className={cardStyles['btn']} onClick={() => onEdit(cadena)}>
-                    Editar
-                </button>
-            </div>
+            {rol === 'ADMINISTRADOR' && (
+                <div className={cardStyles['card-buttons']} style={{ justifyContent: 'center' }}>
+                    <button type="button" className={cardStyles['btn']} onClick={() => onEdit(cadena)}>
+                        Editar
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

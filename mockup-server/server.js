@@ -1558,8 +1558,76 @@ app.get('/api/cps', requireAuth, async (req, res) => {
 
 app.get(['/cadenas', '/api/cadenas'], requireAuth, async (req, res) => {
   try {
+    const { idUsuario } = req.query;
+
+    if (!idUsuario) {
+      const cadenas = await fetchAll('cadena');
+      return res.json(cadenas);
+    }
+
+    // Si hay idUsuario, obtener el rol del usuario
+    const usuario = await findById('usuario', idUsuario, ['idUsuario', 'id_usuario', 'id']);
+    if (!usuario) {
+      return res.status(404).json({ success: false, message: 'Usuario no encontrado.' });
+    }
+
+    const rol = String(getField(usuario, 'rol', 'puesto')).toUpperCase();
     const cadenas = await fetchAll('cadena');
-    res.json(cadenas);
+    const tiendas = await fetchAll('tienda');
+    const tiendaCampanias = await fetchAll('tiendaCampania').catch(() => []);
+    
+    let idsTiendasFiltradas = new Set();
+
+    if (rol === 'COORDINADOR') {
+      tiendaCampanias.forEach(tc => {
+        if (sameNumberOrString(tc.id_coordinador, idUsuario)) {
+          idsTiendasFiltradas.add(tc.id_tienda);
+        }
+      });
+    } else if (rol === 'RESPONSABLE-TIENDA') {
+      tiendaCampanias.forEach(tc => {
+        if (sameNumberOrString(tc.id_responsable_tienda, idUsuario)) {
+          idsTiendasFiltradas.add(tc.id_tienda);
+        }
+      });
+    } else if (rol === 'CAPITAN') {
+      tiendaCampanias.forEach(tc => {
+        if (sameNumberOrString(tc.id_capitan, idUsuario)) {
+          idsTiendasFiltradas.add(tc.id_tienda);
+        }
+      });
+    } else if (rol === 'RESPONSABLE-ENTIDAD') {
+      const entidades = await fetchAll('entidad');
+      const entidadesDelUsuario = entidades
+        .filter(e => sameNumberOrString(e.id_usuario_contacto, idUsuario))
+        .map(e => e.id_entidad);
+      
+      if (entidadesDelUsuario.length > 0) {
+        // Obtenemos asignacion_tienda de supabase
+        const { data: asignaciones } = await supabase.from('asignacion_tienda').select('*');
+        (asignaciones || []).forEach(at => {
+          if (entidadesDelUsuario.some(idEntidad => sameNumberOrString(idEntidad, at.id_entidad))) {
+            idsTiendasFiltradas.add(at.id_tienda);
+          }
+        });
+      }
+    } else if (rol === 'ADMINISTRADOR') {
+      return res.json(cadenas);
+    } else {
+      return res.json([]);
+    }
+
+    // Filtrar cadenas que tengan alguna de estas tiendas
+    const idsCadenasFiltradas = new Set();
+    tiendas.forEach(t => {
+      if (idsTiendasFiltradas.has(t.id_tienda) && t.id_cadena) {
+        idsCadenasFiltradas.add(t.id_cadena);
+      }
+    });
+
+    const resultado = cadenas.filter(c => idsCadenasFiltradas.has(c.id_cadena));
+    return res.json(resultado);
+
   } catch (error) {
     sendError(res, error, 'Error obteniendo cadenas');
   }

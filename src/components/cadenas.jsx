@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getAuthHeaders } from './session.js';
+import {getAuthHeaders, getId, getPerfil} from './session.js';
 import CadenaCard from './CadenaCard.jsx';
 import cardStyles from '../styles/card-display.module.css';
 
@@ -69,14 +69,25 @@ function Cadenas() {
     const [filter, setFilter] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const rol = getPerfil();
 
     useEffect(() => {
         async function fetchCadenas() {
+            const rol = getPerfil();
+            const id = getId();
             try {
-                const response = await fetch('/api/cadenas', {
-                    method: 'GET',
-                    headers: getAuthHeaders(),
-                });
+                let response;
+                if (rol === "ADMINISTRADOR") {
+                    response = await fetch('/api/cadenas', {
+                        method: 'GET',
+                        headers: getAuthHeaders(),
+                    });
+                } else {
+                    response = await fetch(`/api/cadenas?idUsuario=${id}`, {
+                        method: 'GET',
+                        headers: getAuthHeaders(),
+                    });
+                }
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -135,7 +146,9 @@ function Cadenas() {
                 </div>
                 <div className={cardStyles['filter-buttons']}>
                     <button type="reset" className={cardStyles['btn']} onClick={() => setFilter('')}>Limpiar</button>
-                    <button type="button" className={cardStyles['btn']} onClick={handleCreate}>Crear Cadena</button>
+                    {rol === 'ADMINISTRADOR' && (
+                        <button type="button" className={cardStyles['btn']} onClick={handleCreate}>Crear Cadena</button>
+                    )}
                     <button type="button" className={cardStyles['btn']} onClick={handleExport}>Exportar</button>
                 </div>
             </form>
@@ -150,13 +163,17 @@ function Cadenas() {
 
             {!loading && !error && (
                 <div className={cardStyles['grid']}>
-                    {filtered.map((cadena) => (
-                        <CadenaCard
-                            key={cadena.id_cadena}
-                            cadena={cadena}
-                            onEdit={handleEdit}
-                        />
-                    ))}
+                    {filtered.length === 0 ? (
+                        <h1>No hay cadenas</h1>
+                    ) : (
+                        filtered.map((cadena) => (
+                            <CadenaCard
+                                key={cadena.id_cadena}
+                                cadena={cadena}
+                                onEdit={handleEdit}
+                            />
+                        ))
+                    )}
                 </div>
             )}
         </main>
