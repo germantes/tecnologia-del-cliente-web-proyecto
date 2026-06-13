@@ -517,16 +517,17 @@ app.get('/api/entidades', requireAuth, async (req, res) => {
   try {
     let rows = await fetchAll('entidad');
     const { idEntidad, idUsuarioContacto, id_usuario_contacto, vinculadoBancosol, busqueda, q } = req.query;
-    let { idCampania } = req.query; // Hacemos idCampania mutable
+    let idCampania = req.query.idCampania;
     const usuarioContacto = idUsuarioContacto || id_usuario_contacto;
     const rolUsuario = req.user?.puesto;
 
+    // ── Filtros por rol ──────────────────────────────────────────────────
     if (rolUsuario === 'COORDINADOR') {
-      // Un coordinador SÓLO puede ver la campaña activa. Ignoramos el parámetro de la URL.
       idCampania = await getIdCampaniaActiva();
     }
 
-    if (idCampania) { // Ahora este idCampania será el activo si es COORDINADOR, o el de la query para otros roles
+    // ── Filtro por campaña ───────────────────────────────────────────────
+    if (idCampania) {
       const turnos = await fetchAll('turno');
       const turnosCampania = turnos.filter(t => sameNumberOrString(getIdCampania(t), idCampania));
       const idsEntidadesCampania = new Set(
@@ -535,11 +536,11 @@ app.get('/api/entidades', requireAuth, async (req, res) => {
           .map(t => getIdEntidad(t))
       );
       rows = rows.filter(e => idsEntidadesCampania.has(getIdEntidad(e)));
-    } else if (rolUsuario === 'COORDINADOR') { // Si es coordinador y no hay campaña activa (o no se encontró), no ve nada.
+    } else if (rolUsuario === 'COORDINADOR') {
       rows = [];
     }
 
-    // El resto de filtros se aplican sobre el resultado ya filtrado (o vaciado).
+    // ── Filtros comunes ──────────────────────────────────────────────────
     rows = rows.filter((row) => {
       if (idEntidad && !sameNumberOrString(getIdEntidad(row), idEntidad)) return false;
       if (usuarioContacto && !sameNumberOrString(row.id_usuario_contacto, usuarioContacto)) return false;
@@ -554,16 +555,24 @@ app.get('/api/entidades', requireAuth, async (req, res) => {
 app.get('/api/voluntarios', requireAuth, async (req, res) => {
   try {
     let rows = await fetchAll('voluntario');
-    const { idVoluntario, idEntidad, busqueda, q } = req.query;
-    let { idCampania } = req.query; // Hacemos idCampania mutable
+    const { idVoluntario, idEntidad: queryIdEntidad, busqueda, q } = req.query;
+    let idEntidad = queryIdEntidad;
+    let idCampania = req.query.idCampania;
     const rolUsuario = req.user?.puesto;
 
+    // ── Filtros por rol ──────────────────────────────────────────────────
     if (rolUsuario === 'COORDINADOR') {
-      // Un coordinador SÓLO puede ver la campaña activa. Ignoramos el parámetro de la URL.
       idCampania = await getIdCampaniaActiva();
+    } else if (rolUsuario === 'RESPONSABLE-ENTIDAD') {
+      const entidades = await fetchAll('entidad');
+      const miEntidad = entidades.find(e => String(e.id_usuario_contacto) === String(req.user.id));
+      if (!miEntidad) return res.json([]);
+      if (idEntidad && String(idEntidad) !== String(miEntidad.id_entidad)) return res.json([]);
+      idEntidad = String(miEntidad.id_entidad);
     }
 
-    if (idCampania) { // Ahora este idCampania será el activo si es COORDINADOR, o el de la query para otros roles
+    // ── Filtro por campaña (si aplica) ───────────────────────────────────
+    if (idCampania) {
       const turnos = await fetchAll('turno');
       const turnosCampania = turnos.filter(t => sameNumberOrString(getIdCampania(t), idCampania));
       const idsTurnosCampania = turnosCampania.map(t => getIdTurno(t));
@@ -576,15 +585,17 @@ app.get('/api/voluntarios', requireAuth, async (req, res) => {
       );
 
       rows = rows.filter(v => idsVoluntariosCampania.has(getIdVoluntario(v)));
-    } else if (rolUsuario === 'COORDINADOR') { // Si es coordinador y no hay campaña activa (o no se encontró), no ve nada.
+    } else if (rolUsuario === 'COORDINADOR') {
       rows = [];
     }
 
+    // ── Filtros comunes ──────────────────────────────────────────────────
     rows = rows.filter((row) => {
       if (idVoluntario && !sameNumberOrString(getIdVoluntario(row), idVoluntario)) return false;
       if (idEntidad && !sameNumberOrString(getIdEntidad(row), idEntidad)) return false;
       return contains(row, busqueda || q, ['nombre', 'apellido_1', 'apellido_2', 'email']);
     });
+
     res.json(rows);
   } catch (error) { sendError(res, error, 'Error obteniendo voluntarios'); }
 });
