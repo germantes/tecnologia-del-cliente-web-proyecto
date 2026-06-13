@@ -1,6 +1,13 @@
+/**
+ * Lógica asíncrona de construcción del formulario de CREACIÓN de tienda.
+ * Lee 4 endpoints simultáneos, cruza datos y renderiza inputs dependientes.
+ */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Obtener rol/perfil usando la utilidad central (si está disponible) o fallback legacy.
-    const perfil = (typeof window.obtenerRolDeToken === 'function') ? window.obtenerRolDeToken() : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
+
+    // 1. Verificación de Seguridad: Solo perfiles Administrador pueden crear
+    const perfil = (typeof window.obtenerRolDeToken === 'function')
+        ? window.obtenerRolDeToken()
+        : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
     const token = sessionStorage.getItem('token');
 
     if (!perfil || !token || perfil.toUpperCase() !== 'ADMINISTRADOR') {
@@ -9,9 +16,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const API_BASE = window.API_URL || "http://localhost:3000";
-    const contenedor = document.getElementById('crearContenedor');
+    const contenedor = document.getElementById('contenedorFormulario'); // Referencia al div vacío en HTML
 
     try {
+        // 2. Fetch Paralelo: Trae todas las listas maestras de la API de golpe para no bloquear la pantalla
         const [cpsRes, cadenasRes, usuariosRes, campaniasRes] = await Promise.all([
             fetch(`${API_BASE}/api/cps`, { headers: { 'Authorization': `Bearer ${token}` } }),
             fetch(`${API_BASE}/api/cadenas`, { headers: { 'Authorization': `Bearer ${token}` } }),
@@ -24,10 +32,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const listaUsuarios = usuariosRes.ok ? await usuariosRes.json() : [];
         const listaCampanias = campaniasRes.ok ? await campaniasRes.json() : [];
 
-        // ORDENAR CPS
+        // Ordenamos la lista de Códigos Postales
         listaCPs.sort((c1, c2) => (c1.cp || '').localeCompare(c2.cp || ''));
 
-        // Determinar campaña activa y su nombre
+        // 3. Resolución de la Campaña en curso
         let idCampaniaActiva = null;
         let nombreCampaniaActiva = 'Sin campaña';
         const hoy = new Date();
@@ -43,14 +51,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
+        // Depuración de Cadenas duplicadas
         const cadenasUnicas = Array.from(new Map(listaCadenas.map(cad => [cad.establecimiento, cad])).values())
             .sort((c1, c2) => (c1.establecimiento || '').localeCompare(c2.establecimiento || ''));
 
+        // 4. CREACIÓN DEL ÁRBOL DOM (Inyección limpia de HTML)
         const form = document.createElement('form');
         form.id = 'formCrearTienda';
-        form.style.width = '100%';
-        form.style.maxWidth = '900px';
-        form.style.margin = '0 auto';
 
         if (idCampaniaActiva) {
             const inputCamp = document.createElement('input');
@@ -72,9 +79,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const divTablas = document.createElement('div');
         divTablas.classList.add('tablas');
 
-        // TABLA 1: Datos Básicos
+        // TABLA IZQUIERDA: Domicilio y CP
         const tabla1 = document.createElement('table');
-        tabla1.classList.add('tabla-1');
         tabla1.appendChild(crearFilaTextarea('Domicilio', 'domicilio', ""));
 
         const opcionesCP = listaCPs.map(cp => ({
@@ -83,19 +89,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         const filaCp = crearFilaSelect('Cód. Postal / Localidad', 'idCp', opcionesCP, true);
         const selectCp = filaCp.querySelector('select');
         tabla1.appendChild(filaCp);
-
         divTablas.appendChild(tabla1);
 
-        // TABLA 2: Asignaciones
+        // TABLA DERECHA: Cadena y Asignaciones Personales
         const tabla2 = document.createElement('table');
-        tabla2.classList.add('tabla-2');
 
         const opcionesCadena = cadenasUnicas.map(cad => ({
             valor: cad.id_cadena || cad.idCadena, texto: cad.establecimiento, seleccionado: false
         }));
         tabla2.appendChild(crearFilaSelect('Cadena', 'idCadena', opcionesCadena, true));
 
-        // Participa con Nombre de campaña
         const opcionesParticipa = [
             { valor: 'false', texto: 'No', seleccionado: true },
             { valor: 'true', texto: 'Sí', seleccionado: false }
@@ -106,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         tabla2.appendChild(crearFilaInputNumber('Número de cajas', 'numCajas', 0));
 
-        // Filas de responsables (nacen vacías)
+        // Nodos Select de Personal (Nacen bloqueados hasta que el usuario decida que la tienda SÍ participa)
         const filaResp = crearFilaSelect('Responsable de Tienda', 'idResponsable', [], true);
         const filaCoord = crearFilaSelect('Coordinador', 'idCoordinador', [], true);
         const filaCap = crearFilaSelect('Capitán', 'idCapitan', [], true);
@@ -118,10 +121,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         tabla2.appendChild(filaResp);
         tabla2.appendChild(filaCoord);
         tabla2.appendChild(filaCap);
-
         divTablas.appendChild(tabla2);
         divTotal.appendChild(divTablas);
 
+        // BOTONERA INFERIOR
         const divBotones = document.createElement('div');
         divBotones.classList.add('botones');
 
@@ -141,34 +144,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         divTotal.appendChild(divBotones);
         form.appendChild(divTotal);
 
+        // Vuelca la estructura final a la página, borrando el spinner de carga
         contenedor.innerHTML = '';
         contenedor.appendChild(form);
 
-        // Lógica Dinámica en JS
-        const getRol = (u) => (u.rol || u.puesto || '').toUpperCase();
+        // ====================================================================
+        // 5. LÓGICA REACTIVA DE FORMULARIO (Manejo de estados sin recarga web)
+        // ====================================================================
 
+        const getRol = (u) => (u.rol || u.puesto || '').toUpperCase();
         const mapearUsuario = (u, comparadorId) => ({
             valor: u.id_usuario || u.idUsuario,
             texto: u.rol ? `${u.nombre_completo || u.nombreCompleto} (${u.rol})` : (u.nombre_completo || u.nombreCompleto),
             seleccionado: (u.id_usuario || u.idUsuario) == comparadorId
         });
 
+        /** Evalúa qué usuarios están disponibles en base al Código Postal elegido */
         const actualizarAsignaciones = () => {
             const participa = selectParticipa.value === 'true';
             const cpSeleccionado = selectCp.value;
 
-            // Guardamos las selecciones previas para no machacarlas
+            // Salva la selección previa para no frustrar al usuario al re-dibujar
             const prevResp = selectResp.value;
             const prevCoord = selectCoord.value;
             const prevCap = selectCap.value;
 
+            // Regla de Negocio: Sin CP o si no participa, se bloquean los usuarios
             if (!participa || !cpSeleccionado) {
-                selectResp.disabled = true;
-                selectCoord.disabled = true;
-                selectCap.disabled = true;
-                rellenarOpciones(selectResp, []);
-                rellenarOpciones(selectCoord, []);
-                rellenarOpciones(selectCap, []);
+                selectResp.disabled = true; selectCoord.disabled = true; selectCap.disabled = true;
+                rellenarOpciones(selectResp, []); rellenarOpciones(selectCoord, []); rellenarOpciones(selectCap, []);
                 return;
             }
 
@@ -190,15 +194,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             rellenarOpciones(selectCoord, coordinadores.map(u => mapearUsuario(u, prevCoord)));
             rellenarOpciones(selectCap, capitanes.map(u => mapearUsuario(u, prevCap)));
 
-            selectResp.disabled = false;
-            selectCoord.disabled = false;
-            selectCap.disabled = false;
+            selectResp.disabled = false; selectCoord.disabled = false; selectCap.disabled = false;
         };
 
+        // Listeners: Recalcular dependencias al vuelo
         selectCp.addEventListener('change', actualizarAsignaciones);
         selectParticipa.addEventListener('change', actualizarAsignaciones);
         actualizarAsignaciones();
 
+        // 6. Enviar Datos (Submit)
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
@@ -208,6 +212,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (data.participa) data.participa = data.participa === 'true';
 
             try {
+                // Post genérico a la API de Node
                 const response = await fetch(`${API_BASE}/api/tiendas`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -221,8 +226,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     alert(`Error al crear la tienda: ${errInfo.message || 'Verifica los campos'}`);
                 }
             } catch (error) {
-                console.error('Error de red:', error);
-                alert('Error de conexión al crear.');
+                alert('Error de conexión al intentar crear el registro en servidor.');
             }
         });
 
@@ -230,49 +234,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         mostrarErrorGlobal(error.message);
     }
 
+    // --- Helpers de creación del DOM ---
     function crearFilaTextarea(etiqueta, name, value) {
         const tr = document.createElement('tr');
-        const tdEtiqueta = document.createElement('td');
-        tdEtiqueta.classList.add('etiqueta-campo');
-        tdEtiqueta.textContent = etiqueta;
+        const tdEtiqueta = document.createElement('td'); tdEtiqueta.classList.add('etiqueta-campo'); tdEtiqueta.textContent = etiqueta;
         const tdInput = document.createElement('td');
-        const textarea = document.createElement('textarea');
-        textarea.name = name;
-        textarea.rows = 3;
-        textarea.value = value;
-        tdInput.appendChild(textarea);
-        tr.appendChild(tdEtiqueta);
-        tr.appendChild(tdInput);
-        return tr;
+        const textarea = document.createElement('textarea'); textarea.name = name; textarea.rows = 3; textarea.value = value;
+        tdInput.appendChild(textarea); tr.appendChild(tdEtiqueta); tr.appendChild(tdInput); return tr;
     }
 
     function crearFilaSelect(etiqueta, name, opciones, incluirOpcionVacia) {
         const tr = document.createElement('tr');
-        const tdEtiqueta = document.createElement('td');
-        tdEtiqueta.classList.add('etiqueta-campo');
-        tdEtiqueta.textContent = etiqueta;
+        const tdEtiqueta = document.createElement('td'); tdEtiqueta.classList.add('etiqueta-campo'); tdEtiqueta.textContent = etiqueta;
         const tdInput = document.createElement('td');
-        const select = document.createElement('select');
-        select.name = name;
+        const select = document.createElement('select'); select.name = name;
         rellenarOpciones(select, opciones, incluirOpcionVacia);
-        tdInput.appendChild(select);
-        tr.appendChild(tdEtiqueta);
-        tr.appendChild(tdInput);
-        return tr;
+        tdInput.appendChild(select); tr.appendChild(tdEtiqueta); tr.appendChild(tdInput); return tr;
     }
 
     function rellenarOpciones(selectElement, opciones, incluirOpcionVacia = true) {
         selectElement.innerHTML = '';
         if (incluirOpcionVacia) {
-            const optionVacia = document.createElement('option');
-            optionVacia.value = "";
-            optionVacia.textContent = "-- Seleccione una opción --";
-            selectElement.appendChild(optionVacia);
+            const optionVacia = document.createElement('option'); optionVacia.value = ""; optionVacia.textContent = "-- Seleccione una opción --"; selectElement.appendChild(optionVacia);
         }
         opciones.forEach(op => {
-            const option = document.createElement('option');
-            option.value = op.valor;
-            option.textContent = op.texto;
+            const option = document.createElement('option'); option.value = op.valor; option.textContent = op.texto;
             if (op.seleccionado) option.selected = true;
             selectElement.appendChild(option);
         });
@@ -280,26 +266,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function crearFilaInputNumber(etiqueta, name, value) {
         const tr = document.createElement('tr');
-        const tdEtiqueta = document.createElement('td');
-        tdEtiqueta.classList.add('etiqueta-campo');
-        tdEtiqueta.textContent = etiqueta;
+        const tdEtiqueta = document.createElement('td'); tdEtiqueta.classList.add('etiqueta-campo'); tdEtiqueta.textContent = etiqueta;
         const tdInput = document.createElement('td');
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.name = name;
-        input.value = value;
-        input.min = 0;
-        tdInput.appendChild(input);
-        tr.appendChild(tdEtiqueta);
-        tr.appendChild(tdInput);
-        return tr;
+        const input = document.createElement('input'); input.type = 'number'; input.name = name; input.value = value; input.min = 0;
+        tdInput.appendChild(input); tr.appendChild(tdEtiqueta); tr.appendChild(tdInput); return tr;
     }
 
     function mostrarErrorGlobal(mensaje) {
         contenedor.innerHTML = '';
-        const tituloError = document.createElement('h2');
-        tituloError.classList.add('mensaje-error');
-        tituloError.textContent = mensaje;
+        const tituloError = document.createElement('h2'); tituloError.classList.add('mensaje-error'); tituloError.textContent = mensaje;
         contenedor.appendChild(tituloError);
     }
 });

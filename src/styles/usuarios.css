@@ -1,5 +1,7 @@
+/* src/styles/usuarios.css */
+
 /* ==========================================================================
-   1. VARIABLES GLOBALES (Por si no están en App.css)
+   1. VARIABLES GLOBALES
    ========================================================================== */
 :root {
     --twilight-indigo: #323266;
@@ -13,11 +15,22 @@
 /* ==========================================================================
    2. CABECERA Y CONTENEDORES PRINCIPALES
    ========================================================================== */
+/* Rompe el límite global de la app para que ocupe todo el ancho */
+.usuarios-main {
+    width: 100%;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
 .header-titulo {
     width: 100%;
     background-color: var(--twilight-indigo);
     padding: 40px 20px;
-    margin: 0 0 40px 0;
+    margin: 0 0 40px 0 !important; /* Fuerza a que el margen superior sea 0 */
     box-sizing: border-box;
     text-align: center;
 }
@@ -86,9 +99,7 @@
     border-bottom: 2px solid var(--twilight-indigo);
 }
 
-.usuario-card p:last-of-type {
-    border-bottom: none;
-}
+.usuario-card p:last-of-type { border-bottom: none; }
 
 .usuario-card strong {
     color: var(--twilight-indigo);
@@ -120,16 +131,14 @@
     font-family: var(--font-main);
     font-size: 1rem;
     font-weight: 800;
-    line-height: 1;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(88, 185, 218, 0.35);
-    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.2s ease;
     min-width: 120px;
 }
 
 .btn-editar:hover {
     background-color: var(--twilight-indigo);
-    color: var(--white);
     transform: translateY(-2px);
     box-shadow: 0 8px 15px rgba(50, 50, 102, 0.28);
 }
@@ -148,15 +157,13 @@
     font-family: var(--font-main);
     font-size: 1.45rem;
     font-weight: 800;
-    line-height: 1;
     cursor: pointer;
     box-shadow: 0 6px 14px rgba(88, 185, 218, 0.35);
-    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .btn-crear:hover {
     background-color: var(--twilight-indigo);
-    color: var(--white);
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(50, 50, 102, 0.28);
 }
@@ -184,10 +191,9 @@
     width: 100%;
     color: var(--twilight-indigo);
     font-size: 1.5rem;
-    grid-column: 1 / -1; /* Para que ocupe todo el ancho del grid */
+    grid-column: 1 / -1;
 }
 
-/* Rueda de carga (Spinner) sin duplicados */
 .spinner {
     width: 60px;
     height: 60px;
@@ -196,26 +202,6 @@
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 20px auto;
-}
-
-.usuarios-main {
-    width: 100%;
-    max-width: 100% !important; /* Rompe el límite de 1400px de tus compañeros */
-    margin: 0 !important;
-    padding: 0 !important; /* Elimina el padding invisible */
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-}
-
-/* Y asegúrate de que el header-titulo tampoco tenga margen arriba */
-.header-titulo {
-    width: 100%;
-    background-color: var(--twilight-indigo);
-    padding: 40px 20px;
-    margin: 0 0 40px 0 !important; /* Fuerza a que arriba sea 0 */
-    box-sizing: border-box;
-    text-align: center;
 }
 
 @keyframes spin {
