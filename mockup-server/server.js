@@ -552,6 +552,18 @@ app.get('/api/entidades', requireAuth, async (req, res) => {
   } catch (error) { sendError(res, error, 'Error obteniendo entidades'); }
 });
 
+async function getContactosAdicionales(req, res) {
+  try {
+    const contactos = await fetchAll('contactoAdicional');
+    res.json(contactos);
+  } catch (error) {
+    sendError(res, error, 'Error obteniendo contactos adicionales');
+  }
+}
+
+app.get('/api/contactos-adicionales', requireAuth, getContactosAdicionales);
+app.get('/api/contactos_adicionales', requireAuth, getContactosAdicionales);
+
 app.get('/api/voluntarios', requireAuth, async (req, res) => {
   try {
     let rows = await fetchAll('voluntario');
@@ -2168,13 +2180,4 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`   Health: http://localhost:${PORT}/health`);
   console.log(`   Supabase URL: ${process.env.SUPABASE_URL ? 'configurada' : 'NO configurada'}`);
   console.log(`   GET de datos públicos para pruebas en navegador; POST/PUT/DELETE con token.\n`);
-});
-
-app.get('/api/contactos-adicionales', requireAuth, async (req, res) => {
-  try {
-    const todasLasRelaciones = await fetchAll('contactoAdicional');
-    res.json(todasLasRelaciones);
-  } catch (error) {
-    sendError(res, error, 'Error obteniendo contactos adicionales');
-  }
 });
