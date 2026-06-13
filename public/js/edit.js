@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Obtener rol/perfil usando la utilidad central (si está disponible) o fallback legacy.
-    const perfil = (typeof window.obtenerRolDeToken === 'function') ? window.obtenerRolDeToken() : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
+    const perfil = getPerfil();
     const isAdmin = perfil === 'ADMINISTRADOR';
     const isManager = perfil === 'COORDINADOR';
     const canAccess = isAdmin || isManager;

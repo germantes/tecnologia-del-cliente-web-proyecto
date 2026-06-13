@@ -5,11 +5,8 @@ async function cargarVoluntarios() {
   const urlParams = new URLSearchParams(window.location.search);
   const idCampaniaParam = urlParams.get('idCampania');
 
-  // REQUISITO: Reemplazamos la lectura directa del sessionStorage por la nueva función centralizada.
-  // Comprobación segura para evitar ReferenceError si la utilidad no está disponible.
-  const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
-    ? window.obtenerRolDeToken()
-    : (function () { const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
+  const rolUsuario = getPerfil();
+
   console.log('Cargando vista Voluntarios. Rol del usuario:', rolUsuario); // Log de trazabilidad
 
   const idEntidadParam = urlParams.get('idEntidad');
@@ -230,11 +227,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.key === "Escape") cerrarInfoVoluntario();
   });
 
-  // REQUISITO: Usamos la nueva función para controlar la visibilidad del botón.
-  // Comprobación segura en tiempo de ejecución.
-  const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
-    ? window.obtenerRolDeToken()
-    : (function () { const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
+  const rolUsuario = getPerfil();
   const btnNuevo = document.getElementById('btn-nuevo');
   if (btnNuevo) {
     const canCreate = rolUsuario === 'ADMINISTRADOR';

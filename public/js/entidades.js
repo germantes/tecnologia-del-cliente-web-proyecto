@@ -5,9 +5,7 @@ async function cargarEntidades() {
     const urlParams = new URLSearchParams(window.location.search);
     const idCampaniaParam = urlParams.get('idCampania');
 
-    const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
-        ? window.obtenerRolDeToken()
-        : (function () { const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
+    const rolUsuario = getPerfil();
 
     if (rolUsuario !== 'ADMINISTRADOR' && rolUsuario !== 'COORDINADOR' && !idCampaniaParam) {
         const grid = document.getElementById('entidadesGrid');
@@ -204,12 +202,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (event.key === "Escape") cerrarInfoEntidad();
     });
 
-    // REQUISITO: Usamos la nueva función para controlar la visibilidad del botón.
-    // Comprobación segura en tiempo de ejecución para evitar ReferenceError si la utilidad
-    // aún no se ha cargado en el orden de scripts.
-    const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
-        ? window.obtenerRolDeToken()
-        : (function () { const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
+    const rolUsuario = getPerfil();
+
     const btnNuevo = document.getElementById('btn-nuevo');
     if (btnNuevo) {
         const canCreate = rolUsuario === 'ADMINISTRADOR';

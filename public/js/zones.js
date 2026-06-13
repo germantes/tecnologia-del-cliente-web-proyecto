@@ -48,7 +48,7 @@ async function loadZonesByCampaign() {
 // Renderizar zonas en el grid
 function renderZones(zones) {
   const container = document.getElementById('container');
-  const perfil = sessionStorage.getItem('perfil');
+  const perfil = getPerfil();
   const canEdit = perfil === 'ADMINISTRADOR' || perfil === 'COORDINADOR';
 
   if (zones.length === 0) {
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('exportBtn').addEventListener('click', exportZonesCSV);
 
   // Configurar el botón "Nuevo" si existiera en la cabecera del HTML
-  const perfil = sessionStorage.getItem('perfil');
+  const perfil = getPerfil();
   const btnNuevo = document.getElementById('btn-nuevo');
   if (btnNuevo) {
     const canCreate = perfil === 'ADMINISTRADOR';

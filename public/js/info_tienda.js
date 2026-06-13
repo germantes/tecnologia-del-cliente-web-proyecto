@@ -1,9 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
     // Obtener rol/perfil usando la utilidad central (si existe) o fallback legacy.
-    const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
-        ? window.obtenerRolDeToken()
-        : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
-
+    const rolUsuario = getPerfil();
     const token = sessionStorage.getItem('token');
 
     if (!rolUsuario || !token) {

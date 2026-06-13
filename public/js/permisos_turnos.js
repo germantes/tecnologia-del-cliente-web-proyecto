@@ -6,8 +6,7 @@ var ROL_RESPONSABLE_TIENDA = "RESPONSABLE-TIENDA";
 
 function obtenerPerfilTurnos() {
     // Intentar obtener rol a través de la utilidad global y mantener fallback legacy.
-    var perfil = (typeof window.obtenerRolDeToken === 'function') ? window.obtenerRolDeToken() : (sessionStorage.getItem('perfil') || sessionStorage.getItem('rol')) || '';
-
+    var perfil = getPerfil();
     console.log("tienda_turnos: rol: ", perfil);
 
     if (!perfil) {
@@ -17,26 +16,6 @@ function obtenerPerfilTurnos() {
 
     return perfil;
 }
-
-
-// por eliminar......
-
-// function obtenerUsuarioTurnos() {
-//     var textoUsuario = sessionStorage.getItem("usuario");
-//
-//
-//     if (!textoUsuario) {
-//         redirigirLoginTurnos();
-//         return {};
-//     }
-//
-//     try {
-//         return JSON.parse(textoUsuario);
-//     } catch (error) {
-//         redirigirLoginTurnos();
-//         return {};
-//     }
-// }
 
 function sonIgualesTurnos(valorA, valorB) {
     if (valorA === undefined || valorA === null || valorB === undefined || valorB === null) {
@@ -69,8 +48,6 @@ function obtenerIdsEntidadesTurnos(datos) {
 }
 
 async function puedeVerTiendaTurnos(datos) {
-    //var perfil = obtenerPerfilTurnos();
-    //var usuario = obtenerUsuarioTurnos();
     const idUsuario = getId();
     const perfil = getPerfil();
 
@@ -117,13 +94,10 @@ function tiendaPerteneceResponsableTurnos(idUsuario, datos) {
 }
 
 function usuarioEsResponsableTiendaTurnos(datos) {
-    //var usuario = obtenerUsuarioTurnos();
-
     return tiendaPerteneceResponsableTurnos(getId(), datos);
 }
 
 function puedeEditarVoluntariosEnTiendaTurnos(datos) {
-    //var perfil = obtenerPerfilTurnos();
     const perfil = getPerfil();
 
     if (perfil === ROL_ADMINISTRADOR) {

@@ -81,9 +81,6 @@ function getSesion() {
 
 function cerrarSesion() {
   sessionStorage.removeItem('token')
-  sessionStorage.removeItem('perfil')
-  sessionStorage.removeItem('usuario')
-  sessionStorage.removeItem('rol')
 }
 
 function getAuthHeaders() {

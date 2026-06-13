@@ -1,11 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    // Usamos la nueva función para obtener el rol y el token.
-    // Obtener rol de forma segura: preferir la utilidad global y, si no está
-    // disponible (por orden de carga), usar el fallback legacy en sessionStorage.
-    const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
-        ? window.obtenerRolDeToken()
-        : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
-
+    const rolUsuario = getPerfil();
     const token = sessionStorage.getItem('token'); // El token se sigue leyendo igual.
     console.log('Cargando vista Tiendas. Rol del usuario:', rolUsuario); // Log de trazabilidad
 
