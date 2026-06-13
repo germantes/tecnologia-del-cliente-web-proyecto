@@ -3,6 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { getAuthHeaders, getId } from './session.js';
 import formStyles from '../styles/edit.module.css';
 
+const API_BASE = typeof window !== 'undefined' && window.API_URL
+    ? window.API_URL
+    : 'http://localhost:3000';
+
+async function obtenerJson(respuesta, mensajePorDefecto) {
+    const datos = await respuesta.json().catch(() => null);
+
+    if (!respuesta.ok) {
+        throw new Error(datos?.message || mensajePorDefecto);
+    }
+
+    return datos;
+}
+
 function Profile() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
@@ -15,31 +29,28 @@ function Profile() {
     });
     const [listaCPs, setListaCPs] = useState([]);
     const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(Boolean(getId()));
     const [saving, setSaving] = useState(false);
 
     const userId = getId();
 
     useEffect(() => {
-        if (!userId) {
-            setError('No se pudo identificar al usuario.');
-            setLoading(false);
-            return;
-        }
+        if (!userId) return;
 
         async function fetchData() {
             try {
                 const [userRes, cpsRes] = await Promise.all([
-                    fetch(`/api/usuarios/${userId}`, { headers: getAuthHeaders() }),
-                    fetch('/api/cp', { headers: getAuthHeaders() }),
+                    fetch(`${API_BASE}/api/usuarios/${encodeURIComponent(userId)}`, {
+                        headers: getAuthHeaders(),
+                    }),
+                    fetch(`${API_BASE}/api/cp`, { headers: getAuthHeaders() }),
                 ]);
 
-                if (!userRes.ok) throw new Error('Error al cargar datos del perfil');
-
-                const user = await userRes.json();
+                const user = await obtenerJson(userRes, 'Error al cargar datos del perfil');
                 const cps = cpsRes.ok ? await cpsRes.json() : [];
+                const listaCodigosPostales = Array.isArray(cps) ? cps : [];
 
-                setListaCPs(cps.sort((a, b) => parseInt(a.cp) - parseInt(b.cp)));
+                setListaCPs(listaCodigosPostales.sort((a, b) => parseInt(a.cp) - parseInt(b.cp)));
 
                 const cpValue = user.cp && typeof user.cp === 'object'
                     ? String(user.cp.cp)
@@ -72,7 +83,7 @@ function Profile() {
         setError(null);
 
         try {
-            const res = await fetch(`/api/usuarios/${userId}`, {
+            const res = await fetch(`${API_BASE}/api/usuarios/${encodeURIComponent(userId)}`, {
                 method: 'PUT',
                 headers: {
                     ...getAuthHeaders(),
@@ -82,8 +93,8 @@ function Profile() {
             });
 
             if (!res.ok) {
-                const errData = await res.json();
-                throw new Error(errData.message || 'Error al actualizar el perfil');
+                const errData = await res.json().catch(() => null);
+                throw new Error(errData?.message || 'Error al actualizar el perfil');
             }
 
             const data = await res.json();
@@ -103,6 +114,14 @@ function Profile() {
         return (
             <main className={formStyles['form-wrapper']}>
                 <p>...</p>
+            </main>
+        );
+    }
+
+    if (!userId) {
+        return (
+            <main className={formStyles['form-wrapper']}>
+                <div className={formStyles['error-banner']}>No se pudo identificar al usuario.</div>
             </main>
         );
     }
