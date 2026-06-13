@@ -1,8 +1,12 @@
+/**
+ * Lógica principal del Dashboard de Tiendas (Vanilla JS).
+ * Se encarga de evaluar el rol del usuario, adaptar la interfaz y llamar
+ * a la API REST para pintar el grid de tiendas.
+ */
 document.addEventListener('DOMContentLoaded', async () => {
     const rolUsuario = getPerfil();
     const token = sessionStorage.getItem('token'); // El token se sigue leyendo igual.
     console.log('Cargando vista Tiendas. Rol del usuario:', rolUsuario); // Log de trazabilidad
-
     if (!rolUsuario || !token) {
         window.location.href = 'index.html';
         return;
@@ -10,36 +14,44 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const API_BASE = window.API_URL || "http://localhost:3000";
 
+    // Caché de elementos del DOM
     const tiendasContainer = document.getElementById('tiendasContainer');
     const adminFilters = document.getElementById('adminFilters');
     const selectZona = document.getElementById('selectZona');
     const selectCampania = document.getElementById('selectCampania');
     const tituloVista = document.getElementById('tituloVista');
 
+    // Variables de estado globales
     let campaniasGlobal = [];
     let idCampaniaActiva = null;
 
+    // 2. EJECUCIÓN PRINCIPAL SECUENCIAL
     await cargarCampanias();
     configurarInterfazPorRol();
     await cargarTiendas();
 
+    /**
+     * Adapta la visibilidad del HTML según el nivel de permisos del usuario.
+     */
     async function configurarInterfazPorRol() {
         if (rolUsuario === 'ADMINISTRADOR') {
+            // El admin ve los filtros y botones de creación
             adminFilters.style.display = 'flex';
-
             document.getElementById('adminAcciones').style.display = 'block';
+
             document.getElementById('btnCrearTienda').addEventListener('click', () => {
                 window.location.href = 'crear_tienda.html';
             });
 
             await cargarFiltrosZona();
 
-            // Auto-recarga interactiva: Eliminamos el botón Aplicar y usamos eventos change
+            // Auto-recarga: Al cambiar el desplegable, se llama a la API de nuevo automáticamente
             selectCampania.addEventListener('change', cargarTiendas);
             selectZona.addEventListener('change', cargarTiendas);
 
             tituloVista.textContent = 'Tiendas por Zona';
         } else {
+            // Roles inferiores ven un título simplificado de lectura
             tituloVista.style.fontSize = "1.8rem";
             if (idCampaniaActiva) {
                 const activa = campaniasGlobal.find(c => c.id_campania === idCampaniaActiva);
@@ -50,6 +62,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    /**
+     * Obtiene el catálogo de campañas y marca cuál está activa hoy.
+     */
     async function cargarCampanias() {
         try {
             const res = await fetch(`${API_BASE}/api/campanias`, {
@@ -60,6 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 campaniasGlobal = await res.json();
                 const hoy = new Date();
 
+                // Lógica de fechas para deducir la campaña en curso
                 campaniasGlobal.forEach(c => {
                     if (c.fecha_inicio && c.fecha_fin) {
                         const inicio = new Date(c.fecha_inicio);
@@ -71,6 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 });
 
+                // Si es admin, rellenar el <select>
                 if (rolUsuario === 'ADMINISTRADOR' && selectCampania) {
                     limpiarContenedor(selectCampania);
                     const optVacia = document.createElement('option');
@@ -81,6 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     campaniasGlobal.forEach(c => {
                         const opt = document.createElement('option');
                         opt.value = c.id_campania;
+                        // Remarcamos visualmente la activa para el usuario
                         opt.textContent = c.id_campania === idCampaniaActiva ? `${c.nombre} (Activa)` : c.nombre;
                         selectCampania.appendChild(opt);
                     });
@@ -91,6 +109,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    /**
+     * Llamada central a la API para obtener las tiendas filtradas.
+     */
     async function cargarTiendas() {
         mostrarMensajeCarga();
 
@@ -98,10 +119,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             let url = '/api/tiendas';
             let idCampaniaBuscada = null;
 
+            // Anexar parámetros de consulta si el usuario es Admin
             if (rolUsuario === 'ADMINISTRADOR') {
                 const zonaId = selectZona.value;
                 const campaniaId = selectCampania.value;
-
                 url += `?idZona=${zonaId}&idCampania=${campaniaId}`;
                 idCampaniaBuscada = (campaniaId && campaniaId !== "0") ? parseInt(campaniaId) : null;
             }
@@ -120,8 +141,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
+            // Ordenación ascendente por ID
             tiendas.sort((a, b) => a.id_tienda - b.id_tienda);
 
+            // Renderizado por DOM Scripting
             tiendas.forEach(tienda => {
                 construirTarjetaTienda(tienda, idCampaniaBuscada);
             });
@@ -132,6 +155,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    /**
+     * Descarga la lista de Zonas Geográficas para el <select> del Administrador.
+     */
     async function cargarFiltrosZona() {
         try {
             const response = await fetch(`${API_BASE}/api/zonas`, {
@@ -152,16 +178,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    /**
+     * Creador de Nodos DOM: Dibuja una tarjeta individual por tienda.
+     * @param {Object} tienda Objeto JSON proveniente del servidor.
+     * @param {Number} idCampaniaBuscada Contexto del filtro actual.
+     */
     function construirTarjetaTienda(tienda, idCampaniaBuscada) {
         const card = document.createElement('div');
         card.classList.add('tienda-card');
 
+        // Extracción segura (Null-checking manual)
         const establecimiento = tienda.cadena ? tienda.cadena.establecimiento : 'Sin cadena';
         const localidad = tienda.cp ? tienda.cp.localidad : 'N/A';
 
         let participaTexto = "No";
         let idCampaniaPintar = null;
 
+        // Búsqueda del historial de campañas cruzadas
         if (tienda.tienda_campania && tienda.tienda_campania.length > 0) {
             let relacion = null;
             if (idCampaniaBuscada && idCampaniaBuscada > 0) {
@@ -177,6 +210,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
+        // Título de tarjeta
         const titulo = document.createElement('h3');
         titulo.classList.add('titulo-tienda');
         titulo.textContent = `Tienda ${tienda.id_tienda} - ${establecimiento}`;
@@ -187,20 +221,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         card.appendChild(crearParrafoDato('Domicilio: ', tienda.domicilio || 'N/A'));
 
         const mostrarContextoCampania = (rolUsuario !== 'ADMINISTRADOR') || (idCampaniaBuscada && idCampaniaBuscada > 0);
-
         if (mostrarContextoCampania) {
             card.appendChild(crearParrafoDato('Participa: ', participaTexto));
         }
 
+        // Botonera
         const divBotones = document.createElement('div');
         divBotones.classList.add('botones-card');
 
+        // Arrastrar el parámetro en la URL para que las siguientes vistas no pierdan el contexto
         let contextoURL = idCampaniaBuscada ? `&idCampania=${idCampaniaBuscada}` : '';
 
         if (rolUsuario === 'ADMINISTRADOR') {
             divBotones.appendChild(crearBoton('Editar', 'btn-editar', `editar_tienda.html?id=${tienda.id_tienda}${contextoURL}`));
         }
 
+        // Lógica: Solo mostrar "Turnos" si la tienda participa y estamos en la campaña en curso
         let verificarBotonTurnos = false;
         if (rolUsuario === 'ADMINISTRADOR') {
             verificarBotonTurnos = (participaTexto === 'Sí' && idCampaniaBuscada !== null && parseInt(idCampaniaBuscada) === idCampaniaActiva);
@@ -224,6 +260,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         tiendasContainer.appendChild(card);
     }
 
+    /** Helpers de manipulación del DOM */
     function crearParrafoDato(etiqueta, valor) {
         const p = document.createElement('p');
         const strong = document.createElement('strong');
@@ -248,9 +285,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function mostrarMensajeCarga() {
         limpiarContenedor(tiendasContainer);
         const loadingDiv = document.createElement('div');
-        loadingDiv.classList.add('loading');
-        loadingDiv.style.gridColumn = '1/-1';
-        loadingDiv.style.justifyContent = 'center';
+        loadingDiv.classList.add('loading-placeholder');
         const spinner = document.createElement('div');
         spinner.classList.add('spinner');
         loadingDiv.appendChild(spinner);
@@ -261,8 +296,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     function mostrarMensaje(mensaje, claseAlerta) {
         const divMsj = document.createElement('div');
         divMsj.classList.add('alert', claseAlerta);
-        divMsj.style.gridColumn = '1/-1';
-        divMsj.style.textAlign = 'center';
         divMsj.textContent = mensaje;
         tiendasContainer.appendChild(divMsj);
     }

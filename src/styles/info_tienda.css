@@ -1,68 +1,86 @@
+/* public/css/info_tienda.css */
+
+/* ==========================================================================
+   RESET GLOBAL
+   ========================================================================== */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif !important;
+    background-color: #f4f6f8;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+*, *::before, *::after { box-sizing: border-box; font-family: inherit; }
+a { text-decoration: none; }
+
 :root {
     --twilight-indigo: #323266;
     --sky-surge: #58b9da;
     --white: #ffffff;
-    --font-main: 'Poppins', sans-serif;
 }
 
-/* Dejamos el body limpio para no aplastar el header ni el footer de common.css */
-body {
-    font-family: var(--font-main);
-    background-color: #f4f6f8;
-    margin: 0;
-    min-height: 100vh;
+main.main {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px;
+    flex: 1;
 }
 
-/* El bloque central tipo "Modal/Tarjeta" (Ajustado al tamaño de turnos) */
+/* ==========================================================================
+   TARJETA MODAL INFORMATIVA
+   ========================================================================== */
 .total {
     background-color: var(--white);
-    border: 10px solid var(--twilight-indigo); /* Borde grueso igual que en turnos */
+    border: 10px solid var(--twilight-indigo);
     border-radius: 9px;
     overflow: hidden;
     box-shadow: 0 14px 34px rgba(50, 50, 102, 0.22);
-
-    /* Ampliamos el ancho para que calque el diseño de editar_tienda */
     width: calc(100% - 40px);
     max-width: 1180px;
-    margin: 40px auto; /* Lo centra horizontalmente y lo separa de la cabecera */
+    margin: 40px auto;
 }
 
-/* Cabecera integrada en la tarjeta */
-header {
+.info-header {
     background-color: var(--twilight-indigo);
     padding: 25px;
     text-align: center;
 }
 
-header h1 {
-    color: var(--white);
-    margin: 0;
-    font-size: 2.2rem;
-    font-weight: bold;
+.info-header h1 { color: var(--white); margin: 0; font-size: 2.2rem; font-weight: bold; }
+
+.celda-aviso {
+    text-align: center;
+    padding: 25px;
+    color: #666;
+    font-style: italic;
+    background-color: #f9f9f9;
 }
 
-/* Las dos tablas alineadas */
+/* ==========================================================================
+   ESTRUCTURA DE DATOS A DOBLE COLUMNA ADAPTATIVA
+   ========================================================================== */
 .tablas {
     display: flex;
     justify-content: space-around;
-    gap: 30px;
+    flex-wrap: wrap;
+    gap: 40px;
     padding: 40px;
 }
 
-/* Estructura de tablas */
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+.tabla-1, .tabla-2 { flex: 1; min-width: 300px; }
+table { width: 100%; border-collapse: collapse; }
 
-/* Bordes para todas las celdas */
 td {
     border: 3px solid var(--twilight-indigo);
     padding: 12px 15px;
     font-size: 0.95rem;
 }
 
-/* 1ª Columna: Fondo azul oscuro */
+/* Primera columna sirve de etiqueta (Oscura) */
 td:first-child {
     background-color: var(--twilight-indigo);
     color: var(--white);
@@ -70,7 +88,7 @@ td:first-child {
     width: 40%;
 }
 
-/* 2ª Columna: Fondo blanco */
+/* Segunda columna contiene el valor */
 td:last-child {
     background-color: var(--white);
     color: var(--twilight-indigo);
@@ -78,16 +96,19 @@ td:last-child {
     font-weight: bold;
 }
 
-/* Botones inferiores */
-.botones, .botones-card {
+tbody tr:last-child td { border-bottom: 3px solid var(--twilight-indigo) !important; }
+
+/* ==========================================================================
+   BOTONERA
+   ========================================================================== */
+.botones-card {
     display: flex;
     justify-content: center;
     gap: 50px;
     padding: 0 40px 40px 40px;
 }
 
-/* Botones principales de los formularios */
-.btn-guardar, .btn-cerrar, .btn-editar, .btn-turnos {
+.btn-cerrar, .btn-editar, .btn-turnos {
     background-color: var(--sky-surge);
     color: var(--white);
     border: none;
@@ -98,24 +119,23 @@ td:last-child {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-family: var(--font-main);
     font-size: 1.45rem;
     font-weight: 800;
-    line-height: 1;
     cursor: pointer;
     box-shadow: 0 6px 14px rgba(88, 185, 218, 0.35);
-    box-sizing: border-box;
-    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.2s ease;
 }
 
-.btn-guardar:hover, .btn-cerrar:hover, .btn-editar:hover, .btn-turnos:hover {
+.btn-cerrar:hover, .btn-editar:hover, .btn-turnos:hover {
     background-color: var(--twilight-indigo);
-    color: var(--white);
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(50, 50, 102, 0.28);
 }
 
-/* Anula el "border-bottom: none" de common.css */
-tbody tr:last-child td {
-    border-bottom: 3px solid var(--twilight-indigo) !important;
-}
+.loading-placeholder { text-align: center; padding: 40px; color: var(--twilight-indigo); }
+.spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--twilight-indigo); border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Componente visual para control de fallos */
+.error-panel { padding: 40px; text-align: center; }
+.mensaje-error { color: #d46262; font-weight: bold; font-size: 1.5rem; }
