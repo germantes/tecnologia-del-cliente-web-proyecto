@@ -17,6 +17,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 main {
@@ -25,6 +26,10 @@ main {
   align-items: center;
   width: 100%;
   flex: 1;
+}
+
+h1 {
+  color: var(--twilight-indigo)
 }
 
 form {
@@ -76,7 +81,7 @@ input::placeholder {
   gap: 20px;
 }
 
-button {
+button, .filter-buttons a {
   padding: 10px 25px;
   border: none;
   border-radius: 6px;
@@ -85,9 +90,12 @@ button {
   transition: all 0.3s ease;
   background-color: var(--sky-surge);
   color: var(--white);
+  text-decoration: none;
+  text-align: center;
+  font-size: 14px;
 }
 
-button:hover {
+.filter-buttons a:hover, button:hover {
   background-color: var(--sky-surge);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(88, 185, 218, 0.3);

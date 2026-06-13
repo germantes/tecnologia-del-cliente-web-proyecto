@@ -5,24 +5,14 @@ async function cargarEntidades() {
     const urlParams = new URLSearchParams(window.location.search);
     const idCampaniaParam = urlParams.get('idCampania');
 
-    // REQUISITO: Reemplazamos la lectura directa del sessionStorage por la nueva función centralizada.
-    // Usamos la utilidad global si existe, si no, caemos al fallback legacy.
     const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
         ? window.obtenerRolDeToken()
         : (function () { const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
-    console.log('Cargando vista Entidades. Rol del usuario:', rolUsuario); // Log de trazabilidad
 
-    // Un coordinador puede acceder sin idCampania (el backend le dará la activa). Otros roles no-admin, no.
     if (rolUsuario !== 'ADMINISTRADOR' && rolUsuario !== 'COORDINADOR' && !idCampaniaParam) {
         const grid = document.getElementById('entidadesGrid');
         if (grid) {
-            grid.textContent = '';
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'turnos-vacio';
-            const h3 = document.createElement('h3'); h3.textContent = 'Acceso denegado';
-            const p = document.createElement('p'); p.textContent = 'No tienes permiso para ver todas las entidades. Por favor, accede mediante una campaña específica.';
-            errorDiv.append(h3, p);
-            grid.appendChild(errorDiv);
+            grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Acceso denegado. No tienes permiso para ver todas las entidades.</p>';
         }
         return;
     }
@@ -47,13 +37,7 @@ async function cargarEntidades() {
     } catch (error) {
         console.error('Error cargando entidades:', error);
         const grid = document.getElementById('entidadesGrid');
-        grid.textContent = '';
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'turnos-vacio';
-        const h3 = document.createElement('h3'); h3.textContent = 'Error al cargar entidades';
-        const p = document.createElement('p'); p.textContent = error.message;
-        errorDiv.append(h3, p);
-        grid.appendChild(errorDiv);
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Error al cargar entidades: ' + error.message + '</p>';
     }
 }
 
@@ -69,24 +53,6 @@ function configurarFiltros() {
     const selectVinculado = document.getElementById('filtroVinculado');
 
     if (!inputBusqueda || !selectVinculado) return;
-
-    // Limpiamos el select antes de inyectar las opciones
-    selectVinculado.textContent = '';
-
-    // Configuración de los filtros
-    const opcionTodos = document.createElement("option");
-    opcionTodos.value = "";
-    opcionTodos.textContent = "Todos los tipos";
-
-    const opcionTrue = document.createElement("option");
-    opcionTrue.value = "true";
-    opcionTrue.textContent = "Vinculadas";
-
-    const opcionFalse = document.createElement("option");
-    opcionFalse.value = "false";
-    opcionFalse.textContent = "No vinculadas";
-
-    selectVinculado.append(opcionTodos, opcionTrue, opcionFalse);
 
     const aplicarFiltros = () => {
         const texto = inputBusqueda.value.toLowerCase().trim();
@@ -112,80 +78,58 @@ function configurarFiltros() {
 
     inputBusqueda.addEventListener('input', aplicarFiltros);
     selectVinculado.addEventListener('change', aplicarFiltros);
+
+    const form = document.querySelector('.filter-form');
+    if (form) {
+        form.addEventListener('reset', () => {
+            setTimeout(aplicarFiltros, 0);
+        });
+    }
 }
 
 
 function renderizarEntidades(entidades) {
     const grid = document.getElementById('entidadesGrid');
     if (!grid) return;
-    grid.textContent = ''; // Limpiar el contenido de forma segura
 
     if (!entidades || entidades.length === 0) {
-        const divVacio = document.createElement('div');
-        divVacio.className = 'entidades-vacio';
-        const h3 = document.createElement('h3'); h3.textContent = 'No hay entidades disponibles';
-        const p = document.createElement('p'); p.textContent = 'No se han encontrado entidades.';
-        divVacio.append(h3, p);
-        grid.appendChild(divVacio);
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No hay entidades disponibles</p>';
         return;
     }
 
-    entidades.forEach(entidad => {
+    grid.innerHTML = entidades.map(entidad => {
         const nombre = entidad.nombre || 'Sin nombre';
         const codigo = entidad.codigo_bancosol || 'N/A';
         const idEntidad = entidad.id_entidad;
-
+        const cp = entidad.cp || 'N/A';
         const esVinculado = (entidad.vinculado_bancosol === true || String(entidad.vinculado_bancosol).toLowerCase() === 'true');
 
-        const diaCard = document.createElement('div');
-        diaCard.className = 'dia-card';
-
-        const turnoCard = document.createElement('div');
-        turnoCard.className = 'turno-card';
-
-        const bloqueTurno = document.createElement('div');
-        bloqueTurno.className = 'bloque-turno';
-
-        const h3 = document.createElement('h3');
-        h3.className = 'titulo-turno';
-        h3.textContent = nombre;
-
-        const filaVinculado = document.createElement('div');
-        filaVinculado.className = 'fila-voluntario';
-        const spanVincLabel = document.createElement('span'); spanVincLabel.textContent = 'Vinculado Bancosol';
-        const spanVincValor = document.createElement('span'); spanVincValor.textContent = esVinculado ? 'Sí' : 'No';
-        filaVinculado.append(spanVincLabel, spanVincValor);
-
-        const filaCodigo = document.createElement('div');
-        filaCodigo.className = 'fila-voluntario';
-        const spanCodLabel = document.createElement('span'); spanCodLabel.textContent = 'Código Bancosol';
-        const spanCodValor = document.createElement('span'); spanCodValor.textContent = codigo;
-        filaCodigo.append(spanCodLabel, spanCodValor);
-
-        const botonesDiv = document.createElement('div');
-        botonesDiv.className = 'boton-editar-turno';
-
-        const btnInfo = document.createElement('a');
-        btnInfo.className = 'btn btn-outline js-entidad-info';
-        btnInfo.href = '#';
-        btnInfo.textContent = '+info';
-        btnInfo.addEventListener('click', (e) => {
-            e.preventDefault();
-            abrirInfoEntidad(idEntidad);
-        });
-
-        const btnEditar = document.createElement('a');
-        btnEditar.className = 'btn btn-primary';
-        btnEditar.href = `/html/edit.html?type=entidades&id=${idEntidad}`;
-        btnEditar.textContent = 'Editar';
-
-        botonesDiv.append(btnInfo, btnEditar);
-        bloqueTurno.append(h3, filaVinculado, filaCodigo, botonesDiv);
-        turnoCard.appendChild(bloqueTurno);
-        diaCard.appendChild(turnoCard);
-
-        grid.appendChild(diaCard);
-    });
+        return `
+            <div class="card">
+                <div class="brand">
+                    <h2>${nombre}</h2>
+                </div>
+                <div class="values">
+                    <div class="value">
+                        <p>Vinculado Bancosol:</p>
+                        <p>${esVinculado ? 'Sí' : 'No'}</p>
+                    </div>
+                    <div class="value">
+                        <p>Código Bancosol:</p>
+                        <p>${codigo}</p>
+                    </div>
+                    <div class="value">
+                        <p>CP:</p>
+                        <p>${cp}</p>
+                    </div>
+                </div>
+                <div class="card-buttons">
+                    <button type="button" onclick="abrirInfoEntidad(${idEntidad})">+info</button>
+                    <button type="button" onclick="window.location.href='/html/edit.html?type=entidades&id=${idEntidad}'">Editar</button>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 function abrirPopupEntidad() {
@@ -205,10 +149,7 @@ function abrirInfoEntidad(idEntidad) {
     contenido.textContent = ''; // Limpiamos seguro
 
     if (!entidad) {
-        const divError = document.createElement('div');
-        divError.className = 'popup-voluntario-error';
-        divError.textContent = 'No se encontró la entidad.';
-        contenido.appendChild(divError);
+        contenido.innerHTML = '<p style="padding: 20px; text-align: center;">No se encontró la entidad.</p>';
         abrirPopupEntidad();
         return;
     }
@@ -221,7 +162,7 @@ function abrirInfoEntidad(idEntidad) {
     const nombreContacto = obtenerNombreContacto(entidad.id_usuario_contacto);
 
     const tabla = document.createElement('table');
-    tabla.className = 'popup-voluntario-tabla';
+    tabla.className = 'popup-entidad-tabla';
     const tbody = document.createElement('tbody');
 
     const agregarFila = (etiqueta, valor) => {
