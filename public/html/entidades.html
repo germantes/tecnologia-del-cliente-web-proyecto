@@ -1,43 +1,46 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de entidades</title>
-    <link rel="stylesheet" href="../css/turnos.css">
-    <link rel="stylesheet" href="../css/header.css">
-    <link rel="stylesheet" href="../css/footer.css">
-    <link rel="stylesheet" href="../css/template.css">
-    <link rel="stylesheet" href="../css/common.css">
-    <link rel="stylesheet" href="../css/entidades.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BancoSol - Entidades</title>
+    <link rel="stylesheet" href="../css/header.css" />
+    <link rel="stylesheet" href="../css/footer.css" />
+    <link rel="stylesheet" href="../css/card-display.css" />
+    <link rel="stylesheet" href="../css/entidades.css" />
     <script src="../js/config.js"></script>
-    <!-- Cargar authUtils de forma explícita para asegurarnos de que window.obtenerRolDeToken exista antes de ejecutar los scripts de la vista -->
     <script src="../js/authUtils.js" defer></script>
-
 </head>
 
-<body class="page-app">
+<body>
+    <include-html src="../componentes/header.html" active="entities"></include-html>
 
-    <include-html src="../componentes/header.html" active="entidades"></include-html>
+    <main>
+        <h1>Entidades</h1>
 
-    <main class="main">
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">Lista de Entidades</h1>
+        <form class="filter-form">
+            <div class="filter-group">
+                <label for="buscadorEntidades">Nombre:</label>
+                <input type="text" id="buscadorEntidades" placeholder="Buscar por nombre..." />
             </div>
-            <a href="/html/edit.html?type=entidades" id="btn-nuevo" class="btn btn-primary">+ Nueva Entidad</a>
-        </div>
 
-        <div id="filtros-entidades-container" class="filtros-container">
-            <input type="text" id="buscadorEntidades" class="filtro-input" placeholder="Buscar por nombre o CP...">
-            <select id="filtroVinculado" class="filtro-select">
-                <option value="">Vinculación (Todas)</option>
-                <option value="true">Vinculadas</option>
-                <option value="false">No vinculadas</option>
-            </select>
-        </div>
-        <div class="entidades-grid" id="entidadesGrid">
+            <div class="filter-group">
+                <label for="filtroVinculado">Vinculación:</label>
+                <select id="filtroVinculado">
+                    <option value="">Todas</option>
+                    <option value="true">Vinculadas</option>
+                    <option value="false">No vinculadas</option>
+                </select>
+            </div>
+
+            <div class="filter-buttons">
+                <button type="reset">Limpiar</button>
+                <a href="/html/edit.html?type=entidades" id="btn-nuevo">Nueva Entidad</a>
+            </div>
+        </form>
+
+        <div class="grid" id="entidadesGrid">
             <div class="entidades-vacio">
                 <h3>Cargando entidades...</h3>
             </div>
@@ -49,7 +52,7 @@
                 <div class="popup-entidad-header">
                     <h2 id="popupEntidadTitulo">Información entidad</h2>
                     <button type="button" class="popup-entidad-cerrar" aria-label="Cerrar"
-                        onclick="cerrarInfoEntidad();">×</button>
+                        onclick="cerrarInfoEntidad();">&times;</button>
                 </div>
                 <div id="popupEntidadContenido">
                     <table class="popup-entidad-tabla">
@@ -81,7 +84,8 @@
         </div>
     </main>
 
-    <include-html src="../componentes/footer.html" active="entidades"></include-html>
+    <include-html src="../componentes/footer.html"></include-html>
+
     <script src="../js/api.js"></script>
     <script src="../componentes/include-html.js"></script>
     <script src="../js/entidades.js"></script>

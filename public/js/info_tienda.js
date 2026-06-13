@@ -1,9 +1,12 @@
 document.addEventListener('DOMContentLoaded', async () => {
     // Obtener rol/perfil usando la utilidad central (si existe) o fallback legacy.
-    const perfil = (typeof window.obtenerRolDeToken === 'function') ? window.obtenerRolDeToken() : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
+    const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
+        ? window.obtenerRolDeToken()
+        : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
+
     const token = sessionStorage.getItem('token');
 
-    if (!perfil || !token) {
+    if (!rolUsuario || !token) {
         window.location.href = 'index.html';
         return;
     }
@@ -87,8 +90,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
-        const puedeEditar = (perfil.toUpperCase() === 'ADMINISTRADOR');
-        const mostrarDatosCampania = (perfil.toUpperCase() !== 'ADMINISTRADOR') || urlIdCampania;
+        const puedeEditar = (rolUsuario.toUpperCase() === 'ADMINISTRADOR');
+        const mostrarDatosCampania = (rolUsuario.toUpperCase() !== 'ADMINISTRADOR') || urlIdCampania;
 
         const divTotal = document.createElement('div');
         divTotal.classList.add('total');

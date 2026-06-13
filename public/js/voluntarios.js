@@ -111,21 +111,12 @@ function renderizarVoluntarios(voluntarios) {
   const grid = document.getElementById('voluntariosGrid');
   if (!grid) return;
 
-  grid.textContent = ''; // Limpiar el contenedor de forma segura
-
   if (!voluntarios || voluntarios.length === 0) {
-    const divVacio = document.createElement('div');
-    divVacio.className = 'turnos-vacio';
-    const h3 = document.createElement('h3');
-    h3.textContent = 'No hay voluntarios disponibles';
-    const p = document.createElement('p');
-    p.textContent = 'No se han encontrado voluntarios.';
-    divVacio.append(h3, p);
-    grid.appendChild(divVacio);
+    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No hay voluntarios disponibles</p>';
     return;
   }
 
-  voluntarios.forEach(voluntario => {
+  grid.innerHTML = voluntarios.map(voluntario => {
     const nombre = voluntario.nombre || '';
     const apellidos = `${voluntario.apellido_1 || ''} ${voluntario.apellido_2 || ''}`.trim();
     const nombreCompleto = voluntario.nombre_completo || `${nombre} ${apellidos}`.trim() || 'Sin nombre';
@@ -134,63 +125,28 @@ function renderizarVoluntarios(voluntarios) {
     const idEntidad = voluntario.id_entidad;
     const nombreEntidad = obtenerNombreEntidad(idEntidad);
 
-    const diaCard = document.createElement('div');
-    diaCard.className = 'dia-card';
-
-    const turnoCard = document.createElement('div');
-    turnoCard.className = 'turno-card';
-
-    const bloqueTurno = document.createElement('div');
-    bloqueTurno.className = 'bloque-turno';
-
-    const h3 = document.createElement('h3');
-    h3.className = 'titulo-turno';
-    h3.textContent = nombreCompleto;
-
-    const filaEntidad = document.createElement('div');
-    filaEntidad.className = 'fila-voluntario';
-    const spanEntidadEtiqueta = document.createElement('span');
-    spanEntidadEtiqueta.textContent = 'Entidad';
-    const spanEntidadValor = document.createElement('span');
-    spanEntidadValor.textContent = nombreEntidad;
-    filaEntidad.append(spanEntidadEtiqueta, spanEntidadValor);
-
-    const filaEmail = document.createElement('div');
-    filaEmail.className = 'fila-voluntario';
-    const spanEmailEtiqueta = document.createElement('span');
-    spanEmailEtiqueta.textContent = 'Email';
-    const spanEmailValor = document.createElement('span');
-    spanEmailValor.textContent = email;
-    filaEmail.append(spanEmailEtiqueta, spanEmailValor);
-
-    const botonesDiv = document.createElement('div');
-    botonesDiv.className = 'boton-editar-turno';
-
-    const btnInfo = document.createElement('a');
-    btnInfo.className = 'btn btn-outline js-voluntario-info';
-    btnInfo.href = '#';
-    btnInfo.textContent = '+info';
-    // Ya no hace falta buscar los enlaces después, le ponemos el evento directamente:
-    btnInfo.addEventListener('click', (e) => {
-      e.preventDefault();
-      abrirInfoVoluntario(idVoluntario);
-    });
-
-    const btnEditar = document.createElement('button');
-    btnEditar.type = 'button';
-    btnEditar.className = 'btn btn-primary';
-    btnEditar.textContent = 'Editar';
-    btnEditar.addEventListener('click', () => {
-      window.location.href = `edit.html?type=voluntarios&id=${idVoluntario}`;
-    });
-
-    botonesDiv.append(btnInfo, btnEditar);
-    bloqueTurno.append(h3, filaEntidad, filaEmail, botonesDiv);
-    turnoCard.appendChild(bloqueTurno);
-    diaCard.appendChild(turnoCard);
-
-    grid.appendChild(diaCard);
-  });
+    return `
+      <div class="card">
+        <div class="brand">
+          <h2>${nombreCompleto}</h2>
+        </div>
+        <div class="values">
+          <div class="value">
+            <p>Entidad:</p>
+            <p>${nombreEntidad}</p>
+          </div>
+          <div class="value">
+            <p>Email:</p>
+            <p>${email}</p>
+          </div>
+        </div>
+        <div class="card-buttons">
+          <button type="button" onclick="abrirInfoVoluntario(${idVoluntario})">+info</button>
+          <button type="button" onclick="window.location.href='edit.html?type=voluntarios&id=${idVoluntario}'">Editar</button>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 function abrirPopupVoluntario() {

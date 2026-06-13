@@ -557,12 +557,7 @@ async function obtenerAccesosRapidosPorRol(rol) {
     return [
       {
         texto: 'Mi entidad',
-        enlace: idEntidad
-          ? construirUrl('/html/edit.html', {
-            type: 'entidades',
-            id: idEntidad,
-          })
-          : '/html/entidades.html',
+        enlace: '/entidad',
       },
       {
         texto: 'Voluntarios',
