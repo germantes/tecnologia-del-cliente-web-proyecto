@@ -8,6 +8,8 @@ function obtenerPerfilTurnos() {
     // Intentar obtener rol a través de la utilidad global y mantener fallback legacy.
     var perfil = (typeof window.obtenerRolDeToken === 'function') ? window.obtenerRolDeToken() : (sessionStorage.getItem('perfil') || sessionStorage.getItem('rol')) || '';
 
+    console.log("tienda_turnos: rol: ", perfil);
+
     if (!perfil) {
         redirigirLoginTurnos();
         return "";
@@ -16,21 +18,25 @@ function obtenerPerfilTurnos() {
     return perfil;
 }
 
-function obtenerUsuarioTurnos() {
-    var textoUsuario = sessionStorage.getItem("usuario");
 
-    if (!textoUsuario) {
-        redirigirLoginTurnos();
-        return {};
-    }
+// por eliminar......
 
-    try {
-        return JSON.parse(textoUsuario);
-    } catch (error) {
-        redirigirLoginTurnos();
-        return {};
-    }
-}
+// function obtenerUsuarioTurnos() {
+//     var textoUsuario = sessionStorage.getItem("usuario");
+//
+//
+//     if (!textoUsuario) {
+//         redirigirLoginTurnos();
+//         return {};
+//     }
+//
+//     try {
+//         return JSON.parse(textoUsuario);
+//     } catch (error) {
+//         redirigirLoginTurnos();
+//         return {};
+//     }
+// }
 
 function sonIgualesTurnos(valorA, valorB) {
     if (valorA === undefined || valorA === null || valorB === undefined || valorB === null) {
@@ -63,8 +69,11 @@ function obtenerIdsEntidadesTurnos(datos) {
 }
 
 async function puedeVerTiendaTurnos(datos) {
-    var perfil = obtenerPerfilTurnos();
-    var usuario = obtenerUsuarioTurnos();
+    //var perfil = obtenerPerfilTurnos();
+    //var usuario = obtenerUsuarioTurnos();
+    const idUsuario = getId();
+    const perfil = getPerfil();
+
 
     var esAdministrador = perfil === ROL_ADMINISTRADOR;
     var esCoordinador = perfil === ROL_COORDINADOR;
@@ -76,16 +85,16 @@ async function puedeVerTiendaTurnos(datos) {
     }
 
     if (esCoordinador) {
-        return await tiendaPerteneceZonaCoordinadorTurnos(usuario.id, datos)
-            || tiendaPerteneceResponsableTurnos(usuario.id, datos);
+        return await tiendaPerteneceZonaCoordinadorTurnos(idUsuario, datos)
+            || tiendaPerteneceResponsableTurnos(idUsuario, datos);
     }
 
     if (esResponsableTienda) {
-        return tiendaPerteneceResponsableTurnos(usuario.id, datos);
+        return tiendaPerteneceResponsableTurnos(idUsuario, datos);
     }
 
     if (esResponsableEntidad) {
-        return await turnoPerteneceEntidadResponsableTurnos(usuario.id, datos);
+        return await turnoPerteneceEntidadResponsableTurnos(idUsuario, datos);
     }
 
     return false;
@@ -108,13 +117,14 @@ function tiendaPerteneceResponsableTurnos(idUsuario, datos) {
 }
 
 function usuarioEsResponsableTiendaTurnos(datos) {
-    var usuario = obtenerUsuarioTurnos();
+    //var usuario = obtenerUsuarioTurnos();
 
-    return tiendaPerteneceResponsableTurnos(usuario.id, datos);
+    return tiendaPerteneceResponsableTurnos(getId(), datos);
 }
 
 function puedeEditarVoluntariosEnTiendaTurnos(datos) {
-    var perfil = obtenerPerfilTurnos();
+    //var perfil = obtenerPerfilTurnos();
+    const perfil = getPerfil();
 
     if (perfil === ROL_ADMINISTRADOR) {
         return true;
@@ -235,7 +245,8 @@ function crearUrlPermisosTurnos(ruta) {
 }
 
 function puedeEditarVoluntariosTurnos() {
-    var perfil = obtenerPerfilTurnos();
+    //var perfil = obtenerPerfilTurnos();
+    const perfil = getPerfil();
 
     return perfil === ROL_ADMINISTRADOR
         || perfil === ROL_COORDINADOR
@@ -243,7 +254,8 @@ function puedeEditarVoluntariosTurnos() {
 }
 
 function puedeEditarObservacionesTurnos() {
-    var perfil = obtenerPerfilTurnos();
+    //var perfil = obtenerPerfilTurnos();
+    const perfil = getPerfil();
 
     return perfil === ROL_ADMINISTRADOR
         || perfil === ROL_COORDINADOR
@@ -252,11 +264,11 @@ function puedeEditarObservacionesTurnos() {
 }
 
 function puedeVerTurnos() {
-    return obtenerPerfilTurnos() !== "";
+    return getPerfil() !== "";
 }
 
 function redirigirLoginTurnos() {
-    window.location.href = "/index.html";
+    window.location.href = "/homepage";
 }
 
 function crearHeadersAutorizacionTurnos(headers) {

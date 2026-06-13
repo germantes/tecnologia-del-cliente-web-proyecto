@@ -69,6 +69,7 @@ function Campanias() {
     const [filter, setFilter] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const rol = getPerfil();
 
     useEffect(() => {
         async function fetchCampanias() {
@@ -128,24 +129,26 @@ function Campanias() {
         <main className={cardStyles['page']}>
             <h1>Campañas</h1>
 
-            <form className={cardStyles['filter-form']} onSubmit={e => e.preventDefault()}>
-                <div className={cardStyles['filter-group']}>
-                    <label htmlFor="filterSearch">Buscar:</label>
-                    <input
-                        type="text"
-                        id="filterSearch"
-                        className={cardStyles['input']}
-                        placeholder="Buscar por nombre, tipo..."
-                        value={filter}
-                        onChange={e => setFilter(e.target.value)}
-                    />
-                </div>
-                <div className={cardStyles['filter-buttons']}>
-                    <button type="reset" className={cardStyles['btn']} onClick={() => setFilter('')}>Limpiar</button>
-                    <button type="button" className={cardStyles['btn']} onClick={handleCreate}>Crear Campaña</button>
-                    <button type="button" className={cardStyles['btn']} onClick={handleExport}>Exportar</button>
-                </div>
-            </form>
+            {rol === 'ADMINISTRADOR' && (
+                <form className={cardStyles['filter-form']} onSubmit={e => e.preventDefault()}>
+                    <div className={cardStyles['filter-group']}>
+                        <label htmlFor="filterSearch">Buscar:</label>
+                        <input
+                            type="text"
+                            id="filterSearch"
+                            className={cardStyles['input']}
+                            placeholder="Buscar por nombre, tipo..."
+                            value={filter}
+                            onChange={e => setFilter(e.target.value)}
+                        />
+                    </div>
+                    <div className={cardStyles['filter-buttons']}>
+                        <button type="reset" className={cardStyles['btn']} onClick={() => setFilter('')}>Limpiar</button>
+                        <button type="button" className={cardStyles['btn']} onClick={handleCreate}>Crear Campaña</button>
+                        <button type="button" className={cardStyles['btn']} onClick={handleExport}>Exportar</button>
+                    </div>
+                </form>
+            )}
 
             {loading && (
                 <p style={{ color: 'var(--twilight-indigo)', marginTop: '1rem' }}>Cargando campañas...</p>

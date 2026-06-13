@@ -1,4 +1,5 @@
 import cardStyles from '../styles/card-display.module.css';
+import {getPerfil} from './session.js';
 
 function formatDate(dateStr) {
     if (!dateStr) return '-';
@@ -7,6 +8,7 @@ function formatDate(dateStr) {
 }
 
 function CampaniaCard({ campania, onEdit }) {
+    const rol = getPerfil();
     return (
         <div className={cardStyles['card']}>
             <div className={cardStyles['brand']}>
@@ -26,11 +28,13 @@ function CampaniaCard({ campania, onEdit }) {
                     <p>{formatDate(campania.fecha_fin)}</p>
                 </div>
             </div>
-            <div className={cardStyles['card-buttons']} style={{ justifyContent: 'center' }}>
-                <button type="button" className={cardStyles['btn']} onClick={() => onEdit(campania)}>
-                    Editar
-                </button>
-            </div>
+            {rol === 'ADMINISTRADOR' && (
+                <div className={cardStyles['card-buttons']} style={{ justifyContent: 'center' }}>
+                    <button type="button" className={cardStyles['btn']} onClick={() => onEdit(campania)}>
+                        Editar
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

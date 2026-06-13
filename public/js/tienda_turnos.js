@@ -289,7 +289,14 @@ function nombreVoluntario(voluntario) {
 function configurarBotonAnadirTurno(idTienda, idCampania) {
     var contenedor = document.getElementById("turnosAcciones");
     var botonExistente = document.getElementById("botonAnadirTurno");
-    var esAdministrador = obtenerPerfilTurnos() === ROL_ADMINISTRADOR;
+
+    const rolUsuario = (typeof window.obtenerRolDeToken === 'function')
+        ? window.obtenerRolDeToken()
+        : (function(){ const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
+
+    console.log("tienda_turnos: rolUsuario: " , rolUsuario);
+
+    var esAdministrador = rolUsuario === ROL_ADMINISTRADOR;
 
     if (!contenedor) {
         return;
