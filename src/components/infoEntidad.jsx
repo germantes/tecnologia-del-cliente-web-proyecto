@@ -71,6 +71,10 @@ function InfoEntidad() {
           obtenerVoluntariosPorEntidad(idEntidad),
         ])
 
+        console.log(idEntidad);
+        console.log(await obtenerContactosEntidad(idEntidad));
+        console.log(contactos);
+
         if (activo) {
           setDatos({ entidad, responsable, contactos, voluntarios })
         }

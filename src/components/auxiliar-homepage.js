@@ -495,6 +495,7 @@ async function obtenerAccesosRapidosPorRol(rol) {
       { texto: 'Entidades', enlace: '/html/entidades.html' },
       { texto: 'Voluntarios', enlace: '/html/voluntarios.html' },
       { texto: 'Sugerencias', enlace: '/sugerencias' },
+      { texto: 'Gráficas', enlace: '/dashboard' },
     ]
   }
 
