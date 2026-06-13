@@ -91,6 +91,30 @@ async function getIdCampaniaActiva() {
   return activa ? getIdCampania(activa) : null;
 }
 
+function parseDatosPropuestos(value) {
+  if (!value) return null;
+  if (typeof value === 'object') return value;
+  if (typeof value !== 'string') return null;
+
+  const trimmed = value.trim();
+  try {
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) return JSON.parse(trimmed);
+  } catch { /* not JSON */ }
+
+  const lines = trimmed.split(/\r?\n/);
+  const result = {};
+  let canParse = true;
+
+  for (const line of lines) {
+    const sep = line.indexOf(':') !== -1 ? line.indexOf(':') : line.indexOf('=');
+    if (sep === -1) { canParse = false; break; }
+    result[line.slice(0, sep).trim()] = line.slice(sep + 1).trim();
+  }
+
+  if (canParse && Object.keys(result).length > 0) return result;
+  return null;
+}
+
 function normalizeRow(row) {
   return row;
 }
@@ -1122,9 +1146,9 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
     if (puesto === 'ADMINISTRADOR') {
       if (idZona && idZona !== '0') query = query.eq('cp.id_zona', idZona);
     } else if (puesto === 'COORDINADOR') {
-      const { data: usuarioData } = await supabase.from('usuario').select('id_cp').eq('id_usuario', id_usuario).single();
-      if (usuarioData && usuarioData.id_cp) {
-        const { data: userCp } = await supabase.from('cp').select('id_zona').eq('cp', usuarioData.id_cp).single();
+      const { data: usuarioData } = await supabase.from('usuario').select('cp').eq('id_usuario', id_usuario).single();
+      if (usuarioData && usuarioData.cp) {
+        const { data: userCp } = await supabase.from('cp').select('id_zona').eq('cp', usuarioData.cp).single();
         if (userCp) query = query.eq('cp.id_zona', userCp.id_zona);
       }
     } else if (puesto === 'CAPITAN') {
@@ -1612,7 +1636,7 @@ app.get('/api/sugerencias', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-app.get('/api/sugerencias/:id', requireAuth, requireAdmin, async (req, res) => {
+app.get('/api/sugerencias/:id', requireAdmin, requireAuth, async (req, res) => {
   try {
     const sugerencia = await findById('sugerenciaCambio', req.params.id, ['id_sugerencia']);
     if (!sugerencia) {
@@ -1630,10 +1654,10 @@ app.get('/api/sugerencias/:id', requireAuth, requireAdmin, async (req, res) => {
 app.put('/api/sugerencias/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { estado } = req.body; // 'APROBADA' o 'RECHAZADA'
+    const { estado } = req.body; // 'APROBADO' o 'RECHAZADO'
     const userId = req.user.id;
 
-    if (!['APROBADA', 'RECHAZADA'].includes(estado)) {
+    if (!['APROBADO', 'RECHAZADO'].includes(estado)) {
       return res.status(400).json({ error: 'El estado proporcionado no es válido.' });
     }
 
@@ -1646,23 +1670,21 @@ app.put('/api/sugerencias/:id', requireAuth, requireAdmin, async (req, res) => {
     }
 
     // Si se aprueba, aplicamos los cambios a la entidad original
-    if (estado === 'APROBADA') {
+    if (estado === 'APROBADO') {
       const tipoEntidad = sugerencia.tipo_entidad;
       const idEntidadOriginal = sugerencia.id_entidad_original;
-      const pkField = PK_MAP[tipoEntidad];
+      const pkField = PK_MAP[tipoEntidad?.toLowerCase()];
 
       if (!tipoEntidad || !idEntidadOriginal || !pkField) {
         throw new Error(`Configuración de entidad no encontrada para el tipo: ${tipoEntidad}`);
       }
 
-      let datosPropuestos;
-      try {
-        datosPropuestos = JSON.parse(sugerencia.datos_propuestos);
-      } catch (e) {
-        return res.status(400).json({ error: 'Los datos propuestos no son un JSON válido y no se pueden aplicar automáticamente.' });
+      const datosPropuestos = parseDatosPropuestos(sugerencia.datos_propuestos);
+      if (!datosPropuestos) {
+        return res.status(400).json({ error: 'Los datos propuestos no tienen un formato válido y no se pueden aplicar automáticamente.' });
       }
 
-      await updateRows(tipoEntidad, pkField, idEntidadOriginal, datosPropuestos);
+      await updateRows(tipoEntidad.toLowerCase(), pkField, idEntidadOriginal, datosPropuestos);
     }
 
     // Finalmente, actualizamos el estado de la sugerencia
@@ -1692,7 +1714,7 @@ app.post('/api/sugerencias', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Faltan campos requeridos: tipo_entidad, id_entidad_original, datos_propuestos' });
     }
 
-    if (!PK_MAP[tipo_entidad]) {
+    if (!PK_MAP[tipo_entidad?.toLowerCase()]) {
       return res.status(400).json({ error: `Tipo de entidad no válido: ${tipo_entidad}` });
     }
 

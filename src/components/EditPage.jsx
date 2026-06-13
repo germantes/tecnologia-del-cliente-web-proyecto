@@ -81,18 +81,12 @@ function EditPage() {
     }, [entityType, id, endpointGet]);
 
     const handleClose = () => {
-        // Volver a la página anterior o a la lista correspondiente
-        if (window.history.length > 1) {
-            navigate(-1);
-        } else {
-            // Fallback según el tipo de entidad
-            const redirects = {
-                cadena: '/cadenas',
-                campania: '/campanias',
-                zona: '/zonas',
-            };
-            window.location.href = redirects[entityType] || '/homepage';
-        }
+        const redirects = {
+            cadena: '/cadenas',
+            campania: '/campanias',
+            zona: '/zonas',
+        };
+        navigate(redirects[entityType] || '/homepage');
     };
 
     const handleSuccess = (savedData) => {
