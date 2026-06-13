@@ -16,12 +16,12 @@ function Header() {
       </Link>
 
       <div className={headerStyles['bancosol-header__actions']}>
-        <a className={headerStyles['bancosol-header__profile']} href="/html/perfil.html" aria-label="Ir al perfil">
+        <Link className={headerStyles['bancosol-header__profile']} to="/perfil" aria-label="Ir al perfil">
           <svg className={headerStyles['bancosol-header__profile-icon']} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path fill="currentColor" d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5Zm0 2c-3.31 0-10 1.67-10 5v3h20v-3c0-3.33-6.69-5-10-5Z"/>
           </svg>
           Perfil
-        </a>
+        </Link>
 
         <button className={headerStyles['bancosol-header__logout']} type="button" onClick={cerrarSesion} aria-label="Cerrar sesión">
           <svg className={headerStyles['bancosol-header__logout-icon']} viewBox="0 0 24 24" aria-hidden="true" focusable="false">

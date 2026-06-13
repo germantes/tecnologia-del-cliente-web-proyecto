@@ -9,11 +9,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const editForm = document.getElementById('edit-form');
     const alertContainer = document.getElementById('alert-container');
 
-    // Buscar el botón de volver
+    // Buscar el botón de volver (ahora es un <button>, no un <a>)
     const backBtn = document.getElementById('back-btn');
     if (backBtn) {
-        // Apuntamos correctamente a la carpeta /html/
-        backBtn.href = (typeof SCHEMAS !== 'undefined' && SCHEMAS[type]) ? `/html/${type}.html` : '/html/index.html';
+        const target = (typeof SCHEMAS !== 'undefined' && SCHEMAS[type]) ? `/html/${type}.html` : '/html/index.html';
+        backBtn.addEventListener('click', () => { window.location.href = target; });
     }
 
     // Obtener rol/perfil usando la utilidad central (si está disponible) o fallback legacy.
@@ -26,10 +26,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Al quitar la verificación de "!id", permitimos usar este script para la Creación.
     if (!canAccess || !type || !allowedResources.has(type)) {
         formFields.textContent = '';
-        const p = document.createElement('p');
-        p.style.color = 'var(--color-danger)';
-        p.textContent = 'Error: acceso no autorizado o recurso no válido.';
-        formFields.appendChild(p);
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 2;
+        td.style.cssText = 'color: #d46262; text-align: center; padding: 20px; font-weight: bold;';
+        td.textContent = 'Error: acceso no autorizado o recurso no válido.';
+        tr.appendChild(td);
+        formFields.appendChild(tr);
         return;
     }
 
@@ -104,16 +107,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         for (const field of schema) {
             const value = originalData[field.key] !== undefined ? originalData[field.key] : '';
-            const fieldDiv = document.createElement('div');
-            fieldDiv.className = 'field';
+            const tr = document.createElement('tr');
 
             let isReadOnly = field.readonly || (coordinatorEditable && type === 'voluntarios' && !volunteerContactFields.has(field.key));
 
-            const label = document.createElement('label');
-            label.htmlFor = field.key;
-            label.textContent = field.label;
-            fieldDiv.appendChild(label);
+            const tdLabel = document.createElement('td');
+            tdLabel.className = 'etiqueta-campo';
+            tdLabel.textContent = field.label;
+            tr.appendChild(tdLabel);
 
+            const tdInput = document.createElement('td');
 
             if (field.type === 'boolean') {
                 const esVinculado = (value === true || String(value).toLowerCase() === 'true' || value === 1);
@@ -128,7 +131,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 optFalse.value = 'false'; optFalse.textContent = 'No'; optFalse.selected = !esVinculado;
 
                 select.append(optTrue, optFalse);
-                fieldDiv.appendChild(select);
+                tdInput.appendChild(select);
 
             } else if (field.type && field.type.startsWith('select_')) {
                 const select = document.createElement('select');
@@ -185,7 +188,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (String(itemId) === String(safeValue)) option.selected = true;
                     select.appendChild(option);
                 });
-                fieldDiv.appendChild(select);
+                tdInput.appendChild(select);
 
             } else {
                 const inputType = field.type || (typeof value === 'number' && value !== '' ? 'number' : 'text');
@@ -206,10 +209,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (field.required && !isReadOnly) input.required = true;
                 if (id && inputType === 'password') input.required = false; // No obligar a rellenar si estamos editando
-                fieldDiv.appendChild(input);
+                tdInput.appendChild(input);
             }
 
-            formFields.appendChild(fieldDiv);
+            tr.appendChild(tdInput);
+            formFields.appendChild(tr);
         }
         saveBtn.disabled = false;
 
@@ -234,9 +238,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (isAdmin && id) {
             const deleteBtn = document.createElement('button');
             deleteBtn.type = 'button';
-            deleteBtn.className = 'btn btn-danger';
+            deleteBtn.className = 'btn-eliminar';
             deleteBtn.textContent = 'Eliminar';
-            deleteBtn.style.marginLeft = '10px';
             deleteBtn.addEventListener('click', async () => {
                 if (confirm(`¿Estás seguro de que deseas eliminar este registro de ${type}?`)) {
                     try {
@@ -279,10 +282,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (err) {
         formFields.textContent = '';
-        const p = document.createElement('p');
-        p.style.color = 'var(--color-danger)';
-        p.textContent = `Error: ${err.message}`;
-        formFields.appendChild(p);
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 2;
+        td.style.cssText = 'color: #d46262; text-align: center; padding: 20px; font-weight: bold;';
+        td.textContent = `Error: ${err.message}`;
+        tr.appendChild(td);
+        formFields.appendChild(tr);
         return;
     }
 
@@ -324,13 +330,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             alertContainer.textContent = '';
             const successAlert = document.createElement('div');
-            successAlert.className = 'alert alert-success';
+            successAlert.style.cssText = 'background-color: #e6ffe6; color: #2d862d; text-align: center; font-size: 1.1rem; font-weight: bold; padding: 15px; border-bottom: 2px solid #2d862d;';
             successAlert.textContent = 'Guardado correctamente.';
             alertContainer.appendChild(successAlert);
         } catch (err) {
             alertContainer.textContent = '';
             const errorAlert = document.createElement('div');
-            errorAlert.className = 'alert alert-error';
+            errorAlert.className = 'error-banner';
             errorAlert.textContent = err.message;
             alertContainer.appendChild(errorAlert);
         } finally {

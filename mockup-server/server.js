@@ -33,6 +33,7 @@ const TABLES = {
   cadena: process.env.TABLE_CADENA || 'cadena',
   tiendaCampania: process.env.TABLE_TIENDA_CAMPANIA || 'tienda_campania',
   turnoVoluntario: process.env.TABLE_TURNO_VOLUNTARIO || 'turnos_voluntarios',
+  contactoAdicional: process.env.TABLE_CONTACTO_ADICIONAL || 'contacto_adicional',
   sugerenciaCambio: process.env.TABLE_SUGERENCIA_CAMBIO || 'sugerencia_cambio'
 };
 
@@ -1603,6 +1604,46 @@ app.get('/api/usuarios', requireAuth, async (req, res) => {
   }
 });
 
+app.get('/api/usuarios/:id', requireAuth, async (req, res) => {
+  try {
+    const usuario = await findById('usuario', req.params.id, ['idUsuario', 'id_usuario', 'id']);
+    if (!usuario) return res.status(404).json({ success: false, message: 'Usuario no encontrado.' });
+    res.json(usuario);
+  } catch (error) { sendError(res, error, 'Error obteniendo usuario'); }
+});
+
+app.put('/api/usuarios/:id', requireAuth, async (req, res) => {
+  try {
+    const datosUsuario = { ...req.body };
+
+    if (datosUsuario.idCp !== undefined) {
+      datosUsuario.cp = datosUsuario.idCp;
+      delete datosUsuario.idCp;
+      delete datosUsuario.id_cp;
+    }
+    if (datosUsuario.nombreCompleto !== undefined) {
+      datosUsuario.nombre_completo = datosUsuario.nombreCompleto;
+      delete datosUsuario.nombreCompleto;
+    }
+
+    if (datosUsuario.confirmContrasenia !== undefined) {
+      delete datosUsuario.confirmContrasenia;
+    }
+
+    const updated = (await updateRows('usuario', 'id_usuario', req.params.id, datosUsuario))[0];
+
+    const usuarioSesion = await construirUsuarioSesion(updated);
+    const payload = {
+      id: usuarioSesion.id,
+      puesto: str(usuarioSesion.puesto).toUpperCase(),
+      nombre: usuarioSesion.nombre
+    };
+    const jwtToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
+
+    res.json({ usuario: updated, token: jwtToken });
+  } catch (e) { sendError(res, e, 'Error actualizando usuario'); }
+});
+
 app.get('/api/sugerencias', requireAuth, requireAdmin, async (req, res) => {
   try {
     const sugerencias = await fetchAll('sugerenciaCambio');
@@ -2094,4 +2135,13 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`   Health: http://localhost:${PORT}/health`);
   console.log(`   Supabase URL: ${process.env.SUPABASE_URL ? 'configurada' : 'NO configurada'}`);
   console.log(`   GET de datos públicos para pruebas en navegador; POST/PUT/DELETE con token.\n`);
+});
+
+app.get('/api/contactos-adicionales', requireAuth, async (req, res) => {
+  try {
+    const todasLasRelaciones = await fetchAll('contactoAdicional');
+    res.json(todasLasRelaciones);
+  } catch (error) {
+    sendError(res, error, 'Error obteniendo contactos adicionales');
+  }
 });

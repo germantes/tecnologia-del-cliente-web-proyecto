@@ -49,6 +49,7 @@ form {
   gap: 8px;
   flex: 1;
   min-width: 200px;
+  justify-content: center;
 }
 
 input,
