@@ -4,6 +4,7 @@
  * a la API REST para pintar el grid de tiendas.
  */
 document.addEventListener('DOMContentLoaded', async () => {
+    /* global getPerfil */
     const rolUsuario = getPerfil();
     const token = sessionStorage.getItem('token'); // El token se sigue leyendo igual.
     console.log('Cargando vista Tiendas. Rol del usuario:', rolUsuario); // Log de trazabilidad
@@ -13,6 +14,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const API_BASE = window.API_URL || "http://localhost:3000";
+    const parametrosURL = new URLSearchParams(window.location.search);
+    const idZonaInicial = parametrosURL.get('idZona') || '0';
 
     // Caché de elementos del DOM
     const tiendasContainer = document.getElementById('tiendasContainer');
@@ -27,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 2. EJECUCIÓN PRINCIPAL SECUENCIAL
     await cargarCampanias();
-    configurarInterfazPorRol();
+    await configurarInterfazPorRol();
     await cargarTiendas();
 
     /**
@@ -44,6 +47,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             await cargarFiltrosZona();
+
+            if (selectZona.querySelector(`option[value="${CSS.escape(idZonaInicial)}"]`)) {
+                selectZona.value = idZonaInicial;
+            }
 
             // Auto-recarga: Al cambiar el desplegable, se llama a la API de nuevo automáticamente
             selectCampania.addEventListener('change', cargarTiendas);
@@ -125,6 +132,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const campaniaId = selectCampania.value;
                 url += `?idZona=${zonaId}&idCampania=${campaniaId}`;
                 idCampaniaBuscada = (campaniaId && campaniaId !== "0") ? parseInt(campaniaId) : null;
+            } else if (idZonaInicial !== '0') {
+                url += `?idZona=${encodeURIComponent(idZonaInicial)}`;
             }
 
             const response = await fetch(`${API_BASE}${url}`, {
@@ -237,7 +246,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         // Lógica: Solo mostrar "Turnos" si la tienda participa y estamos en la campaña en curso
-        let verificarBotonTurnos = false;
+        let verificarBotonTurnos;
         if (rolUsuario === 'ADMINISTRADOR') {
             verificarBotonTurnos = (participaTexto === 'Sí' && idCampaniaBuscada !== null && parseInt(idCampaniaBuscada) === idCampaniaActiva);
         } else {

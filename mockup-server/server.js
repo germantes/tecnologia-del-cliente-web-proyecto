@@ -1167,9 +1167,9 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
                 )
             `);
 
-    if (puesto === 'ADMINISTRADOR') {
-      if (idZona && idZona !== '0') query = query.eq('cp.id_zona', idZona);
-    } else if (puesto === 'COORDINADOR') {
+    if (idZona && idZona !== '0') query = query.eq('cp.id_zona', idZona);
+
+    if (puesto === 'COORDINADOR') {
       const { data: usuarioData } = await supabase.from('usuario').select('cp').eq('id_usuario', id_usuario).single();
       if (usuarioData && usuarioData.cp) {
         const { data: userCp } = await supabase.from('cp').select('id_zona').eq('cp', usuarioData.cp).single();

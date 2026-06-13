@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
-import { getAuthHeaders, getPerfil } from './session.js';
+import { getAuthHeaders } from './session.js';
 import ZonaCard from './ZonaCard.jsx';
 import cardStyles from '../styles/card-display.module.css';
+
+const API_BASE = typeof window !== 'undefined' && window.API_URL
+    ? window.API_URL
+    : 'http://localhost:3000';
 
 function getNestedValue(obj, path) {
     return path.split('.').reduce((current, prop) => {
@@ -17,7 +21,7 @@ function flattenData(data) {
         const flattened = {};
         function flatten(obj, prefix = '') {
             for (const key in obj) {
-                if (obj.hasOwnProperty(key)) {
+                if (Object.prototype.hasOwnProperty.call(obj, key)) {
                     const value = obj[key];
                     const newKey = prefix ? `${prefix}.${key}` : key;
                     if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
@@ -81,8 +85,8 @@ function Zonas() {
         async function fetchData() {
             try {
                 const [zonesRes, campaignsRes] = await Promise.all([
-                    fetch('/api/cp', { headers: getAuthHeaders() }),
-                    fetch('/api/campanias', { headers: getAuthHeaders() }),
+                    fetch(`${API_BASE}/api/cp`, { headers: getAuthHeaders() }),
+                    fetch(`${API_BASE}/api/campanias`, { headers: getAuthHeaders() }),
                 ]);
 
                 if (!zonesRes.ok) throw new Error(`HTTP error! status: ${zonesRes.status}`);
@@ -98,7 +102,7 @@ function Zonas() {
 
                 for (const campaign of campaignsData) {
                     try {
-                        const res = await fetch(`/api/zonas_por_campania?idCampania=${campaign.id_campania}`, {
+                        const res = await fetch(`${API_BASE}/api/zonas_por_campania?idCampania=${campaign.id_campania}`, {
                             headers: getAuthHeaders(),
                         });
                         if (res.ok) {
@@ -160,15 +164,20 @@ function Zonas() {
         exportToCSV(flatData, `zonas_${timestamp}`, columns);
     };
 
-    const handleEdit = (zona) => {
-        window.location.href = `/edit/zona?cp=${zona.cp}`;
-    };
-
     const handleCreate = () => {
         window.location.href = '/edit/zona';
     };
 
-    const perfil = getPerfil();
+    const handleViewStores = (zona) => {
+        const idZona = zona.id_zona ?? zona.zona?.id_zona;
+
+        if (idZona === undefined || idZona === null) {
+            setError('No se pudo identificar la zona seleccionada.');
+            return;
+        }
+
+        window.location.href = `/html/tiendas.html?idZona=${encodeURIComponent(idZona)}`;
+    };
 
     return (
         <main>
@@ -230,7 +239,7 @@ function Zonas() {
                         <ZonaCard
                             key={zona.cp}
                             zona={zona}
-                            onEdit={handleEdit}
+                            onViewStores={handleViewStores}
                         />
                     ))}
                 </div>

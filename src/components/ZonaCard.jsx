@@ -1,6 +1,6 @@
 import cardStyles from '../styles/card-display.module.css';
 
-function ZonaCard({ zona, onEdit }) {
+function ZonaCard({ zona, onViewStores }) {
     const nombreDistrito = zona.distrito?.nombre_distrito || '-';
     const zonaGeografica = zona.zona?.zona_geografica || zona.zona_geografica || '-';
 
@@ -24,8 +24,12 @@ function ZonaCard({ zona, onEdit }) {
                 </div>
             </div>
             <div className={cardStyles['card-buttons']} style={{ justifyContent: 'center' }}>
-                <button type="button" className={cardStyles['btn']} onClick={() => onEdit(zona)}>
-                    Editar
+                <button
+                    type="button"
+                    className={`${cardStyles['btn']} ${cardStyles['btn-view-stores']}`}
+                    onClick={() => onViewStores(zona)}
+                >
+                    Ver Tiendas
                 </button>
             </div>
         </div>

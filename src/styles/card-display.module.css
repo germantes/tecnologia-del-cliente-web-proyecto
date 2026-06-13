@@ -98,6 +98,16 @@ button:hover {
   box-shadow: 0 4px 12px rgba(88, 185, 218, 0.3);
 }
 
+.btn-view-stores {
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(88, 185, 218, 0.35);
+}
+
+.btn-view-stores:hover {
+  background-color: var(--twilight-indigo);
+  box-shadow: 0 8px 16px rgba(50, 50, 102, 0.25);
+}
+
 .grid {
   width: 80%;
   display: flex;
