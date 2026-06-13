@@ -129,7 +129,6 @@
     box-shadow: 0 10px 20px rgba(50, 50, 102, 0.28);
 }
 
-/* BOTÓN ELIMINAR */
 .btn-eliminar {
     background-color: #d46262;
     color: var(--white);

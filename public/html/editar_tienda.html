@@ -3,24 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BancoSol - Editar Tienda</title>
-    <script src="/api/config.js"></script>
-    <script src="/js/authUtils.js"></script>
-    <link rel="stylesheet" href="/css/common.css">
+    <title>BancoSol - Formulario Tienda</title>
     <link rel="stylesheet" href="/css/editar_tienda.css">
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/footer.css">
+    <script src="/api/config.js"></script>
     <script src="../js/authUtils.js" defer></script>
-
 </head>
 <body class="page-app">
 
 <include-html src="/componentes/header.html" active="tiendas"></include-html>
 
 <main class="main">
-    <div class="editar-container" id="editarContenedor">
+    <div class="form-container" id="contenedorFormulario">
         <div class="loading-placeholder">
-            <h3>Cargando datos de la tienda...</h3>
+            <h3>Cargando entorno de formulario...</h3>
             <div class="spinner"></div>
         </div>
     </div>
@@ -30,6 +27,6 @@
 
 <script src="/js/api.js"></script>
 <script src="/componentes/include-html.js"></script>
-<script src="/js/editar_tienda.js"></script>
+<script src="/js/crear_tienda.js"></script>
 </body>
 </html>

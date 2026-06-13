@@ -3,38 +3,41 @@
     min-height: 100vh;
     padding: 40px;
     font-family: 'Poppins', sans-serif;
+    display: flex;
+    flex-direction: column;
 }
 
 .dashboard-contenedor {
     background-color: #ffffff;
     border: 8px solid #323266;
     border-radius: 9px;
-    max-width: 1200px;
+    max-width: 1400px; /* Ampliado ligeramente para acomodar las 2 columnas holgadamente */
     margin: 0 auto;
     box-shadow: 0 14px 34px rgba(50, 50, 102, 0.22);
     overflow: hidden;
+    width: 100%;
 }
 
 .dashboard-header {
     background-color: #323266;
-    padding: 20px 40px;
+    padding: 30px 40px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center; /* Centrado para que coincida con el diseño antiguo */
     align-items: center;
 }
 
 .dashboard-header h1 {
     color: #ffffff;
     margin: 0;
-    font-size: 1.8rem;
+    font-size: 2.2rem;
 }
 
 .graficas-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 30px;
-    padding: 40px;
     justify-content: center;
+    margin-bottom: 20px;
 }
 
 .grafica-card {
@@ -42,8 +45,11 @@
     border: 2px solid #e0e0e0;
     border-radius: 8px;
     padding: 20px;
-    width: 350px;
+    width: 45%; /* Fuerza a que haya 2 columnas en pantallas grandes */
+    min-width: 350px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
 }
 
 .grafica-larga {
@@ -62,8 +68,62 @@
 
 .grafica-wrapper {
     position: relative;
-    height: 300px; /* Alto fijo para que chart.js calcule bien el espacio */
+    height: 300px;
     width: 100%;
+    flex-grow: 1;
+}
+
+/* ==========================================================================
+   CLASES AÑADIDAS PARA LOS FILTROS Y ERRORES
+   ========================================================================== */
+.filter-section {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.filter-select {
+    padding: 10px 15px;
+    border: 2px solid #323266;
+    border-radius: 5px;
+    color: #323266;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-select:focus:not(:disabled) {
+    outline: none;
+    border-color: #58b9da;
+    box-shadow: 0 0 8px rgba(88, 185, 218, 0.4);
+}
+
+.filter-select:disabled {
+    background-color: #e0e0e0;
+    cursor: not-allowed;
+    opacity: 0.7;
+    border-color: #999;
+}
+
+.error-banner {
+    background-color: #ffe6e6;
+    color: #d46262;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    padding: 15px;
+    border: 2px solid #d46262;
+    border-radius: 5px;
+    margin: 20px auto;
+    max-width: 800px;
 }
 
 .dashboard-spinner {
@@ -74,4 +134,19 @@
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 100px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsividad para móviles */
+@media (max-width: 850px) {
+    .grafica-card {
+        width: 100%;
+    }
+    .filter-section {
+        flex-direction: column;
+    }
 }
