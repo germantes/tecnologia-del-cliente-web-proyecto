@@ -92,6 +92,30 @@ async function getIdCampaniaActiva() {
   return activa ? getIdCampania(activa) : null;
 }
 
+function parseDatosPropuestos(value) {
+  if (!value) return null;
+  if (typeof value === 'object') return value;
+  if (typeof value !== 'string') return null;
+
+  const trimmed = value.trim();
+  try {
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) return JSON.parse(trimmed);
+  } catch { /* not JSON */ }
+
+  const lines = trimmed.split(/\r?\n/);
+  const result = {};
+  let canParse = true;
+
+  for (const line of lines) {
+    const sep = line.indexOf(':') !== -1 ? line.indexOf(':') : line.indexOf('=');
+    if (sep === -1) { canParse = false; break; }
+    result[line.slice(0, sep).trim()] = line.slice(sep + 1).trim();
+  }
+
+  if (canParse && Object.keys(result).length > 0) return result;
+  return null;
+}
+
 function normalizeRow(row) {
   return row;
 }
@@ -493,16 +517,17 @@ app.get('/api/entidades', requireAuth, async (req, res) => {
   try {
     let rows = await fetchAll('entidad');
     const { idEntidad, idUsuarioContacto, id_usuario_contacto, vinculadoBancosol, busqueda, q } = req.query;
-    let { idCampania } = req.query; // Hacemos idCampania mutable
+    let idCampania = req.query.idCampania;
     const usuarioContacto = idUsuarioContacto || id_usuario_contacto;
     const rolUsuario = req.user?.puesto;
 
+    // ── Filtros por rol ──────────────────────────────────────────────────
     if (rolUsuario === 'COORDINADOR') {
-      // Un coordinador SÓLO puede ver la campaña activa. Ignoramos el parámetro de la URL.
       idCampania = await getIdCampaniaActiva();
     }
 
-    if (idCampania) { // Ahora este idCampania será el activo si es COORDINADOR, o el de la query para otros roles
+    // ── Filtro por campaña ───────────────────────────────────────────────
+    if (idCampania) {
       const turnos = await fetchAll('turno');
       const turnosCampania = turnos.filter(t => sameNumberOrString(getIdCampania(t), idCampania));
       const idsEntidadesCampania = new Set(
@@ -511,11 +536,11 @@ app.get('/api/entidades', requireAuth, async (req, res) => {
           .map(t => getIdEntidad(t))
       );
       rows = rows.filter(e => idsEntidadesCampania.has(getIdEntidad(e)));
-    } else if (rolUsuario === 'COORDINADOR') { // Si es coordinador y no hay campaña activa (o no se encontró), no ve nada.
+    } else if (rolUsuario === 'COORDINADOR') {
       rows = [];
     }
 
-    // El resto de filtros se aplican sobre el resultado ya filtrado (o vaciado).
+    // ── Filtros comunes ──────────────────────────────────────────────────
     rows = rows.filter((row) => {
       if (idEntidad && !sameNumberOrString(getIdEntidad(row), idEntidad)) return false;
       if (usuarioContacto && !sameNumberOrString(row.id_usuario_contacto, usuarioContacto)) return false;
@@ -527,19 +552,39 @@ app.get('/api/entidades', requireAuth, async (req, res) => {
   } catch (error) { sendError(res, error, 'Error obteniendo entidades'); }
 });
 
+async function getContactosAdicionales(req, res) {
+  try {
+    const contactos = await fetchAll('contactoAdicional');
+    res.json(contactos);
+  } catch (error) {
+    sendError(res, error, 'Error obteniendo contactos adicionales');
+  }
+}
+
+app.get('/api/contactos-adicionales', requireAuth, getContactosAdicionales);
+app.get('/api/contactos_adicionales', requireAuth, getContactosAdicionales);
+
 app.get('/api/voluntarios', requireAuth, async (req, res) => {
   try {
     let rows = await fetchAll('voluntario');
-    const { idVoluntario, idEntidad, busqueda, q } = req.query;
-    let { idCampania } = req.query; // Hacemos idCampania mutable
+    const { idVoluntario, idEntidad: queryIdEntidad, busqueda, q } = req.query;
+    let idEntidad = queryIdEntidad;
+    let idCampania = req.query.idCampania;
     const rolUsuario = req.user?.puesto;
 
+    // ── Filtros por rol ──────────────────────────────────────────────────
     if (rolUsuario === 'COORDINADOR') {
-      // Un coordinador SÓLO puede ver la campaña activa. Ignoramos el parámetro de la URL.
       idCampania = await getIdCampaniaActiva();
+    } else if (rolUsuario === 'RESPONSABLE-ENTIDAD') {
+      const entidades = await fetchAll('entidad');
+      const miEntidad = entidades.find(e => String(e.id_usuario_contacto) === String(req.user.id));
+      if (!miEntidad) return res.json([]);
+      if (idEntidad && String(idEntidad) !== String(miEntidad.id_entidad)) return res.json([]);
+      idEntidad = String(miEntidad.id_entidad);
     }
 
-    if (idCampania) { // Ahora este idCampania será el activo si es COORDINADOR, o el de la query para otros roles
+    // ── Filtro por campaña (si aplica) ───────────────────────────────────
+    if (idCampania) {
       const turnos = await fetchAll('turno');
       const turnosCampania = turnos.filter(t => sameNumberOrString(getIdCampania(t), idCampania));
       const idsTurnosCampania = turnosCampania.map(t => getIdTurno(t));
@@ -552,15 +597,17 @@ app.get('/api/voluntarios', requireAuth, async (req, res) => {
       );
 
       rows = rows.filter(v => idsVoluntariosCampania.has(getIdVoluntario(v)));
-    } else if (rolUsuario === 'COORDINADOR') { // Si es coordinador y no hay campaña activa (o no se encontró), no ve nada.
+    } else if (rolUsuario === 'COORDINADOR') {
       rows = [];
     }
 
+    // ── Filtros comunes ──────────────────────────────────────────────────
     rows = rows.filter((row) => {
       if (idVoluntario && !sameNumberOrString(getIdVoluntario(row), idVoluntario)) return false;
       if (idEntidad && !sameNumberOrString(getIdEntidad(row), idEntidad)) return false;
       return contains(row, busqueda || q, ['nombre', 'apellido_1', 'apellido_2', 'email']);
     });
+
     res.json(rows);
   } catch (error) { sendError(res, error, 'Error obteniendo voluntarios'); }
 });
@@ -1123,9 +1170,9 @@ app.get('/api/tiendas', requireAuth, async (req, res) => {
     if (puesto === 'ADMINISTRADOR') {
       if (idZona && idZona !== '0') query = query.eq('cp.id_zona', idZona);
     } else if (puesto === 'COORDINADOR') {
-      const { data: usuarioData } = await supabase.from('usuario').select('id_cp').eq('id_usuario', id_usuario).single();
-      if (usuarioData && usuarioData.id_cp) {
-        const { data: userCp } = await supabase.from('cp').select('id_zona').eq('cp', usuarioData.id_cp).single();
+      const { data: usuarioData } = await supabase.from('usuario').select('cp').eq('id_usuario', id_usuario).single();
+      if (usuarioData && usuarioData.cp) {
+        const { data: userCp } = await supabase.from('cp').select('id_zona').eq('cp', usuarioData.cp).single();
         if (userCp) query = query.eq('cp.id_zona', userCp.id_zona);
       }
     } else if (puesto === 'CAPITAN') {
@@ -1653,7 +1700,7 @@ app.get('/api/sugerencias', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-app.get('/api/sugerencias/:id', requireAuth, requireAdmin, async (req, res) => {
+app.get('/api/sugerencias/:id', requireAdmin, requireAuth, async (req, res) => {
   try {
     const sugerencia = await findById('sugerenciaCambio', req.params.id, ['id_sugerencia']);
     if (!sugerencia) {
@@ -1671,10 +1718,10 @@ app.get('/api/sugerencias/:id', requireAuth, requireAdmin, async (req, res) => {
 app.put('/api/sugerencias/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { estado } = req.body; // 'APROBADA' o 'RECHAZADA'
+    const { estado } = req.body; // 'APROBADO' o 'RECHAZADO'
     const userId = req.user.id;
 
-    if (!['APROBADA', 'RECHAZADA'].includes(estado)) {
+    if (!['APROBADO', 'RECHAZADO'].includes(estado)) {
       return res.status(400).json({ error: 'El estado proporcionado no es válido.' });
     }
 
@@ -1687,23 +1734,21 @@ app.put('/api/sugerencias/:id', requireAuth, requireAdmin, async (req, res) => {
     }
 
     // Si se aprueba, aplicamos los cambios a la entidad original
-    if (estado === 'APROBADA') {
+    if (estado === 'APROBADO') {
       const tipoEntidad = sugerencia.tipo_entidad;
       const idEntidadOriginal = sugerencia.id_entidad_original;
-      const pkField = PK_MAP[tipoEntidad];
+      const pkField = PK_MAP[tipoEntidad?.toLowerCase()];
 
       if (!tipoEntidad || !idEntidadOriginal || !pkField) {
         throw new Error(`Configuración de entidad no encontrada para el tipo: ${tipoEntidad}`);
       }
 
-      let datosPropuestos;
-      try {
-        datosPropuestos = JSON.parse(sugerencia.datos_propuestos);
-      } catch (e) {
-        return res.status(400).json({ error: 'Los datos propuestos no son un JSON válido y no se pueden aplicar automáticamente.' });
+      const datosPropuestos = parseDatosPropuestos(sugerencia.datos_propuestos);
+      if (!datosPropuestos) {
+        return res.status(400).json({ error: 'Los datos propuestos no tienen un formato válido y no se pueden aplicar automáticamente.' });
       }
 
-      await updateRows(tipoEntidad, pkField, idEntidadOriginal, datosPropuestos);
+      await updateRows(tipoEntidad.toLowerCase(), pkField, idEntidadOriginal, datosPropuestos);
     }
 
     // Finalmente, actualizamos el estado de la sugerencia
@@ -1733,7 +1778,7 @@ app.post('/api/sugerencias', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Faltan campos requeridos: tipo_entidad, id_entidad_original, datos_propuestos' });
     }
 
-    if (!PK_MAP[tipo_entidad]) {
+    if (!PK_MAP[tipo_entidad?.toLowerCase()]) {
       return res.status(400).json({ error: `Tipo de entidad no válido: ${tipo_entidad}` });
     }
 
@@ -2135,13 +2180,4 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`   Health: http://localhost:${PORT}/health`);
   console.log(`   Supabase URL: ${process.env.SUPABASE_URL ? 'configurada' : 'NO configurada'}`);
   console.log(`   GET de datos públicos para pruebas en navegador; POST/PUT/DELETE con token.\n`);
-});
-
-app.get('/api/contactos-adicionales', requireAuth, async (req, res) => {
-  try {
-    const todasLasRelaciones = await fetchAll('contactoAdicional');
-    res.json(todasLasRelaciones);
-  } catch (error) {
-    sendError(res, error, 'Error obteniendo contactos adicionales');
-  }
 });

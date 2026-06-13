@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { getAuthHeaders } from './session.js'
+import { getAuthHeaders, getPerfil } from './session.js'
 import '../styles/sugerencias.css'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -8,7 +8,7 @@ import '../styles/sugerencias.css'
 // ─────────────────────────────────────────────────────────────────────────────
 
 const ENTITY_ENDPOINTS = {
-    cadena: { endpoint: '/api/cadenas', idField: 'id_cadena', nameField: ['nombre_particular', 'establecimiento'], label: 'Cadena' },
+    cadena: { endpoint: '/api/cadenas', idField: 'id_cadena', nameField: ['nombre_particular', 'empresa_cadena', 'establecimiento'], label: 'Cadena' },
     campania: { endpoint: '/api/campanias', idField: 'id_campania', nameField: ['nombre'], label: 'Campaña' },
     zona: { endpoint: '/api/zonas', idField: 'id_zona', nameField: ['zona_geografica'], label: 'Zona' },
     entidad: { endpoint: '/api/entidades', idField: 'id_entidad', nameField: ['nombre'], label: 'Entidad' },
@@ -38,7 +38,7 @@ const FK_FIELDS = {
 
 // Campos que son IDs internos (PK) — no se muestran en la comparación
 const PK_FIELDS = new Set([
-    'id_cadena', 'id_campania', 'id_zona', 'id_entidad',
+    'id_campania', 'id_zona', 'id_entidad',
     'id_tienda', 'id_usuario', 'id_voluntario', 'id_turno',
     'id_sugerencia', 'id_cp',
 ])
@@ -183,7 +183,13 @@ async function fetchEntityIndex(entityType) {
         for (const row of rows) {
             const id = row[config.idField]
             if (id !== undefined && id !== null) {
-                const name = getFirstValue(row, config.nameField)
+                let name
+                if (entityType === 'cadena') {
+                    const parts = [row.nombre_particular, row.empresa_cadena].filter(Boolean)
+                    name = parts.length > 0 ? parts.join(' - ') : getFirstValue(row, config.nameField)
+                } else {
+                    name = getFirstValue(row, config.nameField)
+                }
                 index[String(id)] = name || `#${id}`
             }
         }
@@ -225,6 +231,13 @@ function resolveValue(fieldName, rawValue, resolvers) {
     if (rawValue === null || rawValue === undefined || rawValue === '') return '-';
     const entityType = FK_FIELDS[fieldName];
 
+    if (typeof rawValue === 'object') {
+        const extracted = rawValue[fieldName] ?? rawValue.id ?? rawValue.cp ?? rawValue.id_cp ?? Object.values(rawValue)[0]
+        if (extracted !== undefined && extracted !== null && typeof extracted !== 'object') {
+            rawValue = extracted
+        }
+    }
+
     if (!entityType) {
         return formatValue(rawValue);
     }
@@ -239,13 +252,6 @@ function resolveValue(fieldName, rawValue, resolvers) {
     const config = ENTITY_ENDPOINTS[entityType];
     const urlType = config?.endpoint?.split('/')[2]; // ej: /api/usuarios -> usuarios
 
-    // Solo creamos enlaces para entidades que tienen una página de edición definida.
-    if (config && urlType && entityType !== 'cp' && entityType !== 'zona') {
-        const editUrl = `/html/edit.html?type=${urlType}&id=${rawValue}`;
-        return (
-            <a href={editUrl} target="_blank" rel="noopener noreferrer" title={`Ver/Editar ${config.label || entityType} #${rawValue}`}>{resolvedName}</a>
-        );
-    }
     return resolvedName;
 }
 
@@ -346,8 +352,7 @@ function SugerenciaDetalle() {
     useEffect(() => {
         let active = true
 
-        const perfil = sessionStorage.getItem('perfil')
-        if (active) setIsAdmin(perfil === 'ADMINISTRADOR')
+        if (active) setIsAdmin(getPerfil() === 'ADMINISTRADOR')
 
         async function loadDetalle() {
             try {
@@ -439,7 +444,7 @@ function SugerenciaDetalle() {
 
             if (!resp.ok) {
                 const errData = await resp.json()
-                throw new Error(errData.message || `Error al ${newState === 'APROBADA' ? 'aprobar' : 'rechazar'}`)
+                throw new Error(errData.detail || errData.message || errData.error || `Error al ${newState === 'APROBADO' ? 'aprobar' : 'rechazar'}`)
             }
 
             const updatedSugerencia = await resp.json()
@@ -498,15 +503,15 @@ function SugerenciaDetalle() {
                     {isAdmin && sugerencia.estado === 'PENDIENTE' && (
                         <div className="sugerencia-actions">
                             <button
-                                className="btn btn-success"
-                                onClick={() => handleDecision('APROBADA')}
+                                className="btn btn-primary"
+                                onClick={() => handleDecision('APROBADO')}
                                 disabled={isProcessing}
                             >
                                 {isProcessing ? 'Procesando...' : 'Aprobar Cambio'}
                             </button>
                             <button
                                 className="btn btn-danger"
-                                onClick={() => handleDecision('RECHAZADA')}
+                                onClick={() => handleDecision('RECHAZADO')}
                                 disabled={isProcessing}
                             >
                                 {isProcessing ? 'Procesando...' : 'Rechazar Cambio'}

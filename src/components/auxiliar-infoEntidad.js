@@ -1,8 +1,9 @@
 import { getAuthHeaders } from './session.js'
 
-const API_BASE = window.API_URL || 'http://localhost:3000'
+const API_BASE = typeof window !== 'undefined' && window.API_URL
+  ? window.API_URL
+  : 'http://localhost:3000'
 let promesaContactosAdicionales = null
-const idsEntidadesMostradas = new Set()
 
 function construirUrl(ruta, parametros = {}) {
   const url = new URL(ruta, API_BASE)
@@ -28,7 +29,7 @@ async function obtenerJson(ruta, parametros = {}) {
   try {
     json = textoRespuesta ? JSON.parse(textoRespuesta) : null
   } catch {
-    json = textoRespuesta
+    throw new Error(`El endpoint ${ruta} no devolvió JSON.`)
   }
 
   if (!respuesta.ok) {
@@ -56,9 +57,9 @@ function idsIguales(valorA, valorB) {
     && String(valorA).trim() === String(valorB).trim()
 }
 
-function obtenerRelacionesDeEntidad(relaciones, idEntidad) {
-  return relaciones.filter((relacion) => {
-    const idEntidadRelacion = relacion.id_entidad ?? relacion.idEntidad
+function filtrarContactosPorEntidad(contactosAdicionales, idEntidad) {
+  return contactosAdicionales.filter((contacto) => {
+    const idEntidadRelacion = contacto.id_entidad ?? contacto.idEntidad
     return idsIguales(idEntidadRelacion, idEntidad)
   })
 }
@@ -84,26 +85,33 @@ async function obtenerContactosAdicionales() {
     promesaContactosAdicionales = obtenerJson('/api/contactos-adicionales')
       .catch((error) => {
         promesaContactosAdicionales = null
+        console.error('Error en obtenerContactosAdicionales:', error)
         throw error
       })
   }
 
   const respuestaRelaciones = await promesaContactosAdicionales
+  const contactosAdicionales = normalizarLista(respuestaRelaciones)
 
-  return normalizarLista(respuestaRelaciones)
+  console.log(
+    `obtenerContactosAdicionales (${contactosAdicionales.length} elementos):`,
+    contactosAdicionales
+  )
+
+  return contactosAdicionales
 }
 
 async function obtenerContactosEntidad(idEntidad) {
   const contactosAdicionales = await obtenerContactosAdicionales()
-  const contactosAdicionalesEntidad = obtenerRelacionesDeEntidad(
+  const contactosAdicionalesEntidad = filtrarContactosPorEntidad(
     contactosAdicionales,
     idEntidad
   )
 
-  const claveEntidad = String(idEntidad).trim()
-  if (!idsEntidadesMostradas.has(claveEntidad)) {
-    idsEntidadesMostradas.add(claveEntidad)
-  }
+  console.log(
+    `obtenerContactosEntidad(${idEntidad}) (${contactosAdicionalesEntidad.length} elementos):`,
+    contactosAdicionalesEntidad
+  )
 
   return contactosAdicionalesEntidad
 }
@@ -114,6 +122,7 @@ async function obtenerVoluntariosPorEntidad(idEntidad) {
 }
 
 export {
+  filtrarContactosPorEntidad,
   obtenerContactosAdicionales,
   obtenerContactosEntidad,
   obtenerEntidadPorUsuario,

@@ -12,8 +12,11 @@ async function cargarVoluntarios() {
     : (function () { const p = sessionStorage.getItem('perfil') || sessionStorage.getItem('rol'); return p ? p.toUpperCase() : null; })();
   console.log('Cargando vista Voluntarios. Rol del usuario:', rolUsuario); // Log de trazabilidad
 
-  // Un coordinador puede acceder sin idCampania (el backend le dará la activa). Otros roles no-admin, no.
-  if (rolUsuario !== 'ADMINISTRADOR' && rolUsuario !== 'COORDINADOR' && !idCampaniaParam) {
+  const idEntidadParam = urlParams.get('idEntidad');
+
+  // Roles que pueden acceder sin idCampania (el backend filtra según el rol)
+  const rolesSinParam = ['ADMINISTRADOR', 'COORDINADOR', 'RESPONSABLE-ENTIDAD'];
+  if (!rolesSinParam.includes(rolUsuario) && !idCampaniaParam) {
     const grid = document.getElementById('voluntariosGrid');
     if (grid) {
       grid.textContent = '';
@@ -32,6 +35,9 @@ async function cargarVoluntarios() {
   const queryParams = {};
   if (idCampaniaParam) {
     queryParams.idCampania = idCampaniaParam;
+  }
+  if (idEntidadParam) {
+    queryParams.idEntidad = idEntidadParam;
   }
 
   try {

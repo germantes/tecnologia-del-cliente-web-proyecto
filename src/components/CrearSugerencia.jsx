@@ -6,9 +6,6 @@ import formStyles from '../styles/edit.module.css'
 const ENTITY_TYPES = [
   { key: 'entidad', label: 'Entidad', endpoint: '/api/entidades', idField: 'id_entidad', nameField: 'nombre' },
   { key: 'tienda', label: 'Tienda', endpoint: '/api/tiendas', idField: 'id_tienda', nameField: 'domicilio' },
-  { key: 'turno', label: 'Turno', endpoint: '/api/turnos', idField: 'id_turno', nameField: ['fecha', 'id_turno'] },
-  { key: 'campania', label: 'Campaña', endpoint: '/api/campanias', idField: 'id_campania', nameField: 'nombre' },
-  { key: 'usuario', label: 'Usuario', endpoint: '/api/usuarios', idField: 'id_usuario', nameField: ['nombre_completo', 'nombre', 'email'] },
   { key: 'voluntario', label: 'Voluntario', endpoint: '/api/voluntarios', idField: 'id_voluntario', nameField: ['nombre', 'apellido_1'] },
 ]
 
@@ -16,8 +13,7 @@ const REF_ENDPOINTS = {
   usuario: '/api/usuarios',
   entidad: '/api/entidades',
   tienda: '/api/tiendas',
-  campania: '/api/campanias',
-  zona: '/api/zonas',
+  zona: '/api/cp',
   cadena: '/api/cadenas',
 }
 
@@ -34,33 +30,8 @@ const SCHEMAS = {
   tienda: [
     { key: 'id_tienda', label: 'ID Tienda', type: 'text', readonly: true },
     { key: 'domicilio', label: 'Domicilio', type: 'text', required: true },
-    { key: 'id_cp', label: 'Zona (CP)', type: 'select_zona', required: true },
+    { key: 'cp', label: 'Zona (CP)', type: 'select_zona', required: true },
     { key: 'id_cadena', label: 'Cadena', type: 'select_cadena', required: true },
-  ],
-  turno: [
-    { key: 'id_turno', label: 'ID Turno', type: 'text', readonly: true },
-    { key: 'id_tienda', label: 'Tienda', type: 'select_tienda', required: true },
-    { key: 'id_campania', label: 'Campaña', type: 'select_campania', required: true },
-    { key: 'fecha', label: 'Fecha', type: 'date', required: true },
-    { key: 'turno', label: 'Turno (manana/tarde)', type: 'text', required: true },
-    { key: 'id_entidad', label: 'Entidad Responsable', type: 'select_entidad' },
-    { key: 'observaciones', label: 'Observaciones', type: 'text' },
-  ],
-  campania: [
-    { key: 'id_campania', label: 'ID Campaña', type: 'text', readonly: true },
-    { key: 'nombre', label: 'Nombre', type: 'text', required: true },
-    { key: 'fecha_inicio', label: 'Fecha Inicio', type: 'date', required: true },
-    { key: 'fecha_fin', label: 'Fecha Fin', type: 'date', required: true },
-    { key: 'tipo', label: 'Tipo', type: 'text' },
-  ],
-  usuario: [
-    { key: 'id_usuario', label: 'ID Usuario', type: 'text', readonly: true },
-    { key: 'nombre_completo', label: 'Nombre Completo', type: 'text', required: true },
-    { key: 'email', label: 'Email', type: 'email', required: true },
-    { key: 'rol', label: 'Rol/Puesto', type: 'select_rol', required: true },
-    { key: 'cp', label: 'Zona Asignada', type: 'select_zona' },
-    { key: 'contrasenia', label: 'Contraseña', type: 'password' },
-    { key: 'telefono', label: 'Teléfono', type: 'number' },
   ],
   voluntario: [
     { key: 'id_voluntario', label: 'ID Voluntario', type: 'text', readonly: true },
@@ -72,6 +43,8 @@ const SCHEMAS = {
   ],
 }
 
+// Hardcoded, but could put it in a Enumerator
+// Didn't do it because needed to change column type in supabase
 const ROLES = ['ADMINISTRADOR', 'COORDINADOR', 'CAPITAN', 'RESPONSABLE-ENTIDAD', 'RESPONSABLE-TIENDA']
 
 function getFirstValue(obj, fields) {
@@ -80,6 +53,16 @@ function getFirstValue(obj, fields) {
     if (obj[f] !== undefined && obj[f] !== null && obj[f] !== '') return String(obj[f]).trim()
   }
   return `#${Object.values(obj)[0] || ''}`
+}
+
+function getEntityName(entity, config) {
+  if (!entity || !config) return ''
+  if (config.key === 'tienda') {
+    const domicilio = entity.domicilio || ''
+    const cadenaName = entity.cadena?.establecimiento || entity.cadena?.nombre_particular || ''
+    return cadenaName ? `${domicilio} - ${cadenaName}` : domicilio
+  }
+  return getFirstValue(entity, config.nameField)
 }
 
 function CrearSugerencia() {
@@ -101,15 +84,18 @@ function CrearSugerencia() {
     for (const type of neededTypes) {
       try {
         if (type === 'rol') {
-          result.rol = ROLES
+          result.rol = ROLES.map(r => ({ id: r, name: r.charAt(0) + r.slice(1).toLowerCase().replace(/-/g, ' ') }))
         } else if (type === 'zona') {
-          const resp = await fetch('/api/zonas', { headers: getAuthHeaders() })
+          const resp = await fetch('/api/cp', { headers: getAuthHeaders() })
           if (resp.ok) result.zona = await resp.json()
         } else {
           const endpoint = REF_ENDPOINTS[type]
           if (endpoint) {
             const resp = await fetch(endpoint, { headers: getAuthHeaders() })
-            if (resp.ok) result[type] = await resp.json()
+            if (resp.ok) {
+              let data = await resp.json()
+              result[type] = data
+            }
           }
         }
       } catch { /* ignore */ }
@@ -139,7 +125,16 @@ function CrearSugerencia() {
 
       const resp = await fetch(typeConfig.endpoint, { headers: getAuthHeaders() })
       if (resp.ok) {
-        const data = await resp.json()
+        let data = await resp.json()
+        if (typeKey === 'cadena') {
+          const seen = new Set()
+          data = data.filter(item => {
+            const name = item.establecimiento || item.nombre_particular || ''
+            if (!name || seen.has(name)) return false
+            seen.add(name)
+            return true
+          })
+        }
         setEntityList(Array.isArray(data) ? data : [])
       }
     } catch (err) {
@@ -164,8 +159,6 @@ function CrearSugerencia() {
       const entity = entityList.find(e => String(e[typeConfig.idField]) === String(entityId))
       if (!entity) { setError('Entidad no encontrada'); return }
 
-      setOriginalData({ ...entity })
-
       const neededTypes = new Set()
       for (const field of (SCHEMAS[selectedType] || [])) {
         if (field.type.startsWith('select_')) {
@@ -174,12 +167,42 @@ function CrearSugerencia() {
       }
 
       const refData = await loadRefData([...neededTypes])
+
       setRefs(refData)
 
-      const initial = {}
-      for (const field of (SCHEMAS[selectedType] || [])) {
-        initial[field.key] = entity[field.key] !== undefined ? entity[field.key] : ''
+      function resolveFieldValue(entity, field, refData) {
+        let val = entity[field.key]
+        if (val === undefined || val === null || (typeof val === 'object' && val !== null)) {
+          const nestedKey = field.key.replace(/^id_/, '')
+          const nested = (typeof val === 'object' && val !== null) ? val : entity[nestedKey]
+          if (nested && typeof nested === 'object') {
+            if (nestedKey === 'cadena') {
+              val = String(nested.id_cadena ?? Object.values(nested)[0] ?? '')
+            } else if (nestedKey === 'cp') {
+              const cpRaw = nested.cp ?? nested.id_cp ?? Object.values(nested)[0]
+              const zonaItem = (refData.zona || []).find(z => String(z.cp) === String(cpRaw))
+              val = String(cpRaw)
+            } else {
+              val = nested[field.key] ?? nested[nestedKey] ?? nested.id ?? Object.values(nested)[0]
+            }
+          }
+        }
+        if (field.type === 'select_zona' && val !== undefined && val !== null && val !== '' && typeof val !== 'object') {
+          const zonaItem = (refData.zona || []).find(z => String(z.cp) === String(val))
+          if (zonaItem) {
+            val = String(zonaItem.cp)
+          }
+        }
+        return val !== undefined && val !== null && typeof val !== 'object' ? val : ''
       }
+
+      const initial = {}
+      const origValues = {}
+      for (const field of (SCHEMAS[selectedType] || [])) {
+        initial[field.key] = resolveFieldValue(entity, field, refData)
+        origValues[field.key] = initial[field.key]
+      }
+      setOriginalData(origValues)
       setFormData(initial)
       setStep(3)
     } catch (err) {
@@ -267,23 +290,25 @@ function CrearSugerencia() {
         options = refs.rol || []
       } else if (refType === 'zona') {
         const items = refs.zona || []
-        options = items.map(item => ({
-          id: item.cp ?? item.id_cp ?? item.id_zona ?? '',
-          name: item.localidad ? `${item.cp || item.id_zona} - ${item.localidad}` : String(item.cp || item.id_zona || ''),
-        }))
+        options = items.map(item => {
+          const displayName = item.localidad ? `${item.cp} - ${item.localidad}` : String(item.cp || item.id_zona || '')
+          return { id: String(item.cp ?? item.id_zona ?? ''), name: displayName }
+        })
       } else if (refType === 'cadena') {
         const items = refs.cadena || []
-        options = items.map(item => ({
-          id: item.id_cadena ?? '',
-          name: item.establecimiento || item.nombre_particular || `#${item.id_cadena}`,
-        }))
+        options = items.map(item => {
+          const parts = [item.nombre_particular, item.empresa_cadena].filter(Boolean)
+          const displayName = parts.length > 0 ? parts.join(' - ') : item.establecimiento || `#${item.id_cadena}`
+          return { id: String(item.id_cadena ?? ''), name: displayName }
+        })
       } else {
         const items = refs[refType] || []
         const config = ENTITY_TYPES.find(t => t.key === refType)
-        options = items.map(item => ({
-          id: item[config?.idField || `id_${refType}`] ?? item.id ?? Object.values(item)[0] ?? '',
-          name: config ? getFirstValue(item, config.nameField) : String(item.nombre || item.domicilio || `#${Object.values(item)[0]}`),
-        }))
+        options = items.map(item => {
+          const displayName = config ? getEntityName(item, config) : `#${Object.values(item)[0] || ''}`
+          const id = config ? String(item[config.idField] ?? item.id ?? '') : displayName
+          return { id, name: displayName }
+        })
       }
 
       return (
@@ -295,8 +320,8 @@ function CrearSugerencia() {
           style={isReadOnly ? { background: 'var(--color-surface-2)' } : undefined}
         >
           <option value="">Seleccione {field.label}...</option>
-          {options.map(opt => (
-            <option key={opt.id} value={opt.id}>{opt.name}</option>
+          {options.map((opt, idx) => (
+            <option key={`${opt.id}_${idx}`} value={opt.id}>{opt.name}</option>
           ))}
         </select>
       )
@@ -387,8 +412,8 @@ function CrearSugerencia() {
                         <option value="">Seleccione...</option>
                         {entityList.map(entity => {
                           const config = ENTITY_TYPES.find(t => t.key === selectedType)
-                          const name = config ? getFirstValue(entity, config.nameField) : `#${entity[config?.idField]}`
-                          const id = entity[config?.idField]
+                          const name = config ? getEntityName(entity, config) : `#${entity[config?.idField]}`
+                          const id = String(entity[config?.idField] ?? '')
                           return (
                             <option key={id} value={id}>{name}</option>
                           )
@@ -444,7 +469,7 @@ function CrearSugerencia() {
             <button
               type="button"
               className={formStyles['btn-cerrar']}
-              onClick={() => handleEntitySelect('')}
+              onClick={() => setStep(2)}
               disabled={loading}
             >
               Volver
