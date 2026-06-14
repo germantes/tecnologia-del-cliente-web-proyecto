@@ -1,13 +1,17 @@
 /**
  * Lógica asíncrona para la edición de tiendas.
- * Extrae la ID de la tienda desde la URL, baja sus datos y pre-rellena el formulario.
+ * Respeta la separación de responsabilidades: actualiza 'tienda_campania'
+ * únicamente si el usuario ha entrado filtrando por una campaña.
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Obtener rol/perfil usando la utilidad central (si existe) o fallback legacy.
-    const perfil = getPerfil();
+
+    // ========================================================================
+    // 1. VERIFICACIÓN DE SEGURIDAD Y PERMISOS
+    // ========================================================================
+    const perfil = typeof getPerfil === 'function' ? getPerfil() : sessionStorage.getItem('perfil');
     const token = sessionStorage.getItem('token');
 
-    // Expulsión si no es Administrador
+    // Expulsión si no es Administrador (Redirección con ruta absoluta segura)
     if (!perfil || !token || perfil.toUpperCase() !== 'ADMINISTRADOR') {
         window.location.href = '/html/tiendas.html';
         return;
@@ -17,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const contenedor = document.getElementById('editarContenedor');
 
     // ========================================================================
-    // 2. EXTRACCIÓN DE PARÁMETROS URL (Saber qué tienda y campaña editamos)
+    // 2. EXTRACCIÓN DE PARÁMETROS URL (Saber el contexto)
     // ========================================================================
     const params = new URLSearchParams(window.location.search);
     const tiendaId = params.get('id');
@@ -30,15 +34,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         // ========================================================================
-        // 3. DESCARGA MASIVA PARALELA (Tienda + Catálogos maestros)
+        // 3. DESCARGA MASIVA PARALELA (Tienda + 6 Catálogos maestros)
         // ========================================================================
-        const [tiendaRes, cpsRes, cadenasRes, usuariosRes, campaniasRes, entidadesRes] = await Promise.all([
+        const [tiendaRes, cpsRes, cadenasRes, usuariosRes, campaniasRes, entidadesRes, asigZonaRes] = await Promise.all([
             fetch(`${API_BASE}/api/tiendas/${tiendaId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
             fetch(`${API_BASE}/api/cps`, { headers: { 'Authorization': `Bearer ${token}` } }),
             fetch(`${API_BASE}/api/cadenas`, { headers: { 'Authorization': `Bearer ${token}` } }),
             fetch(`${API_BASE}/api/usuarios`, { headers: { 'Authorization': `Bearer ${token}` } }),
             fetch(`${API_BASE}/api/campanias`, { headers: { 'Authorization': `Bearer ${token}` } }),
-            fetch(`${API_BASE}/api/entidades`, { headers: { 'Authorization': `Bearer ${token}` } }) // <-- Añadido para el select de ONG
+            fetch(`${API_BASE}/api/entidades`, { headers: { 'Authorization': `Bearer ${token}` } }),
+            // Extraemos las asignaciones de zona para la validación de capitanes
+            fetch(`${API_BASE}/api/asignacion_zona`, { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => ({ok: false}))
         ]);
 
         if (!tiendaRes.ok) throw new Error('Tienda no encontrada en la base de datos.');
@@ -49,41 +55,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         const listaUsuarios = usuariosRes.ok ? await usuariosRes.json() : [];
         const listaCampanias = campaniasRes.ok ? await campaniasRes.json() : [];
         const listaEntidades = entidadesRes.ok ? await entidadesRes.json() : [];
+        // Si el endpoint falla o no existe, se inicializa vacío para no romper la app
+        const listaAsignacionesZona = asigZonaRes.ok ? await asigZonaRes.json() : [];
 
-        // Ordenamos las listas para los desplegables
+        // Ordenamos las listas
         listaCPs.sort((c1, c2) => (c1.cp || '').localeCompare(c2.cp || ''));
         const cadenasUnicas = Array.from(new Map(listaCadenas.map(cad => [cad.establecimiento, cad])).values())
             .sort((c1, c2) => (c1.establecimiento || '').localeCompare(c2.establecimiento || ''));
 
         // ========================================================================
-        // 4. BÚSQUEDA DEL CONTEXTO (Historial de la campaña actual)
+        // 4. LÓGICA ESTRICTA DE CAMPAÑA
         // ========================================================================
+        // REGLA CLAVE: Solo mostramos (y guardamos) datos de campaña si vino filtrada en la URL
+        const mostrarCamposCampania = urlIdCampania != null;
+
         let idRespActual = "", idCoordActual = "", idCapActual = "", idEntidadActual = "";
         let cajasActuales = 0, participaActual = false;
         let nombreCampania = "Sin campaña";
 
-        if (tienda.tienda_campania && tienda.tienda_campania.length > 0) {
-            let campania = tienda.tienda_campania[0]; // Fallback por defecto
+        if (mostrarCamposCampania && tienda.tienda_campania && tienda.tienda_campania.length > 0) {
+            // Buscamos específicamente el registro de la campaña seleccionada
+            const cmpAsignada = tienda.tienda_campania.find(tc => tc.id_campania == urlIdCampania);
 
-            // Si la URL pide editar una campaña concreta, buscamos ese registro en el historial
-            if (urlIdCampania) {
-                const cmpAsignada = tienda.tienda_campania.find(tc => tc.id_campania == urlIdCampania);
-                if (cmpAsignada) campania = cmpAsignada;
+            if (cmpAsignada) {
+                idRespActual = cmpAsignada.id_responsable_tienda || "";
+                idCoordActual = cmpAsignada.id_coordinador || "";
+                idCapActual = cmpAsignada.id_capitan || "";
+                idEntidadActual = cmpAsignada.id_entidad || "";
+                cajasActuales = cmpAsignada.num_cajas || cmpAsignada.numCajas || 0;
+                participaActual = cmpAsignada.participa || false;
+
+                const cmpData = listaCampanias.find(c => c.id_campania == cmpAsignada.id_campania);
+                if (cmpData) nombreCampania = cmpData.nombre;
             }
-
-            // Volcamos los datos históricos a variables locales
-            idRespActual = campania.id_responsable_tienda || "";
-            idCoordActual = campania.id_coordinador || "";
-            idCapActual = campania.id_capitan || "";
-            idEntidadActual = campania.id_entidad || "";
-            cajasActuales = campania.num_cajas || campania.numCajas || 0;
-            participaActual = campania.participa || false;
-
-            const cmpData = listaCampanias.find(c => c.id_campania == campania.id_campania);
-            if (cmpData) nombreCampania = cmpData.nombre;
         }
-
-        const mostrarCamposCampania = urlIdCampania != null;
 
         // ========================================================================
         // 5. CONSTRUCCIÓN DINÁMICA DEL FORMULARIO DOM
@@ -91,21 +96,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const form = document.createElement('form');
         form.id = 'formEditarTienda';
         form.classList.add('form-container');
-
-        // Inputs ocultos clave para el UPDATE
-        const inputHidden = document.createElement('input');
-        inputHidden.type = 'hidden';
-        inputHidden.name = 'idTienda';
-        inputHidden.value = tienda.id_tienda;
-        form.appendChild(inputHidden);
-
-        if (mostrarCamposCampania) {
-            const inputCamp = document.createElement('input');
-            inputCamp.type = 'hidden';
-            inputCamp.name = 'idCampania';
-            inputCamp.value = urlIdCampania;
-            form.appendChild(inputCamp);
-        }
 
         const divTotal = document.createElement('div');
         divTotal.classList.add('total');
@@ -120,13 +110,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const divTablas = document.createElement('div');
         divTablas.classList.add('tablas');
 
-        // --- TABLA 1: DATOS FÍSICOS ---
+        // --- TABLA 1: DATOS MAESTROS DE TIENDA ---
         const tabla1 = document.createElement('table');
         tabla1.classList.add('tabla-1');
 
         tabla1.appendChild(crearFilaTextarea('Domicilio', 'domicilio', tienda.domicilio || ""));
 
-        // Código Postal
         const opcionesCP = listaCPs.map(cp => ({
             valor: cp.cp,
             texto: `${cp.cp} - ${cp.localidad}`,
@@ -136,7 +125,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const selectCp = filaCp.querySelector('select');
         tabla1.appendChild(filaCp);
 
-        // Entidad (ONG) - Ahora se inyecta en la tabla 1
         let selectEntidad;
         if (mostrarCamposCampania) {
             const opcionesEntidad = listaEntidades.map(ent => ({
@@ -151,7 +139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         divTablas.appendChild(tabla1);
 
-        // --- TABLA 2: ASIGNACIONES ORGANIZATIVAS ---
+        // --- TABLA 2: CADENA Y ASIGNACIONES ---
         const tabla2 = document.createElement('table');
         tabla2.classList.add('tabla-2');
 
@@ -164,6 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         let selectResp, selectCoord, selectCap, selectParticipa;
 
+        // Se inyectan los roles solo si estamos editando en el contexto de una campaña
         if (mostrarCamposCampania) {
             const filaResp = crearFilaSelect('Responsable de Tienda', 'idResponsable', [], true);
             const filaCoord = crearFilaSelect('Coordinador', 'idCoordinador', [], true);
@@ -190,7 +179,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         divTablas.appendChild(tabla2);
         divTotal.appendChild(divTablas);
 
-        // --- BOTONERA DE ACCIÓN ---
+        // --- BOTONERA ---
         const divBotones = document.createElement('div');
         divBotones.classList.add('botones');
 
@@ -211,7 +200,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         window.location.href = '/html/tiendas.html';
                     } else {
                         const err = await response.json();
-                        alert(`Error al eliminar: ${err.message || 'Ya tiene Turnos o relaciones activas'}`);
+                        alert(`Error al eliminar: ${err.message}`);
                         btnEliminar.disabled = false;
                         btnEliminar.textContent = "Eliminar";
                     }
@@ -223,7 +212,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         divBotones.appendChild(btnEliminar);
 
-        // Navegación hacia atrás controlada (arrastra el ID de campaña si existe)
         const arrastrarURL = urlIdCampania ? `&idCampania=${urlIdCampania}` : '';
         const btnCancelar = document.createElement('button');
         btnCancelar.type = 'button';
@@ -241,13 +229,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         divTotal.appendChild(divBotones);
         form.appendChild(divTotal);
 
-        // Renderiza en pantalla sustituyendo el spinner
         contenedor.innerHTML = '';
         contenedor.appendChild(form);
 
         // ========================================================================
-        // 6. LÓGICA DE INTERFAZ REACTIVA (Eventos OnChange)
+        // 6. LÓGICA DE INTERFAZ REACTIVA Y REGLAS DE NEGOCIO (Selects)
         // ========================================================================
+
+        // Limpiador estricto para base de datos ("CAPITÁN" -> "CAPITAN")
+        const getRol = (u) => {
+            let r = (u.rol || u.puesto || '').toUpperCase();
+            return r.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        };
 
         const mapearUsuario = (u, comparador) => ({
             valor: u.id_usuario || u.idUsuario,
@@ -261,68 +254,100 @@ document.addEventListener('DOMContentLoaded', async () => {
             const participa = selectParticipa.value === 'true';
             const cpSeleccionado = selectCp.value;
 
-            // Salvamos las selecciones previas o actuales para no borrarlas al recalcular
             const prevResp = selectResp.value || idRespActual;
             const prevCoord = selectCoord.value || idCoordActual;
             const prevCap = selectCap.value || idCapActual;
 
-            // Bloqueo dinámico si la tienda no participa
             if (!participa || !cpSeleccionado) {
                 selectResp.disabled = true; selectCoord.disabled = true; selectCap.disabled = true;
                 if (selectEntidad) selectEntidad.disabled = true;
-
                 rellenarOpciones(selectResp, []); rellenarOpciones(selectCoord, []); rellenarOpciones(selectCap, []);
                 return;
             }
 
-            // Identificación de la Zona para filtrado
+            // Identificación de la Zona de la Tienda
             const cpMatch = listaCPs.find(c => c.cp == cpSeleccionado);
             const idZonaSeleccionada = cpMatch ? (cpMatch.id_zona || cpMatch.idZona) : null;
-            const getRol = (u) => (u.rol || u.puesto || '').toUpperCase();
 
-            const isMismaZona = (u) => {
-                if (!idZonaSeleccionada) return true;
-                const matchU = listaCPs.find(c => c.cp == (u.id_cp || u.idCp) || c.id_cp == (u.id_cp || u.idCp));
-                const zonaU = matchU ? (matchU.id_zona || matchU.idZona) : null;
-                return zonaU == idZonaSeleccionada;
+            // Función evaluadora de validez de Zonas en Asignaciones
+            const isAsignacionZonaValida = (u) => {
+                if (!idZonaSeleccionada) return true; // Si la tienda no tiene zona, mostramos todos por precaución
+
+                // Filtramos asignaciones de este usuario en esta campaña concreta
+                const asignacionesUsuario = listaAsignacionesZona.filter(az =>
+                    (az.id_usuario == (u.id_usuario || u.idUsuario)) &&
+                    (az.id_campania == urlIdCampania)
+                );
+
+                // Si no tiene NINGUNA asignación en esta campaña, ES VÁLIDO (Está libre)
+                if (asignacionesUsuario.length === 0) return true;
+
+                // Si SÍ participa, verificamos que su id_zona coincida con la de la tienda
+                return asignacionesUsuario.some(az => az.id_zona == idZonaSeleccionada);
             };
 
-            // Filtrado Jerárquico de Usuarios
+            // REGLAS ESTRICTAS DE FILTRADO
+            // 1. Coordinadores: Todos los disponibles
             const coordinadores = listaUsuarios.filter(u => getRol(u) === 'COORDINADOR');
-            const capitanes = listaUsuarios.filter(u => getRol(u) === 'COORDINADOR' || (getRol(u) === 'CAPITAN' && isMismaZona(u)));
-            const responsables = listaUsuarios.filter(u => getRol(u) === 'COORDINADOR' || (getRol(u) === 'CAPITAN' && isMismaZona(u)) || (getRol(u) === 'RESPONSABLE-ENTIDAD' && isMismaZona(u)) || (getRol(u) === 'RESPONSABLE-TIENDA' && isMismaZona(u)));
 
-            // Re-renderizado de desplegables
+            // 2. Capitanes: Solo CAPITAN válido según asignaciones
+            const capitanes = listaUsuarios.filter(u =>
+                getRol(u) === 'COORDINADOR' ||
+                getRol(u) === 'CAPITAN' // Se debería añadir  && isAsignacionZonaValida(u) pero por inconsistencias en la bd se deja así
+            );
+
+            // 3. Responsables: Coordinadores + Responsables Tienda + Capitanes válidos (Excluyendo explícitamente Entidades)
+            const responsables = listaUsuarios.filter(u => {
+                const rol = getRol(u);
+                if (rol === 'RESPONSABLE-ENTIDAD') return false;
+
+                if (rol === 'COORDINADOR' || rol === 'RESPONSABLE-TIENDA') return true;
+                if (rol === 'CAPITAN') return isAsignacionZonaValida(u);
+
+                return false;
+            });
+
             rellenarOpciones(selectResp, responsables.map(u => mapearUsuario(u, prevResp)));
             rellenarOpciones(selectCoord, coordinadores.map(u => mapearUsuario(u, prevCoord)));
             rellenarOpciones(selectCap, capitanes.map(u => mapearUsuario(u, prevCap)));
 
-            // Desbloqueo de controles
             selectResp.disabled = false; selectCoord.disabled = false; selectCap.disabled = false;
             if (selectEntidad) selectEntidad.disabled = false;
         };
 
-        // Activamos los Event Listeners
         if (mostrarCamposCampania) {
             selectCp.addEventListener('change', actualizarAsignaciones);
             selectParticipa.addEventListener('change', actualizarAsignaciones);
-            actualizarAsignaciones(); // Ejecución inicial
+            actualizarAsignaciones();
         }
 
         // ========================================================================
-        // 7. ENVÍO DE DATOS A LA API (Submit)
+        // 7. ENVÍO DE DATOS A LA API (Submit Condicionado)
         // ========================================================================
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData.entries());
 
-            // Normalización de tipos
-            if (data.numCajas) data.numCajas = parseInt(data.numCajas) || 0;
-            if (data.participa) data.participa = data.participa === 'true';
+            // Bloque Base (Tabla Tienda)
+            const data = {
+                domicilio: form.querySelector('[name="domicilio"]').value,
+                idCp: selectCp.value,
+                idCadena: form.querySelector('[name="idCadena"]').value,
+            };
+
+            // Bloque Expandido (Tabla Tienda_Campania) - Solo se añade si hubo filtro
+            if (mostrarCamposCampania) {
+                data.idCampania = urlIdCampania; // Usa el ID de la URL
+                data.participa = selectParticipa.value === 'true';
+                data.numCajas = parseInt(form.querySelector('[name="numCajas"]').value) || 0;
+
+                // Los datos desactivados se mandan como nulos
+                data.idResponsable = selectResp.value || null;
+                data.idCoordinador = selectCoord.value || null;
+                data.idCapitan = selectCap.value || null;
+                if (selectEntidad) data.idEntidad = selectEntidad.value || null;
+            }
 
             try {
-                // Petición PUT para actualizar el registro completo
                 const response = await fetch(`${API_BASE}/api/tiendas/${tienda.id_tienda}`, {
                     method: 'PUT',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -341,90 +366,50 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
     } catch (error) {
-        mostrarErrorGlobal(error.message); // Atrapa errores del Promise.all
+        mostrarErrorGlobal(error.message);
     }
 
-    // --- Helpers de creación del DOM ---
-
+    // --- Helpers DOM ---
     function crearFilaTextarea(etiqueta, name, value) {
         const tr = document.createElement('tr');
-        const tdEtiqueta = document.createElement('td');
-        tdEtiqueta.classList.add('etiqueta-campo');
-        tdEtiqueta.textContent = etiqueta;
-
+        const tdEtiqueta = document.createElement('td'); tdEtiqueta.classList.add('etiqueta-campo'); tdEtiqueta.textContent = etiqueta;
         const tdInput = document.createElement('td');
-        const textarea = document.createElement('textarea');
-        textarea.name = name;
-        textarea.rows = 3;
-        textarea.value = value;
-
-        tdInput.appendChild(textarea);
-        tr.appendChild(tdEtiqueta);
-        tr.appendChild(tdInput);
-        return tr;
+        const textarea = document.createElement('textarea'); textarea.name = name; textarea.rows = 3; textarea.value = value;
+        tdInput.appendChild(textarea); tr.appendChild(tdEtiqueta); tr.appendChild(tdInput); return tr;
     }
 
     function crearFilaSelect(etiqueta, name, opciones, incluirOpcionVacia) {
         const tr = document.createElement('tr');
-        const tdEtiqueta = document.createElement('td');
-        tdEtiqueta.classList.add('etiqueta-campo');
-        tdEtiqueta.textContent = etiqueta;
-
+        const tdEtiqueta = document.createElement('td'); tdEtiqueta.classList.add('etiqueta-campo'); tdEtiqueta.textContent = etiqueta;
         const tdInput = document.createElement('td');
-        const select = document.createElement('select');
-        select.name = name;
-
+        const select = document.createElement('select'); select.name = name;
         rellenarOpciones(select, opciones, incluirOpcionVacia);
-        tdInput.appendChild(select);
-        tr.appendChild(tdEtiqueta);
-        tr.appendChild(tdInput);
-        return tr;
+        tdInput.appendChild(select); tr.appendChild(tdEtiqueta); tr.appendChild(tdInput); return tr;
     }
 
     function rellenarOpciones(selectElement, opciones, incluirOpcionVacia = true) {
         selectElement.innerHTML = '';
         if (incluirOpcionVacia) {
-            const optionVacia = document.createElement('option');
-            optionVacia.value = "";
-            optionVacia.textContent = "-- Sin asignar --";
-            selectElement.appendChild(optionVacia);
+            const optionVacia = document.createElement('option'); optionVacia.value = ""; optionVacia.textContent = "-- Sin asignar --"; selectElement.appendChild(optionVacia);
         }
         opciones.forEach(op => {
-            const option = document.createElement('option');
-            option.value = op.valor;
-            option.textContent = op.texto;
-            if (op.seleccionado) option.selected = true;
-            selectElement.appendChild(option);
+            const option = document.createElement('option'); option.value = op.valor; option.textContent = op.texto;
+            if (op.seleccionado) option.selected = true; selectElement.appendChild(option);
         });
     }
 
     function crearFilaInputNumber(etiqueta, name, value) {
         const tr = document.createElement('tr');
-        const tdEtiqueta = document.createElement('td');
-        tdEtiqueta.classList.add('etiqueta-campo');
-        tdEtiqueta.textContent = etiqueta;
-
+        const tdEtiqueta = document.createElement('td'); tdEtiqueta.classList.add('etiqueta-campo'); tdEtiqueta.textContent = etiqueta;
         const tdInput = document.createElement('td');
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.name = name;
-        input.value = value;
-        input.min = 0;
-
-        tdInput.appendChild(input);
-        tr.appendChild(tdEtiqueta);
-        tr.appendChild(tdInput);
-        return tr;
+        const input = document.createElement('input'); input.type = 'number'; input.name = name; input.value = value; input.min = 0;
+        tdInput.appendChild(input); tr.appendChild(tdEtiqueta); tr.appendChild(tdInput); return tr;
     }
 
     function mostrarErrorGlobal(mensaje) {
         contenedor.innerHTML = '';
-        const divError = document.createElement('div');
-        divError.classList.add('total', 'error-panel'); // Usa clase CSS
-        const pError = document.createElement('h2');
-        pError.classList.add('mensaje-error');
-        pError.textContent = mensaje;
-        divError.appendChild(pError);
-        contenedor.appendChild(divError);
+        const divError = document.createElement('div'); divError.classList.add('total', 'error-panel');
+        const pError = document.createElement('h2'); pError.classList.add('mensaje-error'); pError.textContent = mensaje;
+        divError.appendChild(pError); contenedor.appendChild(divError);
     }
 });

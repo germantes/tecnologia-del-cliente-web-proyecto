@@ -1,5 +1,8 @@
-/* src/styles/usuario_formulario.css */
+/* ==========================================================================
+   1. CONTENEDORES Y AJUSTES ESTRUCTURALES DEL FORMULARIO
+   ========================================================================== */
 
+/* Contenedor principal de la vista del formulario */
 .form-main {
     display: flex;
     justify-content: center;
@@ -8,12 +11,14 @@
     flex: 1;
 }
 
+/* Limitador de ancho para mantener el formulario centrado y compacto */
 .form-container {
     width: 100%;
     max-width: 700px;
     margin: 0 auto;
 }
 
+/* Tarjeta contenedora con bordes definidos y sombra de elevación */
 .total-form {
     background-color: var(--white);
     border: 5px solid var(--twilight-indigo);
@@ -23,6 +28,7 @@
     width: 100%;
 }
 
+/* Encabezado superior del formulario */
 .form-header {
     background-color: var(--twilight-indigo);
     padding: 25px;
@@ -36,6 +42,7 @@
     font-weight: bold;
 }
 
+/* Banner superior para notificaciones de error de validación */
 .error-banner {
     background-color: #ffe6e6;
     color: #d46262;
@@ -46,6 +53,11 @@
     border-bottom: 2px solid #d46262;
 }
 
+/* ==========================================================================
+   2. REJILLA DE CAMPOS (TABLAS DE ENTRADA DE DATOS)
+   ========================================================================== */
+
+/* Zona de padding alrededor de la tabla interna */
 .tablas-form {
     display: flex;
     justify-content: center;
@@ -57,6 +69,7 @@
     border-collapse: collapse;
 }
 
+/* Celdas de datos generales (Lado derecho con fondo blanco) */
 .tablas-form td {
     border: 3px solid var(--twilight-indigo);
     padding: 12px 15px;
@@ -67,6 +80,7 @@
     background-color: var(--white);
 }
 
+/* Celdas de etiqueta (Lado izquierdo con fondo oscuro) */
 .etiqueta-campo {
     background-color: var(--twilight-indigo);
     color: var(--white);
@@ -74,6 +88,7 @@
     width: 35%;
 }
 
+/* Estilo común para todos los controles de entrada (Inputs, Textareas, Selects) */
 .form-input {
     width: 100%;
     max-width: 100%;
@@ -89,6 +104,7 @@
     transition: all 0.3s ease;
 }
 
+/* Estado de foco interactivo para las entradas de datos */
 .form-input:focus {
     outline: none;
     border-color: var(--sky-surge);
@@ -96,6 +112,11 @@
     background-color: var(--white);
 }
 
+/* ==========================================================================
+   3. BOTONERA DE ACCIONES (CREAR / GUARDAR / CANCELAR)
+   ========================================================================== */
+
+/* Contenedor inferior para la alineación horizontal de botones */
 .botones-form {
     display: flex;
     justify-content: center;
@@ -103,9 +124,9 @@
     padding: 0 40px 40px 40px;
 }
 
+/* Estilo base unificado para los botones de Guardar y Cerrar/Cancelar */
 .btn-guardar, .btn-cerrar {
     background-color: var(--sky-surge);
-    color: var(--white);
     border: none;
     min-width: 170px;
     min-height: 52px;
@@ -121,17 +142,25 @@
     text-decoration: none;
     box-shadow: 0 6px 14px rgba(88, 185, 218, 0.35);
     transition: all 0.2s ease;
+
+    /* CORRECCIÓN: Fuerza el color blanco para evitar que los Links de React lo alteren */
+    color: var(--white) !important;
 }
 
+/* Estado hover interactivo con inversión de color a tono oscuro */
 .btn-guardar:hover, .btn-cerrar:hover {
     background-color: var(--twilight-indigo);
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(50, 50, 102, 0.28);
+
+    /* CORRECCIÓN: Garantiza la permanencia del color blanco sobre el fondo oscuro */
+    color: var(--white) !important;
 }
 
+/* Botón destructivo para la eliminación física de registros */
 .btn-eliminar {
     background-color: #d46262;
-    color: var(--white);
+    color: var(--white) !important;
     border: none;
     min-width: 170px;
     min-height: 52px;
@@ -153,4 +182,5 @@
     background-color: #b54a4a;
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(212, 98, 98, 0.4);
+    color: var(--white) !important;
 }

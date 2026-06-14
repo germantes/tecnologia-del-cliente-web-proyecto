@@ -5,6 +5,9 @@
     font-family: 'Poppins', sans-serif;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+    overflow-x: hidden;
 }
 
 .dashboard-contenedor {
@@ -71,6 +74,7 @@
     height: 300px;
     width: 100%;
     flex-grow: 1;
+    min-width: 0;
 }
 
 /* ==========================================================================

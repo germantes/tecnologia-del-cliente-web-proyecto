@@ -1,7 +1,5 @@
-/* src/styles/usuarios.css */
-
 /* ==========================================================================
-   1. VARIABLES GLOBALES
+   1. CONFIGURACIÓN DE ENTORNO Y VARIABLES MAESTRAS
    ========================================================================== */
 :root {
     --twilight-indigo: #323266;
@@ -13,9 +11,10 @@
 }
 
 /* ==========================================================================
-   2. CABECERA Y CONTENEDORES PRINCIPALES
+   2. MAQUETACIÓN ESTRUCTURAL DE LA VISTA
    ========================================================================== */
-/* Rompe el límite global de la app para que ocupe todo el ancho */
+
+/* Contenedor raíz de ancho completo para la gestión de usuarios */
 .usuarios-main {
     width: 100%;
     max-width: 100% !important;
@@ -26,11 +25,12 @@
     flex-grow: 1;
 }
 
+/* Banner azul superior de la pantalla */
 .header-titulo {
     width: 100%;
     background-color: var(--twilight-indigo);
     padding: 40px 20px;
-    margin: 0 0 40px 0 !important; /* Fuerza a que el margen superior sea 0 */
+    margin: 0 0 40px 0 !important;
     box-sizing: border-box;
     text-align: center;
 }
@@ -43,17 +43,20 @@
     font-family: var(--font-main);
 }
 
+/* Contenedor centralizado para el botón de alta de nuevo usuario */
 .crear-container {
     display: flex;
-    justify-content: center; /* Centrado absoluto horizontal */
+    justify-content: center;
     align-items: center;
     width: 100%;
     margin-bottom: 40px;
 }
 
 /* ==========================================================================
-   3. CUADRÍCULA DE TARJETAS (UsuarioCard)
+   3. DISPOSICIÓN EN REJILLA Y TARJETAS INFORMATIVAS (CARDS)
    ========================================================================== */
+
+/* Grid fluido con columnas adaptativas según resolución de pantalla */
 .usuarios-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -63,6 +66,7 @@
     padding: 0 40px 60px 40px;
 }
 
+/* Tarjeta contenedora individual de datos de usuario */
 .usuario-card {
     background-color: var(--white);
     border: 8px solid var(--twilight-indigo);
@@ -75,12 +79,14 @@
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
+/* Efecto hover de elevación y cambio de color perimetral */
 .usuario-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 18px 38px rgba(50, 50, 102, 0.28);
     border-color: var(--sky-surge);
 }
 
+/* Bloque del nombre de usuario dentro de la tarjeta */
 .titulo-usuario {
     margin: 0;
     padding: 12px 12px 10px;
@@ -92,6 +98,7 @@
     text-align: center;
 }
 
+/* Filas informativas internas separadas por sutiles líneas divisorias */
 .usuario-card p {
     margin: 0;
     padding: 12px 20px;
@@ -99,17 +106,18 @@
     border-bottom: 2px solid var(--twilight-indigo);
 }
 
-.usuario-card p:last-of-type { border-bottom: none; }
+.usuario-card p:last-of-type {
+    border-bottom: none;
+}
 
+/* Alineación fija horizontal de las etiquetas de texto en negrita */
 .usuario-card strong {
     color: var(--twilight-indigo);
     display: inline-block;
     width: 95px;
 }
 
-/* ==========================================================================
-   4. BOTONERA
-   ========================================================================== */
+/* Base inferior de la tarjeta reservada para botones */
 .botones-card {
     display: flex;
     justify-content: center;
@@ -119,9 +127,13 @@
     gap: 10px;
 }
 
+/* ==========================================================================
+   4. BOTONERA COMPONENTES (LINKS REACT)
+   ========================================================================== */
+
+/* Botón de acceso a la pantalla de Modificación */
 .btn-editar {
     background-color: var(--sky-surge);
-    color: var(--white);
     border: none;
     padding: 8px 15px;
     border-radius: 10px;
@@ -135,17 +147,26 @@
     box-shadow: 0 4px 10px rgba(88, 185, 218, 0.35);
     transition: all 0.2s ease;
     min-width: 120px;
+    text-decoration: none;
+
+    /* CORRECCIÓN: Fuerza color de texto blanco mitigando herencia azul de tags <a> */
+    color: var(--white) !important;
 }
 
+/* Transición cromática interactiva hacia tono corporativo oscuro */
 .btn-editar:hover {
     background-color: var(--twilight-indigo);
     transform: translateY(-2px);
     box-shadow: 0 8px 15px rgba(50, 50, 102, 0.28);
+
+    /* CORRECCIÓN: Mantiene el contraste blanco sobre el fondo índigo */
+    color: var(--white) !important;
 }
 
+/* Botón primario de alta masiva de usuarios */
 .btn-crear {
     background-color: var(--sky-surge);
-    color: var(--white);
+    color: var(--white) !important;
     border: none;
     min-width: 220px;
     min-height: 52px;
@@ -157,19 +178,22 @@
     font-family: var(--font-main);
     font-size: 1.45rem;
     font-weight: 800;
+    line-height: 1;
     cursor: pointer;
     box-shadow: 0 6px 14px rgba(88, 185, 218, 0.35);
     transition: all 0.2s ease;
+    text-decoration: none;
 }
 
 .btn-crear:hover {
     background-color: var(--twilight-indigo);
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(50, 50, 102, 0.28);
+    color: var(--white) !important;
 }
 
 /* ==========================================================================
-   5. ESTADOS DE REACT (Carga, Errores y Vacío)
+   5. COMPONENTES DE CARGA, RETALDO Y ALERTAS ASÍNCRONAS
    ========================================================================== */
 .main-error {
     display: flex;
@@ -194,6 +218,7 @@
     grid-column: 1 / -1;
 }
 
+/* Rueda de carga rotatoria CSS */
 .spinner {
     width: 60px;
     height: 60px;

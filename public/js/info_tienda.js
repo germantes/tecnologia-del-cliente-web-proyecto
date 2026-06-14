@@ -3,19 +3,18 @@
  * Analiza el cruce de datos Históricos para mostrar el personal responsable de la campaña.
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Obtener rol/perfil usando la utilidad central (si existe) o fallback legacy.
-    const rolUsuario = getPerfil();
+
+    const rolUsuario = typeof getPerfil === 'function' ? getPerfil() : sessionStorage.getItem('perfil');
     const token = sessionStorage.getItem('token');
 
     if (!rolUsuario || !token) {
-        window.location.href = 'index.html';
+        window.location.href = '/html/index.html';
         return;
     }
 
     const API_BASE = window.API_URL || "http://localhost:3000";
     const contenedor = document.getElementById('detalleContenedor');
 
-    // Extracción de contexto HTTP GET para saber qué tienda abrir
     const params = new URLSearchParams(window.location.search);
     const tiendaId = params.get('id');
     const urlIdCampania = params.get('idCampania');
@@ -26,7 +25,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        // 2. Extracción Paralela (Tienda actual, Catálogo Usuarios, Catálogo Campañas)
         const [response, usuariosRes, campaniasRes] = await Promise.all([
             fetch(`${API_BASE}/api/tiendas/${tiendaId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
             fetch(`${API_BASE}/api/usuarios`, { headers: { 'Authorization': `Bearer ${token}` } }),
@@ -39,7 +37,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const listaUsuarios = usuariosRes.ok ? await usuariosRes.json() : [];
         const listaCampanias = campaniasRes.ok ? await campaniasRes.json() : [];
 
-        // 3. Resolución de la Campaña Actual
         let idCampaniaActiva = null;
         const hoy = new Date();
         listaCampanias.forEach(c => {
@@ -51,14 +48,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        /** Mapea un ID de Usuario al Nombre Completo consultando el JSON de todos los usuarios */
         const getNombreUsuario = (id) => {
             if (!id) return 'N/A';
             const usuario = listaUsuarios.find(u => u.id_usuario == id || u.idUsuario == id);
             return usuario ? (usuario.nombre_completo || usuario.nombreCompleto || id) : id;
         };
 
-        // 4. Preparación Visual de Variables Estáticas Físicas
         const establecimiento = tienda.cadena ? tienda.cadena.establecimiento : 'Sin cadena';
         const localidad = tienda.cp ? tienda.cp.localidad : 'N/A';
         const cpCod = tienda.cp ? tienda.cp.cp : 'N/A';
@@ -67,7 +62,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const distrito = (tienda.cp && tienda.cp.distrito) ? (tienda.cp.distrito.nombre_distrito || 'N/A') : 'N/A';
         const domicilio = tienda.domicilio || 'N/A';
 
-        // Valores por defecto Organizacionales
         let participa = "No";
         let capitan = "N/A";
         let coordinador = "N/A";
@@ -76,17 +70,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         let idCampaniaPintar = null;
         let nombreCampania = "Sin campaña";
 
-        // 5. Análisis del Historial Relacional (Asignaciones según Campaña)
         if (tienda.tienda_campania && tienda.tienda_campania.length > 0) {
             let campaniaInfo = null;
 
-            // Priorizamos la campaña que el usuario trae filtrada desde la pantalla anterior
             if (urlIdCampania) {
                 campaniaInfo = tienda.tienda_campania.find(tc => tc.id_campania == urlIdCampania);
             } else if (idCampaniaActiva) {
                 campaniaInfo = tienda.tienda_campania.find(tc => tc.id_campania === idCampaniaActiva);
             }
-            if (!campaniaInfo) campaniaInfo = tienda.tienda_campania[0]; // Fallback
+            if (!campaniaInfo) campaniaInfo = tienda.tienda_campania[0];
 
             if (campaniaInfo) {
                 participa = campaniaInfo.participa ? "Sí" : "No";
@@ -101,12 +93,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
-        // Lógica de Permisos de Interfaz
         const puedeEditar = (rolUsuario.toUpperCase() === 'ADMINISTRADOR');
         const mostrarDatosCampania = (rolUsuario.toUpperCase() !== 'ADMINISTRADOR') || urlIdCampania;
 
         // ====================================================================
-        // 6. RENDERIZADO DEL DOM MEDIANTE JAVASCRIPT
+        // RENDERIZADO DEL DOM MEDIANTE JAVASCRIPT
         // ====================================================================
         const divTotal = document.createElement('div');
         divTotal.classList.add('total');
@@ -121,7 +112,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const divTablas = document.createElement('div');
         divTablas.classList.add('tablas');
 
-        // Tabla 1: Datos Fijos
         const tabla1 = document.createElement('table');
         tabla1.classList.add('tabla-1');
         tabla1.appendChild(crearFilaTabla('Domicilio', domicilio));
@@ -132,7 +122,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         tabla1.appendChild(crearFilaTabla('Municipio', municipio));
         divTablas.appendChild(tabla1);
 
-        // Tabla 2: Datos Dinámicos (Roles)
         const tabla2 = document.createElement('table');
         tabla2.classList.add('tabla-2');
         tabla2.appendChild(crearFilaTabla('Cadena', establecimiento));
@@ -144,7 +133,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             tabla2.appendChild(crearFilaTabla('Número de cajas', numCajas));
             tabla2.appendChild(crearFilaTabla(`Participa (${nombreCampania})`, participa));
         } else {
-            // Si el admin entró sin pinchar ninguna campaña concreta, se avisa para no confundirlo
             const trInfo = document.createElement('tr');
             const tdInfo = document.createElement('td');
             tdInfo.colSpan = 2;
@@ -157,14 +145,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         divTablas.appendChild(tabla2);
         divTotal.appendChild(divTablas);
 
-        // Botonera de Control
         const divBotones = document.createElement('div');
         divBotones.classList.add('botones-card');
-        divBotones.appendChild(crearBotonAccion('Cerrar', 'btn-cerrar', () => { window.location.href = 'tiendas.html'; }));
+
+        // Rutas Absolutas para evitar el bug de redirección errónea
+        divBotones.appendChild(crearBotonAccion('Cerrar', 'btn-cerrar', () => { window.location.href = '/html/tiendas.html'; }));
 
         if (mostrarDatosCampania && participa === 'Sí' && idCampaniaPintar) {
             const btnTurnos = crearBotonAccion('Turnos', 'btn-turnos', () => {
-                window.location.href = `tienda_turnos.html?idTienda=${tienda.id_tienda}&idCampania=${idCampaniaPintar}`;
+                window.location.href = `/html/tienda_turnos.html?idTienda=${tienda.id_tienda}&idCampania=${idCampaniaPintar}`;
             });
             divBotones.appendChild(btnTurnos);
         }
@@ -172,13 +161,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (puedeEditar) {
             const arrastrarCampania = urlIdCampania ? `&idCampania=${urlIdCampania}` : '';
             divBotones.appendChild(crearBotonAccion('Editar', 'btn-editar', () => {
-                window.location.href = `editar_tienda.html?id=${tienda.id_tienda}${arrastrarCampania}`;
+                window.location.href = `/html/editar_tienda.html?id=${tienda.id_tienda}${arrastrarCampania}`;
             }));
         }
 
         divTotal.appendChild(divBotones);
-
-        // Vaciamos el spinner y plasmamos el diseño en pantalla
         contenedor.innerHTML = '';
         contenedor.appendChild(divTotal);
 
@@ -186,7 +173,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         mostrarErrorDOM(`Error del sistema: ${error.message}`);
     }
 
-    // --- Helpers de creación del DOM ---
     function crearFilaTabla(etiqueta, valor) {
         const tr = document.createElement('tr');
         const tdEtiqueta = document.createElement('td'); tdEtiqueta.textContent = etiqueta;
@@ -204,7 +190,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function mostrarErrorDOM(mensaje) {
         contenedor.innerHTML = '';
         const divError = document.createElement('div');
-        divError.classList.add('total', 'error-panel'); // Usa la nueva clase CSS independiente
+        divError.classList.add('total', 'error-panel');
         const pError = document.createElement('h2');
         pError.classList.add('mensaje-error');
         pError.textContent = mensaje;

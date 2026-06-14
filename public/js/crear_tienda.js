@@ -1,10 +1,10 @@
 /**
  * Lógica asíncrona de construcción del formulario de CREACIÓN de tienda.
- * Lee 4 endpoints simultáneos, cruza datos y renderiza inputs dependientes.
+ * Lee endpoints simultáneos, cruza datos y renderiza inputs dependientes.
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Obtener rol/perfil usando la utilidad central (si está disponible) o fallback legacy.
-    const perfil = getPerfil();
+
+    const perfil = typeof getPerfil === 'function' ? getPerfil() : sessionStorage.getItem('perfil');
     const token = sessionStorage.getItem('token');
 
     if (!perfil || !token || perfil.toUpperCase() !== 'ADMINISTRADOR') {
@@ -13,26 +13,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const API_BASE = window.API_URL || "http://localhost:3000";
-    const contenedor = document.getElementById('contenedorFormulario'); // Referencia al div vacío en HTML
+    const contenedor = document.getElementById('contenedorFormulario');
 
     try {
-        // 2. Fetch Paralelo: Trae todas las listas maestras de la API de golpe para no bloquear la pantalla
-        const [cpsRes, cadenasRes, usuariosRes, campaniasRes] = await Promise.all([
+        const [cpsRes, cadenasRes, usuariosRes, campaniasRes, entidadesRes, asigZonaRes] = await Promise.all([
             fetch(`${API_BASE}/api/cps`, { headers: { 'Authorization': `Bearer ${token}` } }),
             fetch(`${API_BASE}/api/cadenas`, { headers: { 'Authorization': `Bearer ${token}` } }),
             fetch(`${API_BASE}/api/usuarios`, { headers: { 'Authorization': `Bearer ${token}` } }),
-            fetch(`${API_BASE}/api/campanias`, { headers: { 'Authorization': `Bearer ${token}` } })
+            fetch(`${API_BASE}/api/campanias`, { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch(`${API_BASE}/api/entidades`, { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch(`${API_BASE}/api/asignacion_zona`, { headers: { 'Authorization': `Bearer ${token}` } }).catch(() => ({ok: false}))
         ]);
 
         let listaCPs = cpsRes.ok ? await cpsRes.json() : [];
         const listaCadenas = cadenasRes.ok ? await cadenasRes.json() : [];
         const listaUsuarios = usuariosRes.ok ? await usuariosRes.json() : [];
         const listaCampanias = campaniasRes.ok ? await campaniasRes.json() : [];
+        const listaEntidades = entidadesRes.ok ? await entidadesRes.json() : [];
+        const listaAsignacionesZona = asigZonaRes.ok ? await asigZonaRes.json() : [];
 
-        // Ordenamos la lista de Códigos Postales
         listaCPs.sort((c1, c2) => (c1.cp || '').localeCompare(c2.cp || ''));
 
-        // 3. Resolución de la Campaña en curso
         let idCampaniaActiva = null;
         let nombreCampaniaActiva = 'Sin campaña';
         const hoy = new Date();
@@ -48,21 +49,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        // Depuración de Cadenas duplicadas
         const cadenasUnicas = Array.from(new Map(listaCadenas.map(cad => [cad.establecimiento, cad])).values())
             .sort((c1, c2) => (c1.establecimiento || '').localeCompare(c2.establecimiento || ''));
 
-        // 4. CREACIÓN DEL ÁRBOL DOM (Inyección limpia de HTML)
         const form = document.createElement('form');
         form.id = 'formCrearTienda';
-
-        if (idCampaniaActiva) {
-            const inputCamp = document.createElement('input');
-            inputCamp.type = 'hidden';
-            inputCamp.name = 'idCampania';
-            inputCamp.value = idCampaniaActiva;
-            form.appendChild(inputCamp);
-        }
+        form.classList.add('form-container');
 
         const divTotal = document.createElement('div');
         divTotal.classList.add('total');
@@ -78,6 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // TABLA IZQUIERDA: Domicilio y CP
         const tabla1 = document.createElement('table');
+        tabla1.classList.add('tabla-1');
         tabla1.appendChild(crearFilaTextarea('Domicilio', 'domicilio', ""));
 
         const opcionesCP = listaCPs.map(cp => ({
@@ -86,10 +79,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         const filaCp = crearFilaSelect('Cód. Postal / Localidad', 'idCp', opcionesCP, true);
         const selectCp = filaCp.querySelector('select');
         tabla1.appendChild(filaCp);
+
+        // Entidad en Creación
+        const opcionesEntidad = listaEntidades.map(ent => ({
+            valor: ent.id_entidad || ent.idEntidad, texto: ent.nombre, seleccionado: false
+        }));
+        const filaEnt = crearFilaSelect('Entidad (ONG)', 'idEntidad', opcionesEntidad, true);
+        const selectEntidad = filaEnt.querySelector('select');
+        tabla1.appendChild(filaEnt);
+
         divTablas.appendChild(tabla1);
 
         // TABLA DERECHA: Cadena y Asignaciones Personales
         const tabla2 = document.createElement('table');
+        tabla2.classList.add('tabla-2');
 
         const opcionesCadena = cadenasUnicas.map(cad => ({
             valor: cad.id_cadena || cad.idCadena, texto: cad.establecimiento, seleccionado: false
@@ -106,7 +109,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         tabla2.appendChild(crearFilaInputNumber('Número de cajas', 'numCajas', 0));
 
-        // Nodos Select de Personal (Nacen bloqueados hasta que el usuario decida que la tienda SÍ participa)
         const filaResp = crearFilaSelect('Responsable de Tienda', 'idResponsable', [], true);
         const filaCoord = crearFilaSelect('Coordinador', 'idCoordinador', [], true);
         const filaCap = crearFilaSelect('Capitán', 'idCapitan', [], true);
@@ -141,34 +143,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         divTotal.appendChild(divBotones);
         form.appendChild(divTotal);
 
-        // Vuelca la estructura final a la página, borrando el spinner de carga
         contenedor.innerHTML = '';
         contenedor.appendChild(form);
 
         // ====================================================================
-        // 5. LÓGICA REACTIVA DE FORMULARIO (Manejo de estados sin recarga web)
+        // LÓGICA REACTIVA DE FORMULARIO
         // ====================================================================
 
-        const getRol = (u) => (u.rol || u.puesto || '').toUpperCase();
+        const getRol = (u) => {
+            let r = (u.rol || u.puesto || '').toUpperCase();
+            return r.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        };
+
         const mapearUsuario = (u, comparadorId) => ({
             valor: u.id_usuario || u.idUsuario,
             texto: u.rol ? `${u.nombre_completo || u.nombreCompleto} (${u.rol})` : (u.nombre_completo || u.nombreCompleto),
             seleccionado: (u.id_usuario || u.idUsuario) == comparadorId
         });
 
-        /** Evalúa qué usuarios están disponibles en base al Código Postal elegido */
         const actualizarAsignaciones = () => {
             const participa = selectParticipa.value === 'true';
             const cpSeleccionado = selectCp.value;
 
-            // Salva la selección previa para no frustrar al usuario al re-dibujar
             const prevResp = selectResp.value;
             const prevCoord = selectCoord.value;
             const prevCap = selectCap.value;
 
-            // Regla de Negocio: Sin CP o si no participa, se bloquean los usuarios
-            if (!participa || !cpSeleccionado) {
+            if (!participa || !cpSeleccionado || !idCampaniaActiva) {
                 selectResp.disabled = true; selectCoord.disabled = true; selectCap.disabled = true;
+                if (selectEntidad) selectEntidad.disabled = true;
                 rellenarOpciones(selectResp, []); rellenarOpciones(selectCoord, []); rellenarOpciones(selectCap, []);
                 return;
             }
@@ -176,40 +179,66 @@ document.addEventListener('DOMContentLoaded', async () => {
             const cpMatch = listaCPs.find(c => c.cp == cpSeleccionado);
             const idZonaSeleccionada = cpMatch ? (cpMatch.id_zona || cpMatch.idZona) : null;
 
-            const isMismaZona = (u) => {
+            // Validación de Asignaciones Zonal en Creación
+            const isAsignacionZonaValida = (u) => {
                 if (!idZonaSeleccionada) return true;
-                const matchU = listaCPs.find(c => c.cp == (u.id_cp || u.idCp) || c.id_cp == (u.id_cp || u.idCp));
-                const zonaU = matchU ? (matchU.id_zona || matchU.idZona) : null;
-                return zonaU == idZonaSeleccionada;
+                const asignacionesUsuario = listaAsignacionesZona.filter(az =>
+                    (az.id_usuario == (u.id_usuario || u.idUsuario)) &&
+                    (az.id_campania == idCampaniaActiva)
+                );
+                if (asignacionesUsuario.length === 0) return true;
+                return asignacionesUsuario.some(az => az.id_zona == idZonaSeleccionada);
             };
 
             const coordinadores = listaUsuarios.filter(u => getRol(u) === 'COORDINADOR');
-            const capitanes = listaUsuarios.filter(u => getRol(u) === 'COORDINADOR' || (getRol(u) === 'CAPITAN' && isMismaZona(u)));
-            const responsables = listaUsuarios.filter(u => getRol(u) === 'COORDINADOR' || (getRol(u) === 'CAPITAN' && isMismaZona(u)) || (getRol(u) === 'RESPONSABLE-ENTIDAD' && isMismaZona(u)) || (getRol(u) === 'RESPONSABLE-TIENDA' && isMismaZona(u)));
+
+            const capitanes = listaUsuarios.filter(u =>
+                getRol(u) === 'COORDINADOR' ||
+                getRol(u) === 'CAPITAN' && isAsignacionZonaValida(u)
+            );
+
+            const responsables = listaUsuarios.filter(u => {
+                const rol = getRol(u);
+                if (rol === 'RESPONSABLE-ENTIDAD') return false;
+                if (rol === 'COORDINADOR' || rol === 'RESPONSABLE-TIENDA') return true;
+                if (rol === 'CAPITAN') return isAsignacionZonaValida(u);
+                return false;
+            });
 
             rellenarOpciones(selectResp, responsables.map(u => mapearUsuario(u, prevResp)));
             rellenarOpciones(selectCoord, coordinadores.map(u => mapearUsuario(u, prevCoord)));
             rellenarOpciones(selectCap, capitanes.map(u => mapearUsuario(u, prevCap)));
 
             selectResp.disabled = false; selectCoord.disabled = false; selectCap.disabled = false;
+            if (selectEntidad) selectEntidad.disabled = false;
         };
 
-        // Listeners: Recalcular dependencias al vuelo
         selectCp.addEventListener('change', actualizarAsignaciones);
         selectParticipa.addEventListener('change', actualizarAsignaciones);
         actualizarAsignaciones();
 
-        // 6. Enviar Datos (Submit)
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData.entries());
 
-            if (data.numCajas) data.numCajas = parseInt(data.numCajas) || 0;
-            if (data.participa) data.participa = data.participa === 'true';
+            const data = {
+                domicilio: form.querySelector('[name="domicilio"]').value,
+                idCp: selectCp.value,
+                idCadena: form.querySelector('[name="idCadena"]').value,
+            };
+
+            // Solo enviamos bloque extra si la tienda participa en la activa
+            if (idCampaniaActiva) {
+                data.idCampania = idCampaniaActiva;
+                data.participa = selectParticipa.value === 'true';
+                data.numCajas = parseInt(form.querySelector('[name="numCajas"]').value) || 0;
+
+                data.idResponsable = selectResp.value || null;
+                data.idCoordinador = selectCoord.value || null;
+                data.idCapitan = selectCap.value || null;
+                if (selectEntidad) data.idEntidad = selectEntidad.value || null;
+            }
 
             try {
-                // Post genérico a la API de Node
                 const response = await fetch(`${API_BASE}/api/tiendas`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -223,7 +252,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     alert(`Error al crear la tienda: ${errInfo.message || 'Verifica los campos'}`);
                 }
             } catch (error) {
-                alert('Error de conexión al intentar crear el registro en servidor.');
+                alert('Error de conexión al crear.');
             }
         });
 
@@ -231,7 +260,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         mostrarErrorGlobal(error.message);
     }
 
-    // --- Helpers de creación del DOM ---
     function crearFilaTextarea(etiqueta, name, value) {
         const tr = document.createElement('tr');
         const tdEtiqueta = document.createElement('td'); tdEtiqueta.classList.add('etiqueta-campo'); tdEtiqueta.textContent = etiqueta;
@@ -252,12 +280,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     function rellenarOpciones(selectElement, opciones, incluirOpcionVacia = true) {
         selectElement.innerHTML = '';
         if (incluirOpcionVacia) {
-            const optionVacia = document.createElement('option'); optionVacia.value = ""; optionVacia.textContent = "-- Seleccione una opción --"; selectElement.appendChild(optionVacia);
+            const optionVacia = document.createElement('option'); optionVacia.value = ""; optionVacia.textContent = "-- Sin asignar --"; selectElement.appendChild(optionVacia);
         }
         opciones.forEach(op => {
             const option = document.createElement('option'); option.value = op.valor; option.textContent = op.texto;
-            if (op.seleccionado) option.selected = true;
-            selectElement.appendChild(option);
+            if (op.seleccionado) option.selected = true; selectElement.appendChild(option);
         });
     }
 
@@ -271,7 +298,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function mostrarErrorGlobal(mensaje) {
         contenedor.innerHTML = '';
-        const tituloError = document.createElement('h2'); tituloError.classList.add('mensaje-error'); tituloError.textContent = mensaje;
-        contenedor.appendChild(tituloError);
+        const divError = document.createElement('div'); divError.classList.add('total', 'error-panel');
+        const pError = document.createElement('h2'); pError.classList.add('mensaje-error'); pError.textContent = mensaje;
+        divError.appendChild(pError); contenedor.appendChild(divError);
     }
 });

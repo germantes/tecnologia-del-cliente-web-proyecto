@@ -1253,49 +1253,87 @@ app.get('/api/tiendas/:id', requireAuth, async (req, res) => {
   }
 });
 
+// =========================================================================
+// CREAR NUEVA TIENDA
+// =========================================================================
 app.post('/api/tiendas', requireAuth, async (req, res) => {
   try {
     const {
-      domicilio, idCp, id_cp, id_cadena,
+      domicilio, idCp, id_cp, id_cadena, idCadena,
       idCampania, participa, numCajas,
-      idResponsable, idCoordinador, idCapitan
+      idResponsable, idCoordinador, idCapitan, idEntidad
     } = req.body;
 
+    const cpFinal = (idCp || id_cp) || null;
+
+    // 1. Guardamos la tienda en la tabla principal
     const { data: resultTienda, error: errorTienda } = await supabase
-      .from('tienda')
-      .insert([{
-        domicilio: domicilio || null,
-        cp: (idCp || id_cp) || null,
-        id_cadena: id_cadena ? parseInt(id_cadena) : null
-      }])
-      .select();
+        .from('tienda')
+        .insert([{
+          domicilio: domicilio || null,
+          cp: cpFinal,
+          id_cadena: (idCadena || id_cadena) ? parseInt(idCadena || id_cadena) : null
+        }])
+        .select();
 
     if (errorTienda) throw errorTienda;
 
     const nuevaTiendaId = resultTienda[0].id_tienda;
 
-    if (participa && idCampania) {
+    // 2. Si hay campaña y participa, gestionamos el árbol de relaciones
+    if (idCampania) {
+      const participaBool = (participa === true || participa === 'true');
+
+      // A) Tabla tienda_campania (SIN id_entidad, que aquí no existe)
       const { error: errorCampania } = await supabase
-        .from('tienda_campania')
-        .insert([{
-          id_tienda: nuevaTiendaId,
-          id_campania: parseInt(idCampania),
-          num_cajas: parseInt(numCajas) || 0,
-          id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
-          id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
-          id_capitan: idCapitan ? parseInt(idCapitan) : null,
-          participa: participa === true || participa === 'true'
-        }]);
+          .from('tienda_campania')
+          .insert([{
+            id_tienda: nuevaTiendaId,
+            id_campania: parseInt(idCampania),
+            num_cajas: parseInt(numCajas) || 0,
+            id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
+            id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
+            id_capitan: idCapitan ? parseInt(idCapitan) : null,
+            participa: participaBool
+          }]);
 
       if (errorCampania) throw errorCampania;
+
+      if (participaBool) {
+        // B) Tabla asignacion_tienda (Aquí se vincula la ONG)
+        const asignaciones = [];
+        const entId = idEntidad ? parseInt(idEntidad) : null;
+
+        if (idCapitan) asignaciones.push({ id_campania: parseInt(idCampania), id_tienda: nuevaTiendaId, id_usuario: parseInt(idCapitan), id_entidad: entId });
+        if (idCoordinador) asignaciones.push({ id_campania: parseInt(idCampania), id_tienda: nuevaTiendaId, id_usuario: parseInt(idCoordinador), id_entidad: entId });
+        if (idResponsable) asignaciones.push({ id_campania: parseInt(idCampania), id_tienda: nuevaTiendaId, id_usuario: parseInt(idResponsable), id_entidad: entId });
+
+        if (asignaciones.length > 0) {
+          await supabase.from('asignacion_tienda').insert(asignaciones);
+        }
+
+        // C) Tabla asignacion_zona (Registramos las zonas de control)
+        if (cpFinal) {
+          const { data: cpData } = await supabase.from('cp').select('id_zona').eq('cp', cpFinal).single();
+          if (cpData && cpData.id_zona) {
+            if (idCapitan) {
+              await supabase.from('asignacion_zona').upsert({
+                id_campania: parseInt(idCampania), id_zona: cpData.id_zona,
+                id_usuario: parseInt(idCapitan), rol_en_campania: 'CAPITAN'
+              });
+            }
+            if (idCoordinador) {
+              await supabase.from('asignacion_zona').upsert({
+                id_campania: parseInt(idCampania), id_zona: cpData.id_zona,
+                id_usuario: parseInt(idCoordinador), rol_en_campania: 'COORDINADOR'
+              });
+            }
+          }
+        }
+      }
     }
 
-    res.status(201).json({
-      success: true,
-      message: 'Tienda creada con éxito',
-      id_tienda: nuevaTiendaId
-    });
-
+    res.status(201).json({ success: true, message: 'Tienda creada con éxito', id_tienda: nuevaTiendaId });
   } catch (error) {
     console.error('Error al crear tienda con Supabase:', error);
     res.status(500).json({ success: false, message: 'Error interno de Supabase: ' + error.message });
@@ -1870,44 +1908,90 @@ app.post('/api/sugerencias', requireAuth, async (req, res) => {
   }
 });
 
+// =========================================================================
+// ACTUALIZAR TIENDA (PUT)
+// =========================================================================
 app.put('/api/tiendas/:id', requireAuth, async (req, res) => {
   try {
     if (req.user.puesto?.toUpperCase() !== 'ADMINISTRADOR') {
       return res.status(403).json({ error: 'No tienes permisos.' });
     }
 
-    const tiendaId = req.params.id;
+    const tiendaId = parseInt(req.params.id);
     const {
-      domicilio, idCp, id_cp, id_cadena,
-      idResponsable, idCoordinador, idCapitan,
+      domicilio, idCp, id_cp, id_cadena, idCadena,
+      idResponsable, idCoordinador, idCapitan, idEntidad,
       numCajas, participa, idCampania
     } = req.body;
 
+    const cpFinal = (idCp || id_cp) || null;
+
+    // 1. Actualizamos SIEMPRE la tabla principal (Tienda)
     const { error: errorTienda } = await supabase
-      .from('tienda')
-      .update({
-        domicilio: domicilio || null,
-        cp: (idCp || id_cp) || null,
-        id_cadena: (idCadena || id_cadena) ? parseInt(idCadena || id_cadena) : null
-      })
-      .eq('id_tienda', tiendaId);
+        .from('tienda')
+        .update({
+          domicilio: domicilio || null,
+          cp: cpFinal,
+          id_cadena: (idCadena || id_cadena) ? parseInt(idCadena || id_cadena) : null
+        })
+        .eq('id_tienda', tiendaId);
 
     if (errorTienda) throw errorTienda;
 
+    // 2. Si hay campaña, gestionamos todas las relaciones en cascada
     if (idCampania) {
+      const participaBool = (participa === true || participa === 'true');
+
+      // A) UPSERT en tienda_campania (Garantiza que actualiza o crea si no existía)
       const { error: errorCampania } = await supabase
-        .from('tienda_campania')
-        .update({
-          id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
-          id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
-          id_capitan: idCapitan ? parseInt(idCapitan) : null,
-          num_cajas: parseInt(numCajas) || 0,
-          participa: participa === true || participa === 'true'
-        })
-        .eq('id_tienda', tiendaId)
-        .eq('id_campania', idCampania);
+          .from('tienda_campania')
+          .upsert({
+            id_tienda: tiendaId,
+            id_campania: parseInt(idCampania),
+            id_responsable_tienda: idResponsable ? parseInt(idResponsable) : null,
+            id_coordinador: idCoordinador ? parseInt(idCoordinador) : null,
+            id_capitan: idCapitan ? parseInt(idCapitan) : null,
+            num_cajas: parseInt(numCajas) || 0,
+            participa: participaBool
+          });
 
       if (errorCampania) throw errorCampania;
+
+      // B) Gestionar asignacion_tienda (Aquí se guarda la Entidad)
+      // Primero limpiamos el historial anterior para no duplicar
+      await supabase.from('asignacion_tienda').delete().eq('id_tienda', tiendaId).eq('id_campania', idCampania);
+
+      if (participaBool) {
+        const asignaciones = [];
+        const entId = idEntidad ? parseInt(idEntidad) : null;
+
+        if (idCapitan) asignaciones.push({ id_campania: parseInt(idCampania), id_tienda: tiendaId, id_usuario: parseInt(idCapitan), id_entidad: entId });
+        if (idCoordinador) asignaciones.push({ id_campania: parseInt(idCampania), id_tienda: tiendaId, id_usuario: parseInt(idCoordinador), id_entidad: entId });
+        if (idResponsable) asignaciones.push({ id_campania: parseInt(idCampania), id_tienda: tiendaId, id_usuario: parseInt(idResponsable), id_entidad: entId });
+
+        if (asignaciones.length > 0) {
+          await supabase.from('asignacion_tienda').insert(asignaciones);
+        }
+
+        // C) Gestionar asignacion_zona
+        if (cpFinal) {
+          const { data: cpData } = await supabase.from('cp').select('id_zona').eq('cp', cpFinal).single();
+          if (cpData && cpData.id_zona) {
+            if (idCapitan) {
+              await supabase.from('asignacion_zona').upsert({
+                id_campania: parseInt(idCampania), id_zona: cpData.id_zona,
+                id_usuario: parseInt(idCapitan), rol_en_campania: 'CAPITAN'
+              });
+            }
+            if (idCoordinador) {
+              await supabase.from('asignacion_zona').upsert({
+                id_campania: parseInt(idCampania), id_zona: cpData.id_zona,
+                id_usuario: parseInt(idCoordinador), rol_en_campania: 'COORDINADOR'
+              });
+            }
+          }
+        }
+      }
     }
 
     res.json({ success: true, message: 'Tienda actualizada correctamente' });
@@ -2215,6 +2299,17 @@ app.get('/api/stats/detalle-granular', requireAuth, async (req, res) => {
     });
 
   } catch (error) { sendError(res, error, 'Error en detalle granular'); }
+});
+
+// Endpoint para obtener TODAS las asignaciones de zona (Usado para validar Capitanes al crear/editar tiendas)
+app.get('/api/asignacion_zona', requireAuth, async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('asignacion_zona').select('*');
+    if (error) throw error;
+    res.json(data || []);
+  } catch (error) {
+    sendError(res, error, 'Error obteniendo la tabla asignacion_zona');
+  }
 });
 
 app.all([
