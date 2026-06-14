@@ -119,6 +119,7 @@ function renderizarVoluntarios(voluntarios) {
     return;
   }
 
+  const esAdmin = getPerfil() === 'ADMINISTRADOR';
   grid.innerHTML = voluntarios.map(voluntario => {
     const nombre = voluntario.nombre || '';
     const apellidos = `${voluntario.apellido_1 || ''} ${voluntario.apellido_2 || ''}`.trim();
@@ -145,7 +146,7 @@ function renderizarVoluntarios(voluntarios) {
         </div>
         <div class="card-buttons">
           <button type="button" onclick="abrirInfoVoluntario(${idVoluntario})">+info</button>
-          ${getPerfil() === 'ADMINISTRADOR' ? `<button type="button" onclick="window.location.href='edit.html?type=voluntarios&id=${idVoluntario}'">Editar</button>` : ''}
+          ${esAdmin ? `<button type="button" onclick="window.location.href='edit.html?type=voluntarios&id=${idVoluntario}'">Editar</button>` : ''}
         </div>
       </div>
     `;

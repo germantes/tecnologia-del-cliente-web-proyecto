@@ -1,7 +1,7 @@
 import GenericForm from './GenericForm';
 import { cadenaSchema } from './formSchemas';
 
-function FormCadena({ onClose, existingCadenas, onCadenaCreated, initialData = null }) {
+function FormCadena({ onClose, existingCadenas, onCadenaCreated, initialData = null, showDelete, onDelete }) {
     const isEditMode = !!initialData;
     
     return (
@@ -30,6 +30,8 @@ function FormCadena({ onClose, existingCadenas, onCadenaCreated, initialData = n
                 return cadenaSchema.validate(formData, recordsToCheck);
             }}
             transformSubmitData={cadenaSchema.transformSubmitData}
+            showDelete={showDelete}
+            onDelete={onDelete}
         />
     );
 }

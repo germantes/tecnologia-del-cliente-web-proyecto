@@ -1,7 +1,7 @@
 import GenericForm from './GenericForm';
 import { campaniaSchema } from './formSchemas';
 
-function FormCampania({ onClose, onCampaniaCreated, initialData = null }) {
+function FormCampania({ onClose, onCampaniaCreated, initialData = null, showDelete, onDelete }) {
     const isEditMode = !!initialData;
     
     return (
@@ -24,6 +24,8 @@ function FormCampania({ onClose, onCampaniaCreated, initialData = null }) {
             onSuccess={onCampaniaCreated}
             validate={campaniaSchema.validate}
             transformSubmitData={campaniaSchema.transformSubmitData}
+            showDelete={showDelete}
+            onDelete={onDelete}
         />
     );
 }

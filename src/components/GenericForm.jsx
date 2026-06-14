@@ -26,7 +26,9 @@ function GenericForm({
     onSuccess,
     validate,
     transformSubmitData,
-    onFieldChange
+    onFieldChange,
+    showDelete,
+    onDelete
 }) {
     const [formData, setFormData] = useState({});
     const [error, setError] = useState('');
@@ -257,6 +259,16 @@ function GenericForm({
                         >
                             {isSubmitting ? 'Guardando...' : (method === 'POST' ? 'Crear' : 'Guardar')}
                         </button>
+                        {showDelete && method === 'PUT' && (
+                            <button
+                                type="button"
+                                className={formStyles['btn-eliminar']}
+                                onClick={onDelete}
+                                disabled={isSubmitting}
+                            >
+                                Eliminar
+                            </button>
+                        )}
                     </div>
                 </div>
             </form>

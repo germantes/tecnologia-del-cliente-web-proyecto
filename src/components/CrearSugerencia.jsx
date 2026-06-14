@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAuthHeaders } from './session'
+import { getFirstValue } from '../utils/helpers'
 import formStyles from '../styles/edit.module.css'
 
 const ENTITY_TYPES = [
@@ -47,14 +48,6 @@ const SCHEMAS = {
 // Didn't do it because needed to change column type in supabase
 const ROLES = ['ADMINISTRADOR', 'COORDINADOR', 'CAPITAN', 'RESPONSABLE-ENTIDAD', 'RESPONSABLE-TIENDA']
 
-function getFirstValue(obj, fields) {
-  const arr = Array.isArray(fields) ? fields : [fields]
-  for (const f of arr) {
-    if (obj[f] !== undefined && obj[f] !== null && obj[f] !== '') return String(obj[f]).trim()
-  }
-  return `#${Object.values(obj)[0] || ''}`
-}
-
 function getEntityName(entity, config) {
   if (!entity || !config) return ''
   if (config.key === 'tienda') {
@@ -63,6 +56,32 @@ function getEntityName(entity, config) {
     return cadenaName ? `${domicilio} - ${cadenaName}` : domicilio
   }
   return getFirstValue(entity, config.nameField)
+}
+
+function resolveFieldValue(entity, field, refData) {
+  let val = entity[field.key]
+  if (val === undefined || val === null || (typeof val === 'object' && val !== null)) {
+    const nestedKey = field.key.replace(/^id_/, '')
+    const nested = (typeof val === 'object' && val !== null) ? val : entity[nestedKey]
+    if (nested && typeof nested === 'object') {
+      if (nestedKey === 'cadena') {
+        val = String(nested.id_cadena ?? Object.values(nested)[0] ?? '')
+      } else if (nestedKey === 'cp') {
+        const cpRaw = nested.cp ?? nested.id_cp ?? Object.values(nested)[0]
+        const zonaItem = (refData.zona || []).find(z => String(z.cp) === String(cpRaw))
+        val = String(cpRaw)
+      } else {
+        val = nested[field.key] ?? nested[nestedKey] ?? nested.id ?? Object.values(nested)[0]
+      }
+    }
+  }
+  if (field.type === 'select_zona' && val !== undefined && val !== null && val !== '' && typeof val !== 'object') {
+    const zonaItem = (refData.zona || []).find(z => String(z.cp) === String(val))
+    if (zonaItem) {
+      val = String(zonaItem.cp)
+    }
+  }
+  return val !== undefined && val !== null && typeof val !== 'object' ? val : ''
 }
 
 function CrearSugerencia() {
@@ -169,32 +188,6 @@ function CrearSugerencia() {
       const refData = await loadRefData([...neededTypes])
 
       setRefs(refData)
-
-      function resolveFieldValue(entity, field, refData) {
-        let val = entity[field.key]
-        if (val === undefined || val === null || (typeof val === 'object' && val !== null)) {
-          const nestedKey = field.key.replace(/^id_/, '')
-          const nested = (typeof val === 'object' && val !== null) ? val : entity[nestedKey]
-          if (nested && typeof nested === 'object') {
-            if (nestedKey === 'cadena') {
-              val = String(nested.id_cadena ?? Object.values(nested)[0] ?? '')
-            } else if (nestedKey === 'cp') {
-              const cpRaw = nested.cp ?? nested.id_cp ?? Object.values(nested)[0]
-              const zonaItem = (refData.zona || []).find(z => String(z.cp) === String(cpRaw))
-              val = String(cpRaw)
-            } else {
-              val = nested[field.key] ?? nested[nestedKey] ?? nested.id ?? Object.values(nested)[0]
-            }
-          }
-        }
-        if (field.type === 'select_zona' && val !== undefined && val !== null && val !== '' && typeof val !== 'object') {
-          const zonaItem = (refData.zona || []).find(z => String(z.cp) === String(val))
-          if (zonaItem) {
-            val = String(zonaItem.cp)
-          }
-        }
-        return val !== undefined && val !== null && typeof val !== 'object' ? val : ''
-      }
 
       const initial = {}
       const origValues = {}

@@ -95,6 +95,7 @@ function renderizarEntidades(entidades) {
         return;
     }
 
+    const esAdmin = getPerfil() === 'ADMINISTRADOR';
     grid.innerHTML = entidades.map(entidad => {
         const nombre = entidad.nombre || 'Sin nombre';
         const codigo = entidad.codigo_bancosol || 'N/A';
@@ -123,7 +124,7 @@ function renderizarEntidades(entidades) {
                 </div>
                 <div class="card-buttons">
                     <button type="button" onclick="abrirInfoEntidad(${idEntidad})">+info</button>
-                    ${getPerfil() === 'ADMINISTRADOR' ? `<button type="button" onclick="window.location.href='/html/edit.html?type=entidades&id=${idEntidad}'">Editar</button>` : ''}
+                    ${esAdmin ? `<button type="button" onclick="window.location.href='/html/edit.html?type=entidades&id=${idEntidad}'">Editar</button>` : ''}
                 </div>
             </div>
         `;

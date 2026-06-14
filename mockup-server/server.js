@@ -1033,10 +1033,13 @@ app.put(['/campanias/:id', '/api/campanias/:id'], requireAuth, async (req, res) 
     res.json(updated || null);
   } catch (e) { sendError(res, e, 'Error actualizando campaña'); }
 });
+app.delete(['/campanias/:id', '/api/campanias/:id'], requireAuth, async (req, res) => {
+  try { res.json(await deleteRows('campania', 'id_campania', req.params.id)); } catch (e) { sendError(res, e, 'Error eliminando campaña'); }
+});
 app.post('/tiendas', requireAuth, async (req, res) => {
   try { res.json((await insertRows('tienda', [req.body]))[0]); } catch (e) { sendError(res, e, 'Error creando tienda'); }
 });
-app.post('/entidades', requireAuth, async (req, res) => {
+app.post(['/entidades', '/api/entidades'], requireAuth, async (req, res) => {
   try {
     const codigo = req.body.codigo_bancosol;
     if (codigo) {
@@ -1048,7 +1051,7 @@ app.post('/entidades', requireAuth, async (req, res) => {
     res.json((await insertRows('entidad', [req.body]))[0]);
   } catch (e) { sendError(res, e, 'Error creando entidad'); }
 });
-app.put('/entidades/:id', requireAuth, async (req, res) => {
+app.put(['/entidades/:id', '/api/entidades/:id'], requireAuth, async (req, res) => {
   try {
     const codigo = req.body.codigo_bancosol;
     if (codigo) {
@@ -1060,7 +1063,7 @@ app.put('/entidades/:id', requireAuth, async (req, res) => {
     res.json((await updateRows('entidad', 'id_entidad', req.params.id, req.body))[0]);
   } catch (e) { sendError(res, e, 'Error actualizando entidad'); }
 });
-app.delete('/entidades/:id', requireAuth, async (req, res) => {
+app.delete(['/entidades/:id', '/api/entidades/:id'], requireAuth, async (req, res) => {
   try { res.json(await deleteRows('entidad', 'id_entidad', req.params.id)); } catch (e) { sendError(res, e, 'Error eliminando entidad'); }
 });
 app.post(['/voluntarios', '/api/voluntarios'], requireAuth, async (req, res) => {
@@ -1098,14 +1101,14 @@ app.get('/usuarios/:id', requireAuth, async (req, res) => {
     res.json(usuario);
   } catch (error) { sendError(res, error, 'Error obteniendo usuario'); }
 });
-app.get('/campanias/:id', requireAuth, async (req, res) => {
+app.get(['/campanias/:id', '/api/campanias/:id'], requireAuth, async (req, res) => {
   try {
     const campania = await findById('campania', req.params.id, ['id_campania']);
     if (!campania) return res.status(404).json({ success: false, message: 'Campaña no encontrada.' });
     res.json(campania);
   } catch (error) { sendError(res, error, 'Error obteniendo campaña'); }
 });
-app.get('/entidades/:id', requireAuth, async (req, res) => {
+app.get(['/entidades/:id', '/api/entidades/:id'], requireAuth, async (req, res) => {
   try {
     const entidad = await findById('entidad', req.params.id, ['id_entidad']);
     if (!entidad) return res.status(404).json({ success: false, message: 'Entidad no encontrada.' });
@@ -1720,28 +1723,6 @@ app.post('/api/cadenas', requireAuth, async (req, res) => {
 
   } catch (error) {
     sendError(res, error, 'Error al crear la cadena');
-  }
-});
-
-// Endpoint para actualizar una cadena existente
-app.put('/api/cadenas/:id', requireAuth, async (req, res) => {
-  try {
-    const { codigo_cadena, establecimiento, nombre_particular, empresa } = req.body;
-
-    const [updated] = await updateRows('cadena', 'id_cadena', req.params.id, {
-      codigo_cadena,
-      establecimiento,
-      nombre_particular,
-      empresa_cadena: empresa
-    });
-
-    if (!updated) {
-      return res.status(404).json({ success: false, message: 'Cadena no encontrada.' });
-    }
-
-    res.json(updated);
-  } catch (error) {
-    sendError(res, error, 'Error actualizando cadena');
   }
 });
 

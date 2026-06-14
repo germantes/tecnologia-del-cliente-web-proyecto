@@ -26,10 +26,17 @@ function authHeaders(extra = {}) {
 
 function apiResource(resource) {
   const apiResources = {
+    usuarios: 'usuarios',
+    entidades: 'api/entidades',
+    campanias: 'api/campanias',
+    tiendas: 'tiendas',
     voluntarios: 'api/voluntarios',
     turnos: 'api/turnos',
     schedule: 'api/schedule',
-    cp: 'api/cp'
+    cp: 'api/cp',
+    cadenas: 'api/cadenas',
+    zonas: 'api/zonas',
+    distritos: 'api/distritos',
   };
 
   return apiResources[resource] || resource;
@@ -105,14 +112,14 @@ async function getRecord(resource, id) {
 
 // Ahora estas funciones son "alias" de las genéricas
 async function getUsuarios(params = {}) { return getRecords('usuarios', params); }
-async function getEntidades(params = {}) { return getRecords('api/entidades', params); }
-async function getCampanias(params = {}) { return getRecords('api/campanias', params); }
+async function getEntidades(params = {}) { return getRecords('entidades', params); }
+async function getCampanias(params = {}) { return getRecords('campanias', params); }
 async function getTiendas(params = {}) { return getRecords('tiendas', params); }
-async function getTurnos(params = {}) { return getRecords('api/turnos', params); }
-async function getVoluntarios(params = {}) { return getRecords('api/voluntarios', params); }
-async function getSchedule(params = {}) { return getRecords('api/schedule', params); }
+async function getTurnos(params = {}) { return getRecords('turnos', params); }
+async function getVoluntarios(params = {}) { return getRecords('voluntarios', params); }
+async function getSchedule(params = {}) { return getRecords('schedule', params); }
 async function getMe() { return getRecord('me'); }
-async function getZones(params = {}) { return getRecords('api/cp', params); }
+async function getZones(params = {}) { return getRecords('cp', params); }
 async function getZonesByCompany(idCampania) { return getRecords('api/zonas_por_campania', { idCampania }); }
 async function getCampaignsByZone(idZona) { return getRecords('api/campanias_por_zona', { idZona }); }
 
@@ -120,29 +127,29 @@ async function postUsuario(datos) { return createRecord('usuarios', datos); }
 async function putUsuario(id, datos) { return updateRecord('usuarios', id, datos); }
 async function deleteUsuario(id) { return deleteRecord('usuarios', id); }
 
-async function postVoluntario(datos) { return createRecord('api/voluntarios', datos); }
-async function putVoluntario(id, datos) { return updateRecord('api/voluntarios', id, datos); }
-async function deleteVoluntario(id) { return deleteRecord('api/voluntarios', id); }
+async function postVoluntario(datos) { return createRecord('voluntarios', datos); }
+async function putVoluntario(id, datos) { return updateRecord('voluntarios', id, datos); }
+async function deleteVoluntario(id) { return deleteRecord('voluntarios', id); }
 
 async function postEntidad(datos) { return createRecord('entidades', datos); }
 async function putEntidad(id, datos) { return updateRecord('entidades', id, datos); }
 async function deleteEntidad(id) { return deleteRecord('entidades', id); }
 
 async function postTienda(datos) { return createRecord('tiendas', datos); }
-async function putTienda(id, datos) { return updateRecord('tiendas', id, datos); }
-async function deleteTienda(id) { return deleteRecord('tiendas', id); }
+async function putTienda(id, datos) { return updateRecord('api/tiendas', id, datos); }
+async function deleteTienda(id) { return deleteRecord('api/tiendas', id); }
 
-async function postTurno(datos) { return createRecord('api/turnos', datos); }
-async function putTurno(id, datos) { return updateRecord('api/turnos', id, datos); }
-async function deleteTurno(id) { return deleteRecord('api/turnos', id); }
+async function postTurno(datos) { return createRecord('turnos', datos); }
+async function putTurno(id, datos) { return updateRecord('turnos', id, datos); }
+async function deleteTurno(id) { return deleteRecord('turnos', id); }
 
 async function postCampania(datos) { return createRecord('campanias', datos); }
 async function putCampania(id, datos) { return updateRecord('campanias', id, datos); }
 async function deleteCampania(id) { return deleteRecord('campanias', id); }
 
-async function postSchedule(datos) { return createRecord('api/schedule', datos); }
-async function putSchedule(id, datos) { return updateRecord('api/schedule', id, datos); }
-async function deleteSchedule(id) { return deleteRecord('api/schedule', id); }
+async function postSchedule(datos) { return createRecord('schedule', datos); }
+async function putSchedule(id, datos) { return updateRecord('schedule', id, datos); }
+async function deleteSchedule(id) { return deleteRecord('schedule', id); }
 
 // POST /auth/login — devuelve { success, token, user }
 async function login(email, password) {

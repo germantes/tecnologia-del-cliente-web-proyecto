@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { getAuthHeaders } from './session.js';
+import { getAuthHeaders, getPerfil } from './session.js';
 import FormCadena from './FormCadena';
 import FormCampania from './FormCampania';
 import FormZona from './FormZona';
@@ -99,6 +99,30 @@ function EditPage() {
         window.location.href = redirects[entityType] || '/homepage';
     };
 
+    const isAdmin = getPerfil() === 'ADMINISTRADOR';
+
+    const handleDelete = async (entityType) => {
+        const labels = { campania: 'campaña', cadena: 'cadena' };
+        const label = labels[entityType] || 'registro';
+        const redirects = { campania: '/campanias', cadena: '/cadenas' };
+        const endpoints = { campania: `/api/campanias/${id}`, cadena: `/api/cadenas/${id}` };
+
+        if (!window.confirm(`¿Estás seguro de que deseas eliminar esta ${label}?`)) return;
+        try {
+            const response = await fetch(endpoints[entityType], {
+                method: 'DELETE',
+                headers: getAuthHeaders(),
+            });
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.message || 'Error al eliminar');
+            }
+            window.location.href = redirects[entityType] || `/${entityType}`;
+        } catch (err) {
+            alert('Error al eliminar: ' + err.message);
+        }
+    };
+
     if (loading) {
         return (
             <main style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
@@ -131,6 +155,8 @@ function EditPage() {
                     onClose={handleClose}
                     existingCadenas={existingRecords}
                     onCadenaCreated={handleSuccess}
+                    showDelete={isAdmin && !!id}
+                    onDelete={() => handleDelete('cadena')}
                 />
             );
         
@@ -140,6 +166,8 @@ function EditPage() {
                     initialData={entityData}
                     onClose={handleClose}
                     onCampaniaCreated={handleSuccess}
+                    showDelete={isAdmin && !!id}
+                    onDelete={() => handleDelete('campania')}
                 />
             );
         

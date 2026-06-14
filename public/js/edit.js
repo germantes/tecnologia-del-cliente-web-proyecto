@@ -1,3 +1,83 @@
+async function comprobarDependencias(type, id) {
+    if (typeof SCHEMAS === 'undefined' || !SCHEMAS[type]) return false;
+    const pkField = SCHEMAS[type].find(f => f.key.startsWith('id_') || f.key === 'id')?.key;
+    if (!pkField) return false;
+
+    for (const [otherType, otherSchema] of Object.entries(SCHEMAS)) {
+        if (otherType === type) continue;
+        if (!otherSchema.some(f => f.key === pkField)) continue;
+
+        const fnName = `get${otherType.charAt(0).toUpperCase()}${otherType.slice(1)}`;
+        const camelCasePk = pkField.replace(/_([a-z])/g, g => g[1].toUpperCase());
+        const getRecordsFn = typeof window[fnName] === 'function' ? window[fnName] : (params) => getRecords(otherType, params);
+        const dependientes = await getRecordsFn({ [camelCasePk]: id }).catch(() => []);
+
+        if (dependientes && dependientes.length > 0) {
+            alert(`No se puede eliminar. Hay ${dependientes.length} registro(s) en '${otherType}' que dependen de este elemento. Reasígnelos o elimínelos primero.`);
+            return true;
+        }
+    }
+    return false;
+}
+
+function mostrarAlerta(mensaje, tipo) {
+    const alertContainer = document.getElementById('alert-container');
+    if (!alertContainer) return;
+    alertContainer.textContent = '';
+    const div = document.createElement('div');
+    if (tipo === 'success') {
+        div.style.cssText = 'background-color: #e6ffe6; color: #2d862d; text-align: center; font-size: 1.1rem; font-weight: bold; padding: 15px; border-bottom: 2px solid #2d862d;';
+    } else {
+        div.className = 'error-banner';
+    }
+    div.textContent = mensaje;
+    alertContainer.appendChild(div);
+}
+
+function procesarFormData(formData, originalData, id) {
+    const updatedData = {};
+    for (const [key, val] of formData.entries()) {
+        let parsedVal = val;
+        if (val === '') {
+            if (!id && (key.startsWith('id_') || key === 'id')) continue;
+            if (id && key === 'password') continue;
+            parsedVal = null;
+        } else if (val === 'true') parsedVal = true;
+        else if (val === 'false') parsedVal = false;
+        else if (typeof originalData[key] === 'number') parsedVal = Number(val);
+        updatedData[key] = parsedVal;
+    }
+    return updatedData;
+}
+
+function configurarDistritoCondicional() {
+    const localidadInput = document.getElementById('localidad');
+    const distritoInput = document.getElementById('distrito');
+    if (!localidadInput || !distritoInput) return;
+
+    const toggleDistrito = () => {
+        const loc = (localidadInput.value || '').trim().toLowerCase();
+        const isMalaga = loc === 'málaga' || loc === 'malaga';
+        distritoInput.disabled = !isMalaga;
+        if (!isMalaga) distritoInput.value = '';
+    };
+
+    localidadInput.addEventListener('change', toggleDistrito);
+    toggleDistrito();
+}
+
+function mostrarError(mensaje) {
+    const formFields = document.getElementById('form-fields');
+    formFields.textContent = '';
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = 2;
+    td.style.cssText = 'color: #d46262; text-align: center; padding: 20px; font-weight: bold;';
+    td.textContent = mensaje;
+    tr.appendChild(td);
+    formFields.appendChild(tr);
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const type = urlParams.get('type');
@@ -25,14 +105,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Al quitar la verificación de "!id", permitimos usar este script para la Creación.
     if (!canAccess || !type || !allowedResources.has(type)) {
-        formFields.textContent = '';
-        const tr = document.createElement('tr');
-        const td = document.createElement('td');
-        td.colSpan = 2;
-        td.style.cssText = 'color: #d46262; text-align: center; padding: 20px; font-weight: bold;';
-        td.textContent = 'Error: acceso no autorizado o recurso no válido.';
-        tr.appendChild(td);
-        formFields.appendChild(tr);
+        mostrarError('Error: acceso no autorizado o recurso no válido.');
         return;
     }
 
@@ -217,22 +290,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         saveBtn.disabled = false;
 
-        // Lógica condicional específica para Zonas (CP)
-        const localidadInput = document.getElementById('localidad');
-        const distritoInput = document.getElementById('distrito');
-
-        if (localidadInput && distritoInput) {
-            const toggleDistrito = () => {
-                const loc = (localidadInput.value || '').trim().toLowerCase();
-                // Aceptamos "Málaga" con o sin tilde
-                const isMalaga = loc === 'málaga' || loc === 'malaga';
-                distritoInput.disabled = !isMalaga;
-                if (!isMalaga) distritoInput.value = '';
-            };
-
-            localidadInput.addEventListener('change', toggleDistrito);
-            toggleDistrito(); // Ejecutamos al inicio para establecer el estado correcto
-        }
+        configurarDistritoCondicional();
 
         // Agregar botón de eliminar si es admin y estamos editando un registro existente
         if (isAdmin && id) {
@@ -241,54 +299,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             deleteBtn.className = 'btn-eliminar';
             deleteBtn.textContent = 'Eliminar';
             deleteBtn.addEventListener('click', async () => {
-                if (confirm(`¿Estás seguro de que deseas eliminar este registro de ${type}?`)) {
-                    try {
-                        // Validación preventiva dinámica basada en los esquemas (SCHEMAS)
-                        if (typeof SCHEMAS !== 'undefined' && SCHEMAS[type]) {
-                            // 1. Identificamos la clave primaria del tipo actual (ej. 'id_entidad' para 'entidades')
-                            const pkField = SCHEMAS[type].find(f => f.key.startsWith('id_') || f.key === 'id')?.key;
-
-                            if (pkField) {
-                                // 2. Buscamos qué otros esquemas usan esta clave como clave foránea
-                                for (const [otherType, otherSchema] of Object.entries(SCHEMAS)) {
-                                    if (otherType === type) continue;
-
-                                    const isDependent = otherSchema.some(f => f.key === pkField);
-                                    if (isDependent) {
-                                        const fnName = `get${otherType.charAt(0).toUpperCase()}${otherType.slice(1)}`;
-                                        const camelCasePk = pkField.replace(/_([a-z])/g, g => g[1].toUpperCase()); // Convierte 'id_entidad' a 'idEntidad'
-
-                                        // Llamamos a la API usando la función específica (ej. getVoluntarios) o el fallback
-                                        const getRecordsFn = typeof window[fnName] === 'function' ? window[fnName] : (params) => getRecords(otherType, params);
-                                        const dependientes = await getRecordsFn({ [camelCasePk]: id }).catch(() => []);
-
-                                        if (dependientes && dependientes.length > 0) {
-                                            alert(`No se puede eliminar. Hay ${dependientes.length} registro(s) en '${otherType}' que dependen de este elemento. Reasígnelos o elimínelos primero.`);
-                                            return; // Detenemos la eliminación
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        await deleteRecord(type, id);
-                        window.location.href = (typeof SCHEMAS !== 'undefined' && SCHEMAS[type]) ? `/html/${type}.html` : '/html/index.html';
-                    } catch (err) {
-                        alert('Error al eliminar: ' + err.message);
-                    }
+                if (!confirm(`¿Estás seguro de que deseas eliminar este registro de ${type}?`)) return;
+                try {
+                    if (await comprobarDependencias(type, id)) return;
+                    await deleteRecord(type, id);
+                    window.location.href = (typeof SCHEMAS !== 'undefined' && SCHEMAS[type]) ? `/html/${type}.html` : '/html/index.html';
+                } catch (err) {
+                    alert('Error al eliminar: ' + err.message);
                 }
             });
             saveBtn.parentNode.appendChild(deleteBtn);
         }
     } catch (err) {
-        formFields.textContent = '';
-        const tr = document.createElement('tr');
-        const td = document.createElement('td');
-        td.colSpan = 2;
-        td.style.cssText = 'color: #d46262; text-align: center; padding: 20px; font-weight: bold;';
-        td.textContent = `Error: ${err.message}`;
-        tr.appendChild(td);
-        formFields.appendChild(tr);
+        mostrarError(`Error: ${err.message}`);
         return;
     }
 
@@ -301,25 +324,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         spinner.className = 'btn-spinner';
         saveBtn.prepend(spinner);
 
-        alertContainer.textContent = '';
-
-        const formData = new FormData(editForm);
-        const updatedData = {}; // Solo enviamos lo que hay en el form (evita enviar campos virtuales cacheados)
-
-        for (const [key, val] of formData.entries()) {
-            let parsedVal = val;
-            if (val === '') {
-                // Al crear, omitimos los campos ID vacíos para evitar errores de llave primaria
-                if (!id && (key.startsWith('id_') || key === 'id')) continue;
-                // Si estamos editando y la contraseña está vacía, la omitimos para no borrar la actual
-                if (id && key === 'password') continue;
-                parsedVal = null; // Convierte campos vacíos a null para que Supabase no dé error de tipo
-            } else if (val === 'true') parsedVal = true;
-            else if (val === 'false') parsedVal = false;
-            else if (typeof originalData[key] === 'number') parsedVal = Number(val);
-
-            updatedData[key] = parsedVal;
-        }
+        const updatedData = procesarFormData(new FormData(editForm), originalData, id);
 
         try {
             if (id) {
@@ -327,18 +332,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 await createRecord(type, updatedData);
             }
-
-            alertContainer.textContent = '';
-            const successAlert = document.createElement('div');
-            successAlert.style.cssText = 'background-color: #e6ffe6; color: #2d862d; text-align: center; font-size: 1.1rem; font-weight: bold; padding: 15px; border-bottom: 2px solid #2d862d;';
-            successAlert.textContent = 'Guardado correctamente.';
-            alertContainer.appendChild(successAlert);
+            mostrarAlerta('Guardado correctamente.', 'success');
         } catch (err) {
-            alertContainer.textContent = '';
-            const errorAlert = document.createElement('div');
-            errorAlert.className = 'error-banner';
-            errorAlert.textContent = err.message;
-            alertContainer.appendChild(errorAlert);
+            mostrarAlerta(err.message, 'error');
         } finally {
             saveBtn.disabled = false;
             saveBtn.textContent = originalBtnText;

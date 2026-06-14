@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { getAuthHeaders, getPerfil } from './session.js'
+import { getFirstValue, cleanDisplayName } from '../utils/helpers'
 import '../styles/sugerencias.css'
 
 const API_BASE = typeof window !== 'undefined' && window.API_URL
@@ -70,19 +71,6 @@ function formatValue(value) {
     return String(value)
 }
 
-function getFirstValue(obj, fields) {
-    for (const f of fields) {
-        if (obj[f] !== undefined && obj[f] !== null && obj[f] !== '') return String(obj[f]).trim()
-    }
-    return null
-}
-
-function cleanDisplayName(value) {
-    if (value === null || value === undefined) return null
-    const name = String(value).split(/\\n|\r?\n/)[0].trim()
-    return name || null
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Configuración de visualización de campos (Tu "switch" gigante)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -136,10 +124,6 @@ function getFieldLabel(key) {
 const ENTITY_FIELD_SETS = {
     tienda: [
         'domicilio', 'cp', 'id_cadena', 'id_tienda'
-    ],
-    // TODO: Alex que toque esto que yo no tengo ni idea de como va
-    zonas: [
-        "id_usuario", 'nombre_completo', 'email', 'telefono', 'rol', 'domicilio', "cp"
     ],
     voluntario: [
         'nombre', 'apellido_1', 'apellido_2', 'email', 'id_entidad'
