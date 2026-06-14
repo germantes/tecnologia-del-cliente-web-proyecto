@@ -76,6 +76,12 @@ function getFirstValue(obj, fields) {
     return null
 }
 
+function cleanDisplayName(value) {
+    if (value === null || value === undefined) return null
+    const name = String(value).split(/\\n|\r?\n/)[0].trim()
+    return name || null
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Configuración de visualización de campos (Tu "switch" gigante)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -276,7 +282,26 @@ function getEntityDisplayName(tipoEntidad, entity) {
     if (!entity) return null
     const config = ENTITY_ENDPOINTS[tipoEntidad?.toLowerCase()]
     if (!config) return null
-    return getFirstValue(entity, config.nameField)
+    return cleanDisplayName(getFirstValue(entity, config.nameField))
+}
+
+async function getOriginalEntityName(tipoEntidad, original) {
+    if (!original) return null
+
+    if (tipoEntidad === 'entidad') {
+        return getEntityDisplayName('entidad', original)
+    }
+
+    const serializedOriginal = Object.values(original).map(String).join('\n')
+    const serializedEntityId = serializedOriginal.match(/(?:id_entidad|idEntidad)\s*[=:]\s*(\d+)/i)?.[1]
+    const entityId = original.id_entidad ?? original.idEntidad ?? serializedEntityId
+
+    if (entityId !== undefined && entityId !== null) {
+        const entidad = await fetchOriginalEntity('entidad', entityId)
+        return getEntityDisplayName('entidad', entidad)
+    }
+
+    return null
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -395,7 +420,8 @@ function SugerenciaDetalle() {
                 if (!active) return
 
                 // Nombre de entidad para metadatos
-                const displayName = getEntityDisplayName(tipoEntidad, original)
+                const displayName = await getOriginalEntityName(tipoEntidad, original)
+                if (!active) return
                 setEntityDisplayName(displayName)
 
                 // Detectar qué resolvers FK necesitamos
@@ -460,7 +486,7 @@ function SugerenciaDetalle() {
         : '-'
 
     return (
-        <main className="main sugerencias-main">
+        <main className="main sugerencias-main sugerencias-detalle-main">
             <div className="page-header">
                 <div>
                     <h1 className="page-title">Detalle de Sugerencia</h1>
@@ -488,9 +514,9 @@ function SugerenciaDetalle() {
                         <div><strong>Tipo entidad:</strong> {entityLabel}</div>
                         <div>
                             <strong>Entidad original:</strong>{' '}
-                            {entityDisplayName
-                                ? entityDisplayName
-                                : sugerencia.id_entidad_original ?? '-'}
+                            <span className="entidad-original">
+                                {entityDisplayName || 'No disponible'}
+                            </span>
                         </div>
                         <div><strong>Propuesto por:</strong> {renderUserName(sugerencia.id_propuesto_por)}</div>
                         <div><strong>Fecha propuesta:</strong> {formatDate(sugerencia.fecha_propuesta)}</div>

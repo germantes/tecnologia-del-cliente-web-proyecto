@@ -16,6 +16,10 @@
     box-sizing: border-box;
 }
 
+.sugerencias-main.sugerencias-detalle-main {
+    max-width: 1200px;
+}
+
 .sugerencias-main .page-header {
     display: flex;
     align-items: flex-start;
@@ -186,6 +190,12 @@
     border: 1px solid #dddddd;
     border-radius: 8px;
     font-family: 'Poppins', sans-serif;
+}
+
+.entidad-original {
+    color: var(--graphite);
+    text-decoration: none;
+    overflow-wrap: anywhere;
 }
 
 .estado-badge {
