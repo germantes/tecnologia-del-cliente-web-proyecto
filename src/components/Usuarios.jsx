@@ -86,9 +86,7 @@ export default function Usuarios() {
             </header>
 
             <div className="crear-container">
-                <Link to="/usuarios/crear" style={{ textDecoration: 'none' }}>
-                    <button type="button" className="btn-crear">Crear Usuario</button>
-                </Link>
+                <Link to="/usuarios/crear" className="btn-crear">Crear Usuario</Link>
             </div>
 
             <div className="usuarios-grid">

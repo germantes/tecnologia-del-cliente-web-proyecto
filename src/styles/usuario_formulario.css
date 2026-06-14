@@ -125,8 +125,10 @@
 }
 
 /* Estilo base unificado para los botones de Guardar y Cerrar/Cancelar */
-.btn-guardar, .btn-cerrar {
+.botones-form .btn-guardar,
+.botones-form a.btn-cerrar {
     background-color: var(--sky-surge);
+    color: var(--white);
     border: none;
     min-width: 170px;
     min-height: 52px;
@@ -142,25 +144,30 @@
     text-decoration: none;
     box-shadow: 0 6px 14px rgba(88, 185, 218, 0.35);
     transition: all 0.2s ease;
-
-    /* CORRECCIÓN: Fuerza el color blanco para evitar que los Links de React lo alteren */
-    color: var(--white) !important;
 }
 
 /* Estado hover interactivo con inversión de color a tono oscuro */
-.btn-guardar:hover, .btn-cerrar:hover {
+.botones-form .btn-guardar:hover,
+.botones-form a.btn-cerrar:hover {
     background-color: var(--twilight-indigo);
+    color: var(--white);
+    text-decoration: none;
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(50, 50, 102, 0.28);
-
-    /* CORRECCIÓN: Garantiza la permanencia del color blanco sobre el fondo oscuro */
-    color: var(--white) !important;
 }
 
-/* Botón destructivo para la eliminación física de registros */
+.botones-form .btn-guardar:focus,
+.botones-form .btn-guardar:active,
+.botones-form a.btn-cerrar:focus,
+.botones-form a.btn-cerrar:active,
+.botones-form a.btn-cerrar:visited {
+    color: var(--white);
+    text-decoration: none;
+}
+
 .btn-eliminar {
     background-color: #d46262;
-    color: var(--white) !important;
+    color: var(--white);
     border: none;
     min-width: 170px;
     min-height: 52px;
@@ -182,5 +189,5 @@
     background-color: #b54a4a;
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(212, 98, 98, 0.4);
-    color: var(--white) !important;
+    color: var(--white);
 }

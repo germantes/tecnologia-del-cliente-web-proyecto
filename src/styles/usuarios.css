@@ -17,9 +17,9 @@
 /* Contenedor raíz de ancho completo para la gestión de usuarios */
 .usuarios-main {
     width: 100%;
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
@@ -30,7 +30,7 @@
     width: 100%;
     background-color: var(--twilight-indigo);
     padding: 40px 20px;
-    margin: 0 0 40px 0 !important;
+    margin: 0 0 40px 0;
     box-sizing: border-box;
     text-align: center;
 }
@@ -132,7 +132,7 @@
    ========================================================================== */
 
 /* Botón de acceso a la pantalla de Modificación */
-.btn-editar {
+.botones-card a.btn-editar {
     background-color: var(--sky-surge);
     border: none;
     padding: 8px 15px;
@@ -147,36 +147,39 @@
     box-shadow: 0 4px 10px rgba(88, 185, 218, 0.35);
     transition: all 0.2s ease;
     min-width: 120px;
+    color: var(--white);
     text-decoration: none;
-
-    /* CORRECCIÓN: Fuerza color de texto blanco mitigando herencia azul de tags <a> */
-    color: var(--white) !important;
 }
 
 /* Transición cromática interactiva hacia tono corporativo oscuro */
-.btn-editar:hover {
+.botones-card a.btn-editar:hover,
+.botones-card a.btn-editar:focus {
     background-color: var(--twilight-indigo);
+    color: var(--white);
+    text-decoration: none;
     transform: translateY(-2px);
     box-shadow: 0 8px 15px rgba(50, 50, 102, 0.28);
+}
 
-    /* CORRECCIÓN: Mantiene el contraste blanco sobre el fondo índigo */
-    color: var(--white) !important;
+.botones-card a.btn-editar:visited {
+    color: var(--white);
+    text-decoration: none;
 }
 
 /* Botón primario de alta masiva de usuarios */
-.btn-crear {
+.crear-container a.btn-crear {
     background-color: var(--sky-surge);
-    color: var(--white) !important;
+    color: var(--white);
     border: none;
-    min-width: 220px;
-    min-height: 52px;
-    padding: 8px 26px;
+    min-width: 240px;
+    min-height: 56px;
+    padding: 10px 28px;
     border-radius: 10px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-family: var(--font-main);
-    font-size: 1.45rem;
+    font-size: 1.4rem;
     font-weight: 800;
     line-height: 1;
     cursor: pointer;
@@ -185,11 +188,18 @@
     text-decoration: none;
 }
 
-.btn-crear:hover {
+.crear-container a.btn-crear:hover,
+.crear-container a.btn-crear:focus {
     background-color: var(--twilight-indigo);
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(50, 50, 102, 0.28);
-    color: var(--white) !important;
+    color: var(--white);
+    text-decoration: none;
+}
+
+.crear-container a.btn-crear:visited {
+    color: var(--white);
+    text-decoration: none;
 }
 
 /* ==========================================================================
