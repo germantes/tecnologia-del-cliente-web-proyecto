@@ -139,6 +139,8 @@
 
 .btn-editar:hover {
     background-color: var(--twilight-indigo);
+    color: var(--white);
+    text-decoration: none;
     transform: translateY(-2px);
     box-shadow: 0 8px 15px rgba(50, 50, 102, 0.28);
 }

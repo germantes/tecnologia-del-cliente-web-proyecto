@@ -105,7 +105,7 @@
 
 .btn-guardar, .btn-cerrar {
     background-color: var(--sky-surge);
-    color: var(--white);
+    color: var(--white) !important;
     border: none;
     min-width: 170px;
     min-height: 52px;
@@ -118,15 +118,26 @@
     font-size: 1.25rem;
     font-weight: 800;
     cursor: pointer;
-    text-decoration: none;
+    text-decoration: none !important;
     box-shadow: 0 6px 14px rgba(88, 185, 218, 0.35);
     transition: all 0.2s ease;
 }
 
 .btn-guardar:hover, .btn-cerrar:hover {
     background-color: var(--twilight-indigo);
+    color: var(--white) !important;
+    text-decoration: none !important;
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(50, 50, 102, 0.28);
+}
+
+.btn-guardar:focus,
+.btn-guardar:active,
+.btn-cerrar:focus,
+.btn-cerrar:active,
+.btn-cerrar:visited {
+    color: var(--white) !important;
+    text-decoration: none !important;
 }
 
 .btn-eliminar {
