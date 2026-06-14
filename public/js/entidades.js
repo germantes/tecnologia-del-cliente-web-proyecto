@@ -123,7 +123,7 @@ function renderizarEntidades(entidades) {
                 </div>
                 <div class="card-buttons">
                     <button type="button" onclick="abrirInfoEntidad(${idEntidad})">+info</button>
-                    <button type="button" onclick="window.location.href='/html/edit.html?type=entidades&id=${idEntidad}'">Editar</button>
+                    ${getPerfil() === 'ADMINISTRADOR' ? `<button type="button" onclick="window.location.href='/html/edit.html?type=entidades&id=${idEntidad}'">Editar</button>` : ''}
                 </div>
             </div>
         `;

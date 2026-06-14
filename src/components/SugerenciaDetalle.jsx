@@ -62,7 +62,8 @@ function formatDate(value) {
 }
 
 function formatValue(value) {
-    if (value === null || value === undefined || value === '') return '-'
+    if (value === null || value === undefined) return '-'
+    if (value === '') return ''
     if (typeof value === 'object') {
         try { return JSON.stringify(value, null, 2) } catch { return String(value) }
     }
@@ -238,7 +239,8 @@ async function buildFkResolvers(neededTypes) {
 }
 
 function resolveValue(fieldName, rawValue, resolvers) {
-    if (rawValue === null || rawValue === undefined || rawValue === '') return '-';
+    if (rawValue === null || rawValue === undefined) return '-';
+    if (rawValue === '') return '';
     const entityType = FK_FIELDS[fieldName];
 
     if (typeof rawValue === 'object') {

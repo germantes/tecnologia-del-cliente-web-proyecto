@@ -145,7 +145,7 @@ function renderizarVoluntarios(voluntarios) {
         </div>
         <div class="card-buttons">
           <button type="button" onclick="abrirInfoVoluntario(${idVoluntario})">+info</button>
-          <button type="button" onclick="window.location.href='edit.html?type=voluntarios&id=${idVoluntario}'">Editar</button>
+          ${getPerfil() === 'ADMINISTRADOR' ? `<button type="button" onclick="window.location.href='edit.html?type=voluntarios&id=${idVoluntario}'">Editar</button>` : ''}
         </div>
       </div>
     `;

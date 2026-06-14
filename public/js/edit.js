@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     input.value = ''; // Nunca mostramos el hash de la BD
                     if (id) input.placeholder = 'Dejar en blanco para mantener la actual';
                 } else {
-                    input.value = String(value);
+                    input.value = value === null || value === undefined ? '' : String(value);
                 }
 
                 if (field.required && !isReadOnly) input.required = true;

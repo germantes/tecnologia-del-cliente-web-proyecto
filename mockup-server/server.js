@@ -269,6 +269,7 @@ function filterTurnos(rows, query) {
     if (query.idTurno && !sameNumberOrString(getIdTurno(row), query.idTurno)) return false;
     if ((query.idTienda || query.id) && !sameNumberOrString(getIdTienda(row), query.idTienda || query.id)) return false;
     if (query.idCampania && !sameNumberOrString(getIdCampania(row), query.idCampania)) return false;
+    if (query.idEntidad && !sameNumberOrString(getIdEntidad(row), query.idEntidad)) return false;
     if (query.fecha && str(getFecha(row)) !== str(query.fecha)) return false;
     if (query.turno && normalizeTurno(getTipoTurno(row)) !== normalizeTurno(query.turno)) return false;
     return true;
@@ -1036,10 +1037,28 @@ app.post('/tiendas', requireAuth, async (req, res) => {
   try { res.json((await insertRows('tienda', [req.body]))[0]); } catch (e) { sendError(res, e, 'Error creando tienda'); }
 });
 app.post('/entidades', requireAuth, async (req, res) => {
-  try { res.json((await insertRows('entidad', [req.body]))[0]); } catch (e) { sendError(res, e, 'Error creando entidad'); }
+  try {
+    const codigo = req.body.codigo_bancosol;
+    if (codigo) {
+      const existing = await fetchAll('entidad').catch(() => []);
+      if (existing.some(e => e.codigo_bancosol === codigo)) {
+        return res.status(409).json({ message: `El código Bancosol '${codigo}' ya está asignado a otra entidad.` });
+      }
+    }
+    res.json((await insertRows('entidad', [req.body]))[0]);
+  } catch (e) { sendError(res, e, 'Error creando entidad'); }
 });
 app.put('/entidades/:id', requireAuth, async (req, res) => {
-  try { res.json((await updateRows('entidad', 'id_entidad', req.params.id, req.body))[0]); } catch (e) { sendError(res, e, 'Error actualizando entidad'); }
+  try {
+    const codigo = req.body.codigo_bancosol;
+    if (codigo) {
+      const existing = await fetchAll('entidad').catch(() => []);
+      if (existing.some(e => String(e.id_entidad) !== String(req.params.id) && e.codigo_bancosol === codigo)) {
+        return res.status(409).json({ message: `El código Bancosol '${codigo}' ya está asignado a otra entidad.` });
+      }
+    }
+    res.json((await updateRows('entidad', 'id_entidad', req.params.id, req.body))[0]);
+  } catch (e) { sendError(res, e, 'Error actualizando entidad'); }
 });
 app.delete('/entidades/:id', requireAuth, async (req, res) => {
   try { res.json(await deleteRows('entidad', 'id_entidad', req.params.id)); } catch (e) { sendError(res, e, 'Error eliminando entidad'); }
