@@ -168,6 +168,10 @@ function Zonas() {
         window.location.href = '/edit/zona';
     };
 
+    const handleEdit = (zona) => {
+        window.location.href = `/edit/zona?cp=${zona.cp}`;
+    };
+
     const handleViewStores = (zona) => {
         const idZona = zona.id_zona ?? zona.zona?.id_zona;
 
@@ -240,6 +244,7 @@ function Zonas() {
                             key={zona.cp}
                             zona={zona}
                             onViewStores={handleViewStores}
+                            onEdit={handleEdit}
                         />
                     ))}
                 </div>

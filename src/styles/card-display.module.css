@@ -108,6 +108,17 @@ button:hover {
   box-shadow: 0 8px 16px rgba(50, 50, 102, 0.25);
 }
 
+.btn-edit {
+  border-radius: 8px;
+  box-shadow: 0 6px 14px rgba(88, 185, 218, 0.35);
+}
+
+.btn-edit:hover {
+  background-color: var(--twilight-indigo);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(50, 50, 102, 0.28);
+}
+
 .grid {
   width: 80%;
   display: flex;
@@ -164,6 +175,7 @@ button:hover {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  gap: 12px;
   padding: 20px;
 }
 

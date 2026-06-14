@@ -1,8 +1,10 @@
 import cardStyles from '../styles/card-display.module.css';
+import { getPerfil } from './session.js';
 
-function ZonaCard({ zona, onViewStores }) {
+function ZonaCard({ zona, onViewStores, onEdit }) {
     const nombreDistrito = zona.distrito?.nombre_distrito || '-';
     const zonaGeografica = zona.zona?.zona_geografica || zona.zona_geografica || '-';
+    const rol = getPerfil();
 
     return (
         <div className={cardStyles['card']}>
@@ -31,6 +33,15 @@ function ZonaCard({ zona, onViewStores }) {
                 >
                     Ver Tiendas
                 </button>
+                {rol === 'ADMINISTRADOR' && (
+                    <button
+                        type="button"
+                        className={cardStyles['btn-edit']}
+                        onClick={() => onEdit(zona)}
+                    >
+                        Editar
+                    </button>
+                )}
             </div>
         </div>
     );
