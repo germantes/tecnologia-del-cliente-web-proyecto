@@ -3,6 +3,10 @@ import { Link, useParams } from 'react-router-dom'
 import { getAuthHeaders, getPerfil } from './session.js'
 import '../styles/sugerencias.css'
 
+const API_BASE = typeof window !== 'undefined' && window.API_URL
+    ? window.API_URL
+    : 'http://localhost:3000'
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Configuración de entidades
 // ─────────────────────────────────────────────────────────────────────────────
@@ -175,7 +179,7 @@ async function fetchEntityIndex(entityType) {
     const config = ENTITY_ENDPOINTS[entityType]
     if (!config) return {}
     try {
-        const resp = await fetch(config.endpoint, { headers: getAuthHeaders() })
+        const resp = await fetch(`${API_BASE}${config.endpoint}`, { headers: getAuthHeaders() })
         if (!resp.ok) return {}
         const data = await resp.json()
         const index = {}
@@ -199,7 +203,7 @@ async function fetchEntityIndex(entityType) {
 
 async function fetchCpIndex() {
     try {
-        const resp = await fetch('/api/cp', { headers: getAuthHeaders() })
+        const resp = await fetch(`${API_BASE}/api/cp`, { headers: getAuthHeaders() })
         if (!resp.ok) return {}
         const data = await resp.json()
         const index = {}
@@ -249,9 +253,6 @@ function resolveValue(fieldName, rawValue, resolvers) {
         return formatValue(rawValue);
     }
 
-    const config = ENTITY_ENDPOINTS[entityType];
-    const urlType = config?.endpoint?.split('/')[2]; // ej: /api/usuarios -> usuarios
-
     return resolvedName;
 }
 
@@ -263,7 +264,7 @@ async function fetchOriginalEntity(tipoEntidad, idOriginal) {
     const config = ENTITY_ENDPOINTS[tipoEntidad?.toLowerCase()]
     if (!config) return null
     try {
-        const resp = await fetch(config.endpoint, { headers: getAuthHeaders() })
+        const resp = await fetch(`${API_BASE}${config.endpoint}`, { headers: getAuthHeaders() })
         if (!resp.ok) return null
         const data = await resp.json()
         const rows = Array.isArray(data) ? data : []
@@ -344,7 +345,7 @@ function SugerenciaDetalle() {
     const [comparisonRows, setComparisonRows] = useState([])
     const [entityDisplayName, setEntityDisplayName] = useState(null)
     const [userNames, setUserNames] = useState({})
-    const [isAdmin, setIsAdmin] = useState(false)
+    const isAdmin = getPerfil() === 'ADMINISTRADOR'
     const [isProcessing, setIsProcessing] = useState(false)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
@@ -352,13 +353,11 @@ function SugerenciaDetalle() {
     useEffect(() => {
         let active = true
 
-        if (active) setIsAdmin(getPerfil() === 'ADMINISTRADOR')
-
         async function loadDetalle() {
             try {
                 const [sugerenciaResp, usuariosResp] = await Promise.all([
-                    fetch(`/api/sugerencias/${id}`, { headers: getAuthHeaders() }),
-                    fetch('/api/usuarios', { headers: getAuthHeaders() }),
+                    fetch(`${API_BASE}/api/sugerencias/${id}`, { headers: getAuthHeaders() }),
+                    fetch(`${API_BASE}/api/usuarios`, { headers: getAuthHeaders() }),
                 ])
                 if (!active) return
 
@@ -436,7 +435,7 @@ function SugerenciaDetalle() {
         setError('')
 
         try {
-            const resp = await fetch(`/api/sugerencias/${id}`, {
+            const resp = await fetch(`${API_BASE}/api/sugerencias/${id}`, {
                 method: 'PUT',
                 headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
                 body: JSON.stringify({ estado: newState }),
@@ -461,7 +460,7 @@ function SugerenciaDetalle() {
         : '-'
 
     return (
-        <main className="main">
+        <main className="main sugerencias-main">
             <div className="page-header">
                 <div>
                     <h1 className="page-title">Detalle de Sugerencia</h1>

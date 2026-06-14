@@ -23,6 +23,7 @@ class IncludeHTML extends HTMLElement {
             // Aquí los detectamos y los cargamos/ejecutamos en el orden en que aparecen.
             await this._executeIncludedScripts();
 
+            this.prepararEnlacesReact();
             this.marcarElementoActivo();
             this.rellenarAnioActual();
             this.prepararCerrarSesion();
@@ -30,6 +31,22 @@ class IncludeHTML extends HTMLElement {
             console.error(error);
             this.innerHTML = "<p>Error al cargar el componente.</p>";
         }
+    }
+
+    prepararEnlacesReact() {
+        const rutasReact = {
+            campanias: "/campanias",
+            cadenas: "/cadenas",
+        };
+        const origenReact = window.location.hostname === "localhost"
+            || window.location.hostname === "127.0.0.1"
+            ? `${window.location.protocol}//${window.location.hostname}:5173`
+            : window.location.origin;
+
+        Object.entries(rutasReact).forEach(([nav, ruta]) => {
+            const enlace = this.querySelector(`[data-nav="${nav}"]`);
+            if (enlace) enlace.href = `${origenReact}${ruta}`;
+        });
     }
 
     marcarElementoActivo() {
@@ -74,7 +91,7 @@ class IncludeHTML extends HTMLElement {
             try {
                 if (s.src) {
                     // Cargar script externo creando un elemento <script> en el head.
-                    await new Promise((resolve, reject) => {
+                    await new Promise((resolve) => {
                         const script = document.createElement('script');
                         // Mantener el mismo tipo/nomodificaciones si existe
                         if (s.type) script.type = s.type;

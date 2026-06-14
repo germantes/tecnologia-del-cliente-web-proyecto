@@ -3,19 +3,9 @@ import { Link } from 'react-router-dom'
 import { getAuthHeaders } from './session.js'
 import '../styles/sugerencias.css'
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Configuración de entidades (para resolver la entidad original → nombre)
-// ─────────────────────────────────────────────────────────────────────────────
-
-const ENTITY_CONFIG = {
-    cadena: { endpoint: '/api/cadenas', idField: 'id_cadena', nameFields: ['nombre_particular', 'establecimiento'], label: 'Cadena' },
-    campania: { endpoint: '/api/campanias', idField: 'id_campania', nameFields: ['nombre'], label: 'Campaña' },
-    zona: { endpoint: '/api/cp', idField: 'id_zona', nameFields: ['zona_geografica'], label: 'Zona' },
-    entidad: { endpoint: '/api/entidades', idField: 'id_entidad', nameFields: ['nombre'], label: 'Entidad' },
-    tienda: { endpoint: '/api/tiendas', idField: 'id_tienda', nameFields: ['domicilio'], label: 'Tienda' },
-    usuario: { endpoint: '/api/usuarios', idField: 'id_usuario', nameFields: ['nombre_completo', 'nombre'], label: 'Usuario' },
-    voluntario: { endpoint: '/api/voluntarios', idField: 'id_voluntario', nameFields: ['nombre', 'apellido_1'], label: 'Voluntario' },
-}
+const API_BASE = typeof window !== 'undefined' && window.API_URL
+    ? window.API_URL
+    : 'http://localhost:3000'
 
 function formatDate(value) {
     if (!value) return '-'
@@ -27,37 +17,9 @@ function formatDate(value) {
     })
 }
 
-function getFirstValue(obj, fields) {
-    for (const f of fields) {
-        if (obj[f] !== undefined && obj[f] !== null && obj[f] !== '') return String(obj[f]).trim()
-    }
-    return null
-}
-
-// Carga todas las entidades de un tipo y construye un índice id → nombre
-async function buildEntityIndex(tipo) {
-    const config = ENTITY_CONFIG[tipo]
-    if (!config) return {}
-    try {
-        const resp = await fetch(config.endpoint, { headers: getAuthHeaders() })
-        if (!resp.ok) return {}
-        const data = await resp.json()
-        const index = {}
-        for (const row of (Array.isArray(data) ? data : [])) {
-            const id = row[config.idField]
-            if (id !== undefined && id !== null) {
-                index[String(id)] = getFirstValue(row, config.nameFields) ?? `#${id}`
-            }
-        }
-        return index
-    } catch { return {} }
-}
-
 function Sugerencias() {
     const [sugerencias, setSugerencias] = useState([])
     const [userNames, setUserNames] = useState({})
-    // Índice por tipo: { cadena: { '1': 'Mercadona', ... }, campania: {...}, ... }
-    const [entityIndexes, setEntityIndexes] = useState({})
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
 
@@ -67,8 +29,8 @@ function Sugerencias() {
         async function loadSugerencias() {
             try {
                 const [sugResp, usrResp] = await Promise.all([
-                    fetch('/api/sugerencias', { headers: getAuthHeaders() }),
-                    fetch('/api/usuarios', { headers: getAuthHeaders() }),
+                    fetch(`${API_BASE}/api/sugerencias`, { headers: getAuthHeaders() }),
+                    fetch(`${API_BASE}/api/usuarios`, { headers: getAuthHeaders() }),
                 ])
 
                 if (!sugResp.ok) throw new Error(`Error cargando sugerencias (${sugResp.status})`)
@@ -89,20 +51,6 @@ function Sugerencias() {
                 setUserNames(userMap)
                 setSugerencias(sugerenciasData)
 
-                // Detectar qué tipos de entidad hay para precargar sus índices
-                const tiposNecesarios = [...new Set(
-                    sugerenciasData.map((s) => s.tipo_entidad?.toLowerCase()).filter(Boolean)
-                )]
-
-                if (tiposNecesarios.length > 0) {
-                    const indexes = {}
-                    await Promise.all(
-                        tiposNecesarios.map(async (tipo) => {
-                            indexes[tipo] = await buildEntityIndex(tipo)
-                        })
-                    )
-                    if (active) setEntityIndexes(indexes)
-                }
             } catch (err) {
                 if (active) setError(err.message || 'Error cargando sugerencias')
             } finally {
@@ -119,27 +67,11 @@ function Sugerencias() {
         return userNames[String(userId)] || String(userId)
     }
 
-    const renderEntityName = (tipo, idOriginal) => {
-        if (idOriginal === null || idOriginal === undefined) return '-'
-        const config = ENTITY_CONFIG[tipo?.toLowerCase()]
-        const label = config?.label ?? tipo ?? '?'
-        const index = entityIndexes[tipo?.toLowerCase()] ?? {}
-        const name = index[String(idOriginal)]
-        return name ? `${label}: ${name}` : `${label} #${idOriginal}`
-    }
-
-    const renderEntityType = (tipo) => {
-        return ENTITY_CONFIG[tipo?.toLowerCase()]?.label ?? tipo ?? '-'
-    }
-
     return (
-        <main className="main">
+        <main className="main sugerencias-main">
             <div className="page-header">
                 <div>
-                    <h1 className="page-title">Sugerencias de Cambio</h1>
-                    <p className="page-sub">
-                        Listado de sugerencias de cambio registradas en la base de datos.
-                    </p>
+                    <h1 className="page-title">Sugerencias de Cambios</h1>
                 </div>
             </div>
 
@@ -156,28 +88,28 @@ function Sugerencias() {
                     <table className="table">
                         <thead>
                             <tr>
+                                <th>ID</th>
                                 <th>Tipo</th>
-                                <th>Entidad afectada</th>
+                                <th>ID Entidad</th>
                                 <th>Propuesto por</th>
-                                <th>Fecha propuesta</th>
+                                <th>Fecha</th>
                                 <th>Estado</th>
-                                <th>Revisado por</th>
-                                <th>Fecha revisión</th>
-                                <th>Detalle</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             {sugerencias.length === 0 ? (
                                 <tr>
-                                    <td colSpan="8" className="empty-row">
+                                    <td colSpan="7" className="empty-row">
                                         No hay sugerencias registradas.
                                     </td>
                                 </tr>
                             ) : (
                                 sugerencias.map((sug) => (
                                     <tr key={sug.id_sugerencia}>
-                                        <td>{renderEntityType(sug.tipo_entidad)}</td>
-                                        <td>{renderEntityName(sug.tipo_entidad, sug.id_entidad_original)}</td>
+                                        <td>{sug.id_sugerencia}</td>
+                                        <td>{sug.tipo_entidad || '-'}</td>
+                                        <td>{sug.id_entidad_original ?? '-'}</td>
                                         <td>{renderUserName(sug.id_propuesto_por)}</td>
                                         <td>{formatDate(sug.fecha_propuesta)}</td>
                                         <td>
@@ -185,11 +117,9 @@ function Sugerencias() {
                                                 {sug.estado || '-'}
                                             </span>
                                         </td>
-                                        <td>{renderUserName(sug.id_revisado_por)}</td>
-                                        <td>{formatDate(sug.fecha_revision)}</td>
                                         <td>
-                                            <Link to={`/sugerencias/${sug.id_sugerencia}`} className="btn btn-sm btn-outline">
-                                                Ver detalles
+                                            <Link to={`/sugerencias/${sug.id_sugerencia}`} className="link-revisar">
+                                                Ver detalle
                                             </Link>
                                         </td>
                                     </tr>
