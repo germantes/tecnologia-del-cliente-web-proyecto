@@ -1,16 +1,38 @@
-# React + Vite
+# Disclaimer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project was originally developed as part of a university coursework team
 
-Currently, two official plugins are available:
+# Cliente
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Aplicación cliente para el proyecto TCAW.
 
-## React Compiler
+## Descripción
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Este repositorio contiene la interfaz cliente del proyecto, incluyendo la lógica y la presentación necesarias para comunicarse con el servidor.
 
-## Expanding the ESLint configuration
+## Requisitos
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Node.js 18 o superior
+- npm o yarn
+
+## Instalación
+
+```bash
+npm install
+```
+
+## Uso
+
+```bash
+npm start
+```
+
+## Estructura del proyecto
+
+- `src/` - código fuente del cliente
+- `public/` - archivos estáticos
+
+
+## Licencia
+
+MIT
